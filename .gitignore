@@ -134,3 +134,20 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# IDE settings (except shared configs)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# Mac files
+.DS_Store
+
+# Project-specific build directories
+/frontend/build/
+/backend/dist/
+
+
+# React testing
+/frontend/coverage
