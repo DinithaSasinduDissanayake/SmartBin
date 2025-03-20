@@ -14,13 +14,21 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Import routes
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+
+// Use routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'SmartBin API is running' });
 });
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI ;
+const MONGODB_URI = process.env.MONGODB_URI;
 mongoose
   .connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
