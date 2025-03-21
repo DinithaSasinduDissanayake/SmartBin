@@ -148,6 +148,11 @@ dist
 /frontend/build/
 /backend/dist/
 
-
 # React testing
 /frontend/coverage
+
+# Backup and Documentation
+Financial Backup/
+"Financial Backup"/
+**/Financial Backup/
+LLMPrompts.md
