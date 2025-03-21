@@ -16,16 +16,14 @@ function Sidebar() {
     ];
 
     const roleSpecificItems = {
-      citizen: [
+      'Resident/Garbage_Buyer': [
+        // Combine the menu items from both citizen and garbage_buyer
         { path: '/dashboard/collection-history', label: 'Collection History', icon: '📅' },
         { path: '/dashboard/financial-history', label: 'Financial History', icon: '💰' },
         { path: '/dashboard/complaints', label: 'Complaints', icon: '📝' },
         { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: '🚚' },
-      ],
-      garbage_buyer: [
         { path: '/dashboard/available-garbage', label: 'Available Garbage', icon: '♻️' },
         { path: '/dashboard/purchase-history', label: 'Purchase History', icon: '📜' },
-        { path: '/dashboard/financial', label: 'Financial', icon: '💵' },
       ],
       admin: [
         { path: '/dashboard/users', label: 'User Management', icon: '👥' },

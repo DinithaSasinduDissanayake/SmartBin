@@ -9,10 +9,10 @@ function Register() {
     name: '',
     email: '',
     password: '',
-    role: 'citizen' // Default role
+    // No role field here as it will be set by the backend
   });
   const [formError, setFormError] = useState('');
-  const { register, error } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,16 +22,31 @@ function Register() {
     });
   };
 
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    if (name === 'password' && value.length < 8) {
+      setFormError('Password must be at least 8 characters long');
+    } else {
+      setFormError('');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    
+    // Check password length
+    if (formData.password.length < 8) {
+      setFormError('Password must be at least 8 characters long');
+      return;
+    }
     
     try {
       await register(formData);
       navigate('/dashboard');
     } catch (error) {
-      console.error(error); // Log the error for debugging
-      setFormError(error.message || 'Registration failed. Please check your information.');
+      console.error(error);
+      setFormError(error.response?.data?.message || 'Registration failed. Please check your information.');
     }
   };
 
@@ -40,8 +55,8 @@ function Register() {
       <div className="auth-form-container">
         <h2>Create an Account</h2>
         
-        {(formError || error) && (
-          <div className="error-message">{formError || error}</div>
+        {formError && (
+          <div className="error-message" aria-live="assertive">{formError}</div>
         )}
         
         <form onSubmit={handleSubmit}>
@@ -54,6 +69,7 @@ function Register() {
               value={formData.name}
               onChange={handleChange}
               required
+              aria-label="Full Name"
             />
           </div>
           
@@ -66,6 +82,7 @@ function Register() {
               value={formData.email}
               onChange={handleChange}
               required
+              aria-label="Email"
             />
           </div>
           
@@ -77,23 +94,13 @@ function Register() {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              onBlur={handleBlur}
               required
-              minLength="6"
+              minLength="8"
+              aria-label="Password"
+              aria-describedby="passwordHelp"
             />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="role">I am a:</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            >
-              <option value="citizen">Citizen</option>
-              <option value="garbage_buyer">Garbage Buyer</option>
-            </select>
+            <small id="passwordHelp" className="form-text text-muted">Password must be at least 8 characters long and include numbers or symbols for better security.</small>
           </div>
           
           <button type="submit" className="auth-button">Register</button>

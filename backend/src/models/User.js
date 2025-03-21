@@ -1,28 +1,28 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
+const userSchema =  new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a name'],
-    trim: true
+    required: [true, 'Please Enter Your Name'],
+    trim: true,
   },
   email: {
     type: String,
-    required: [true, 'Please add an email'],
+    required: [true, 'Please Enter Your Email'],
     unique: true,
-    match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please add a valid email']
+    match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please enter a valid email']
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
-    minlength: 6,
+    required: [true, 'Please Enter Your Password'],
+    minlength: 8,
     select: false
   },
   role: {
     type: String,
-    enum: ['citizen', 'garbage_buyer', 'staff', 'admin', 'financial_manager'],
-    default: 'citizen'
+    enum: ['Resident/Garbage_Buyer', 'staff', 'admin', 'financial_manager'],
+    default: 'Resident/Garbage_Buyer'
   },
   createdAt: {
     type: Date,
@@ -30,11 +30,12 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Encrypt password using bcrypt
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
+//Encrypting Password Before Saving
+userSchema.pre('save', async function(next){
+  if(!this.isModified('password')){
     next();
   }
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
