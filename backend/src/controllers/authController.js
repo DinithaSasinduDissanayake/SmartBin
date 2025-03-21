@@ -1,6 +1,7 @@
 // backend/src/controllers/authController.js
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs'); // Add bcrypt import
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -53,31 +54,42 @@ exports.registerUser = async (req, res) => {
 // @access  Public
 exports.loginUser = async (req, res) => {
   try {
+    console.log('Login attempt received');
+    
     const { email, password } = req.body;
-
-    // Check for user
-    const user = await User.findOne({ email }).select('+password');
-
+    
+    // IMPORTANT CHANGE: Add .select('+password') to include the password field
+    const user = await User.findOne({ 
+      email: { $regex: new RegExp(`^${email}$`, 'i') } 
+    }).select('+password');
+    
     if (!user) {
+      console.log(`User not found: ${email}`);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-
-    // Check if password matches
+    
+    console.log(`User found: ${user.email}, role: ${user.role}`);
+    
+    // Use the model's matchPassword method instead of direct bcrypt
     const isMatch = await user.matchPassword(password);
-
+    console.log(`Password match result: ${isMatch}`);
+    
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-
+    
+    // Generate token and send response
+    const token = generateToken(user._id);
+    
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
-      token: generateToken(user._id)
+      token
     });
   } catch (error) {
-    console.error(error);
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
