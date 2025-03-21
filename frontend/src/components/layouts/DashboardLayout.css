@@ -1,25 +1,44 @@
 /* frontend/src/components/layouts/DashboardLayout.css */
 .dashboard-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
 .dashboard-main {
   flex: 1;
+  margin-left: 260px; /* Width of sidebar */
   display: flex;
   flex-direction: column;
-  background-color: #f9f9f9;
+  width: calc(100% - 260px); /* Ensure proper width calculation */
+  overflow: hidden;
 }
 
 .dashboard-content-area {
-  padding: 20px;
   flex: 1;
   overflow-y: auto;
+  padding: 20px;
+  background-color: #eaefea;
 }
 
+/* Ensure only one component renders at a time */
 .dashboard-content {
   background-color: white;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Fix header placement */
+.dashboard-main header {
+  width: 100%;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Make main content area take remaining height */
+.dashboard-main main {
+  flex: 1;
 }

@@ -1,6 +1,6 @@
 // frontend/src/components/layouts/DashboardLayout.jsx
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../dashboard/Header';
 import Sidebar from '../dashboard/Sidebar';
@@ -25,12 +25,24 @@ function DashboardLayout() {
             <Route path="/profile" element={<Profile />} />
             
             {/* Add role-specific routes here */}
-            {user?.role === 'citizen' && (
+            {user?.role === 'Resident/Garbage_Buyer' && (
               <>
                 <Route path="/collection-history" element={<div className="dashboard-content"><h2>Collection History</h2></div>} />
                 <Route path="/financial-history" element={<div className="dashboard-content"><h2>Financial History</h2></div>} />
                 <Route path="/complaints" element={<div className="dashboard-content"><h2>Complaints</h2></div>} />
                 <Route path="/pickup-requests" element={<div className="dashboard-content"><h2>Pickup Requests</h2></div>} />
+                <Route path="/available-garbage" element={<div className="dashboard-content"><h2>Available Garbage</h2></div>} />
+                <Route path="/purchase-history" element={<div className="dashboard-content"><h2>Purchase History</h2></div>} />
+              </>
+            )}
+            
+            {/* Financial manager routes */}
+            {user?.role === 'financial_manager' && (
+              <>
+                <Route path="/revenue" element={<div className="dashboard-content"><h2>Revenue Management</h2></div>} />
+                <Route path="/expenses" element={<div className="dashboard-content"><h2>Expense Management</h2></div>} />
+                <Route path="/reports" element={<div className="dashboard-content"><h2>Financial Reports</h2></div>} />
+                <Route path="/add-plans" element={<div className="dashboard-content"><h2>Add Plans</h2></div>} />
               </>
             )}
             

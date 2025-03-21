@@ -14,8 +14,8 @@ function Header() {
       
       <div className="header-right">
         <div className="user-info">
-          <span>{user?.name}</span>
-          <span className="user-role">{user?.role}</span>
+          <span>{user?.name || 'User'}</span>
+          <span className="user-role">{user?.role || 'Guest'}</span>
         </div>
         <button onClick={logout} className="logout-button">Logout</button>
       </div>
