@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../dashboard/Header';
 import Sidebar from '../dashboard/Sidebar';
+import SubscriptionPlans from '../financial/SubscriptionPlans';
 import './DashboardLayout.css';
 
 // Placeholder dashboard components
@@ -39,10 +40,10 @@ function DashboardLayout() {
             {/* Financial manager routes */}
             {user?.role === 'financial_manager' && (
               <>
-                <Route path="/revenue" element={<div className="dashboard-content"><h2>Revenue Management</h2></div>} />
-                <Route path="/expenses" element={<div className="dashboard-content"><h2>Expense Management</h2></div>} />
-                <Route path="/reports" element={<div className="dashboard-content"><h2>Financial Reports</h2></div>} />
-                <Route path="/add-plans" element={<div className="dashboard-content"><h2>Add Plans</h2></div>} />
+                <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+                <Route path="/budget-allocation" element={<div className="dashboard-content"><h2>Budget Allocation</h2></div>} />
+                <Route path="/salary" element={<div className="dashboard-content"><h2>Salary Management</h2></div>} />
+                <Route path="/payments" element={<div className="dashboard-content"><h2>Payments</h2></div>} />
               </>
             )}
             

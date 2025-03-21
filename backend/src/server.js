@@ -17,10 +17,12 @@ app.use(morgan('dev'));
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const subscriptionPlanRoutes = require('./routes/subscriptionPlanRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/subscription-plans', subscriptionPlanRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
