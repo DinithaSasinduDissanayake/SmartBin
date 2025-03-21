@@ -3,22 +3,20 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from '@fortawesome/fontawesome-svg-core';
 import { 
   faFacebook, 
   faInstagram, 
-  faTwitter 
+  faTwitter
 } from "@fortawesome/free-brands-svg-icons";
+
 import {
   faGaugeHigh,
   faFileLines,
-  faCheckSquare,
   faMoneyBillTransfer,
   faUser,
-  faEye,
   faCreditCard,
   faChartLine,
-  faDollarSign,
-  faChartSimple,
   faCalendarDays,
   faMoneyBill,
   faFileSignature,
@@ -31,6 +29,30 @@ import {
   faListCheck,
   faTrophy
 } from "@fortawesome/free-solid-svg-icons";
+
+library.add(
+  faFacebook, 
+  faInstagram, 
+  faTwitter,
+  faGaugeHigh,
+  faFileLines,
+  faMoneyBillTransfer,
+  faUser,
+  faCreditCard,
+  faChartLine,
+  faCalendarDays,
+  faMoneyBill,
+  faFileSignature,
+  faTruck,
+  faRecycle,
+  faScroll,
+  faUsers,
+  faCog,
+  faClipboardList,
+  faListCheck,
+  faTrophy
+);
+
 import './Sidebar.css';
 
 function Sidebar() {
@@ -58,15 +80,11 @@ function Sidebar() {
         { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
         { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
       ],
+      // Maintaining the database role name format (with underscore)
       financial_manager: [
-        { path: '/dashboard/revenue', label: 'Revenue', icon: faChartLine },
-        { path: '/dashboard/expenses', label: 'Expenses', icon: faDollarSign },
-        { path: '/dashboard/reports', label: 'Reports', icon: faChartSimple },
-        { path: '/dashboard/add-plans', label: 'Add Plans', icon: faFileLines },
-        { path: '/dashboard/subscribe-plans', label: 'Subscribe Plans', icon: faCheckSquare },
+        { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
         { path: '/dashboard/budget-allocation', label: 'Budget Allocation', icon: faMoneyBillTransfer },
-        { path: '/dashboard/add-salary', label: 'Add Salary', icon: faUser },
-        { path: '/dashboard/view-salary', label: 'View Salary', icon: faEye },
+        { path: '/dashboard/salary', label: 'Salary', icon: faUser },
         { path: '/dashboard/payments', label: 'Payments', icon: faCreditCard },
       ],
       staff: [
@@ -105,6 +123,7 @@ function Sidebar() {
                 </Link>
               </li>
             ))}
+            {/* Removed duplicate conditional rendering block */}
           </ul>
           
           <div className="bottom-content">
@@ -121,3 +140,5 @@ function Sidebar() {
 }
 
 export default Sidebar;
+
+

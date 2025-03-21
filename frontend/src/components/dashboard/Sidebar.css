@@ -2,215 +2,148 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
 }
 
 body {
-  min-height: 100%;
-  background: #eaefea;
-}
-
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 70px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  background: #cacddd;
-  box-shadow: 0 0 1px rgba(28, 28, 28, 0.1);
-}
-
-nav .logo {
-  display: flex;
-  align-items: center;
-  margin: 0 24px;
-  height: 24px;
-  width: 24px;
-  margin-right: 14px;
-  cursor: pointer;
-}
-
-.logo .logo-name {
-  color: #141a17;
-  font-size: 22px;
-  font-weight: 500;
-  margin-left: 20px;
+    min-height: 100%;
+    background: #f3f5f0;
 }
 
 nav .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 260px;
-  padding: 20px 0;
-  background-color: #a9acbf;
-  box-shadow: 0 5px 1px rgba(27, 27, 27, 0.1);
-  transition: all 0.4s ease;
-  text-decoration: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    padding: 20px 0;
+    background-color: #c3ceb6;
+    box-shadow: 0 5px 1px rgba(27, 27, 27, 0.1);
+    transition: all 0.4s ease;
+    text-decoration: none;
 }
 
-.sidebar-header {
-  padding: 20px;
-  text-align: center;
-  border-bottom: 1px solid #34495e;
-}
-
-.sidebar-header h3 {
-  margin: 0;
-  color: #2ecc71;
-}
-
-/* Logo styling */
 .sidebar .logo {
-  display: flex;
-  align-items: center;
-  margin: 0 24px;
-  margin-bottom: 30px;
-  cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin: 0 24px 30px;
+    cursor: pointer;
 }
 
 .logo .logo-name {
-  color: #4ea14a;
-  font-size: 22px;
-  font-weight: 500;
-  margin-left: 20px;
+    color: #141a17;
+    font-size: 22px;
+    font-weight: 500;
+    margin-left: 20px;
 }
 
-/* Sidebar content layout */
 .sidebar .sidebar-content {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 30px 16px;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 16px;
 }
 
-.sidebar-nav {
-  flex: 1;
-}
-
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar-nav li a {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  color: #ecf0f1;
-  text-decoration: none;
-  transition: background-color 0.3s;
-}
-
-.sidebar-nav li a:hover {
-  background-color: #34495e;
-}
-
-.sidebar-nav li a.active {
-  background-color: #3498db;
-}
-
-/* List items styling */
 .sidebar-content .list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .sidebar-content .list-item {
-  list-style: none;
-  margin: 8px 0;
-  padding: 0;
-  border-radius: 12px; 
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  width: 90%;
-  height: 50px;
-  border: 2px solid transparent;
-  cursor: pointer;
+    list-style: none;
+    margin: 8px 0;
+    border-radius: 12px; 
+    width: 90%;
+    height: 50px;
+    border: 2px solid transparent;
+    cursor: pointer;
 }
 
 .sidebar-content .list-item a {
-  display: flex;
-  align-items: center;
-  padding: 14px 16px;
-  background-color: #988aa8;
-  border-radius: 12px;
-  height: 100%;
-  text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background-color: #88afa1;
+    border-radius: 12px;
+    height: 100%;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .sidebar-content .list-item:hover a {
-  background-color: rgba(81, 73, 88, 0.1);
-  transform: scale(1.02);
+    background-color: rgb(130, 150, 106);
+    transform: scale(1.02);
 }
 
-.sidebar-content .list-item:hover .nav-icon,
-.sidebar-content .list-item:hover .link {
-  color: #4ea14a; 
-}
-
-/* Navigation link styling */
-.nav-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  width: 100%;
-}
-
-.nav-link.active {
-  background-color: rgba(81, 73, 88, 0.3) !important;
-}
-
+/* Update the nav-icon style to make icons more visible */
 .nav-icon {
-  margin-right: 14px;
-  font-size: 20px;
-  color: #050316;
+    margin-right: 14px;
+    font-size: 20px;
+    color: #141a17; /* Dark color for visibility */
+    transition: color 0.3s ease;
+    display: inline-block; /* Ensure proper display */
+    width: 20px;
+    text-align: center;
+}
+
+/* Also ensure FontAwesome icons are properly sized and visible */
+.sidebar-content .list-item a .nav-icon {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+}
+
+/* Ensure active nav items show icons clearly */
+.sidebar-content .list-item a.active .nav-icon {
+    color: #141a17;
 }
 
 .link {
-  font-size: 16px;
-  color: #141a17;
-  font-weight: 400;
+    font-size: 16px;
+    color: #141a17;
+    font-weight: 400;
 }
 
-/* Social icons section */
+.sidebar-content .list-item:hover .nav-icon {
+    color: #141a17;
+}
+
 .bottom-content {
-  margin-top: auto;
-  padding-top: 20px;
+    margin-top: auto;
+    padding-top: 20px;
 }
 
 .social-icons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  margin-left: 10px;
-  padding-right: 30px;
-  color: #4ea14a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 10px 10px;
+    padding-right: 30px;
 }
 
 .social-icons .icon {
-  font-size: 24px;
-  color: #141a17;
-  margin-right: 10px;
-  transition: color 0.3s ease;
+    font-size: 24px;
+    color: #4ea14a;
+    margin-right: 10px;
+    transition: color 0.3s ease;
+}
+
+/* Make social icons more visible too */
+.social-icons .icon svg {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+
+.social-icons .icon svg path {
+    fill: #4ea14a !important;
 }
 
 .social-icons .icon:hover {
-  color: #050316;
-}
-
-.text-small {
-  font-size: 12px;
-  font-weight: 400;
-  color: #141a17;
+    color: #141a17;
 }
