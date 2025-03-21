@@ -152,7 +152,5 @@ dist
 /frontend/coverage
 
 # Backup and Documentation
-Financial Backup/
-"Financial Backup"/
-**/Financial Backup/
+
 LLMPrompts.md
