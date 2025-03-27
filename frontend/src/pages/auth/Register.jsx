@@ -4,12 +4,27 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './Auth.css';
 
+const validatePhone = (phone) => {
+  const phoneRegex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
+  return phoneRegex.test(phone);
+};
+
+const validateAddress = (address) => {
+  return address.trim().length >= 5; 
+};
+
+const validateEmail = (email) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email);
+};
+
 function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    // No role field here as it will be set by the backend
+    address: '',
+    phone: '',
   });
   const [formError, setFormError] = useState('');
   const { register } = useAuth();
@@ -24,8 +39,15 @@ function Register() {
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    if (name === 'password' && value.length < 8) {
+    
+    if (name === 'email' && value && !validateEmail(value)) {
+      setFormError('Please enter a valid email address');
+    } else if (name === 'password' && value.length < 8) {
       setFormError('Password must be at least 8 characters long');
+    } else if (name === 'phone' && value && !validatePhone(value)) {
+      setFormError('Please enter a valid phone number');
+    } else if (name === 'address' && value && !validateAddress(value)) {
+      setFormError('Address should be at least 5 characters long');
     } else {
       setFormError('');
     }
@@ -35,9 +57,27 @@ function Register() {
     e.preventDefault();
     setFormError('');
     
-    // Check password length
+    // Validate email
+    if (!validateEmail(formData.email)) {
+      setFormError('Please enter a valid email address');
+      return;
+    }
+    
+    // Validate password
     if (formData.password.length < 8) {
       setFormError('Password must be at least 8 characters long');
+      return;
+    }
+    
+    // Validate phone
+    if (!validatePhone(formData.phone)) {
+      setFormError('Please enter a valid phone number');
+      return;
+    }
+    
+    // Validate address
+    if (!validateAddress(formData.address)) {
+      setFormError('Please enter a valid address (minimum 5 characters)');
       return;
     }
     
@@ -76,13 +116,13 @@ function Register() {
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
-              type="email"
+              type="email" 
               id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
+              onBlur={handleBlur}
               required
-              aria-label="Email"
             />
           </div>
           
@@ -101,6 +141,38 @@ function Register() {
               aria-describedby="passwordHelp"
             />
             <small id="passwordHelp" className="form-text text-muted">Password must be at least 8 characters long and include numbers or symbols for better security.</small>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address">Address</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-label="Address"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-label="Phone Number"
+              placeholder="e.g., +947XXXXXXXX"
+            />
+            <small className="form-text text-muted">
+              Enter a valid phone number with country code
+            </small>
           </div>
           
           <button type="submit" className="auth-button">Register</button>

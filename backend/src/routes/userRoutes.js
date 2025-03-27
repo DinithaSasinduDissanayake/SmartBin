@@ -5,15 +5,19 @@ const {
   getUsers, 
   getUserById, 
   updateUserProfile, 
-  deleteUser 
+  deleteUser,
+  getUserProfile,
+  deleteUserProfile
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
-// User profile routes
+// User profile routes - all users can access their own profile
 router.route('/profile')
-  .put(protect, updateUserProfile);
+  .get(protect, getUserProfile)
+  .put(protect, updateUserProfile)
+  .delete(protect, deleteUserProfile);
 
-// Admin routes
+// Admin routes - only accessible by admins
 router.route('/')
   .get(protect, authorize('admin'), getUsers);
 

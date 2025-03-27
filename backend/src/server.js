@@ -5,6 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -18,16 +20,31 @@ app.use(morgan('dev'));
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const subscriptionPlanRoutes = require('./routes/subscriptionPlanRoutes');
+const documentRoutes = require('./routes/documentRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
+const performanceRoutes = require('./routes/performanceRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/subscription-plans', subscriptionPlanRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/performance', performanceRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'SmartBin API is running' });
 });
+
+// Ensure you have this directory for uploads
+const uploadDir = path.join(__dirname, '../uploads/documents');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Make the uploads directory accessible
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI;

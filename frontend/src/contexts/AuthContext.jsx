@@ -66,6 +66,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    // Any other cleanup needed
     delete axios.defaults.headers.common['Authorization'];
   };
 

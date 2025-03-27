@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import DashboardLayout from './components/layouts/DashboardLayout';
+import ProfilePage from './pages/profile/ProfilePage';
 import './App.css';
 
 // Protected route component
@@ -29,7 +30,7 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* Protected routes */}
+        {/* Protected routes - all dashboard routes should be nested here */}
         <Route path="/dashboard/*" element={
           <ProtectedRoute>
             <DashboardLayout />

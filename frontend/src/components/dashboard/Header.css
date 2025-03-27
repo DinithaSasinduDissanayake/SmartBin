@@ -6,8 +6,8 @@
   align-items: center;
   width: 100%;
   height: 70px;
-  background-color: #cacddd;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: #3e4b2e; /* Updated to match sidebar color */
+  border-bottom: 1px solid #4a5a37;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0 25px;
   box-sizing: border-box;
@@ -25,7 +25,7 @@
 .header-left h2 {
   margin: 0;
   font-size: 1.2rem;
-  color: #333;
+  color: #ffffff; /* Updated for better contrast */
 }
 
 /* Right side with user info and logout */
@@ -46,19 +46,19 @@
 /* Username display */
 .user-info span:first-child {
   font-weight: 500;
-  color: #333;
+  color: #ffffff; /* Updated for better contrast */
 }
 
 /* User role display */
 .user-role {
   font-size: 0.8rem;
-  color: #666;
+  color: #e0e0e0; /* Updated for better contrast */
 }
 
 /* Logout button */
 .logout-button {
   padding: 6px 12px;
-  background-color: #988aa8;
+  background-color: #4ea14a; /* Updated to match theme */
   color: white;
   border: none;
   border-radius: 4px;
@@ -67,7 +67,7 @@
 }
 
 .logout-button:hover {
-  background-color: #7b6e8a;
+  background-color: #3c8a38; /* Darker version for hover */
 }
 
 .user-menu {
@@ -82,15 +82,16 @@
 
 .user-menu .username {
   font-weight: 500;
+  color: #ffffff; /* Updated for better contrast */
 }
 
 .user-menu .role {
   font-size: 0.8rem;
-  color: #6c757d;
+  color: #e0e0e0; /* Updated for better contrast */
 }
 
 .user-menu button {
-  background-color: #988aa8;
+  background-color: #4ea14a; /* Updated to match theme */
   color: white;
   border: none;
   padding: 8px 15px;
@@ -100,5 +101,5 @@
 }
 
 .user-menu button:hover {
-  background-color: #7b6e8a;
+  background-color: #3c8a38; /* Darker version for hover */
 }

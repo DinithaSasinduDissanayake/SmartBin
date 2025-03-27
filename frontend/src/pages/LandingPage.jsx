@@ -35,7 +35,6 @@ function LandingPage() {
         )}
       </section>
       
-      {/* Other landing page sections */}
     </div>
   );
 }

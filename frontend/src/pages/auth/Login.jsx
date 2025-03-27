@@ -1,6 +1,6 @@
 // src/pages/auth/Login.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './Auth.css';
 
@@ -9,38 +9,47 @@ function Login() {
     email: '',
     password: ''
   });
-  const [formError, setFormError] = useState('');
-  const { login, error } = useAuth();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError('');
-    
+    setError('');
+    setLoading(true);
+
     try {
       await login(formData.email, formData.password);
       navigate('/dashboard');
-    } catch (error) {
-      console.error(error);
-      setFormError(error.message || 'Invalid email or password');
+    } catch (err) {
+      // Improved error handling
+      if (err.response) {
+        // The server responded with an error message
+        setError(err.response.data.message || 'Login failed. Please check your credentials.');
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        // Something else caused the error
+        setError('An unexpected error occurred. Please try again.');
+      }
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-container">
       <div className="auth-form-container">
-        <h2>Login to Your Account</h2>
+        <h2>Login to SmartBin</h2>
         
-        {(formError || error) && (
-          <div className="error-message">{formError || error}</div>
-        )}
+        {error && <div className="auth-error">{error}</div>}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -67,11 +76,17 @@ function Login() {
             />
           </div>
           
-          <button type="submit" className="auth-button">Login</button>
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
         
         <div className="auth-footer">
-          Don't have an account? <Link to="/register">Register</Link>
+          Don't have an account? <Link to="/register">Sign up</Link>
         </div>
       </div>
     </div>
