@@ -152,7 +152,7 @@ dist
 /frontend/coverage
 
 # Backup and Documentation
-
+Financial Backup/
 LLMPrompts.md
 LLM_Prompts.md
 uncommitted-changes.patch
