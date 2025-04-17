@@ -23,6 +23,8 @@ const subscriptionPlanRoutes = require('./routes/subscriptionPlanRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const performanceRoutes = require('./routes/performanceRoutes');
+const financialRoutes = require('./routes/financialRoutes'); // Import financial routes
+const userSubscriptionRoutes = require('./routes/userSubscriptionRoutes'); // Import user subscription routes
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -31,6 +33,8 @@ app.use('/api/subscription-plans', subscriptionPlanRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/performance', performanceRoutes);
+app.use('/api/financials', financialRoutes); // Use financial routes
+app.use('/api/user-subscriptions', userSubscriptionRoutes); // Mount user subscription routes
 
 // Basic route for testing
 app.get('/', (req, res) => {
@@ -52,6 +56,12 @@ mongoose
   .connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -1,0 +1,367 @@
+diff --git a/backend/src/middleware/roleMiddleware.js b/backend/src/middleware/roleMiddleware.js
+index a845bc0..2f31e9a 100644
+--- a/backend/src/middleware/roleMiddleware.js
++++ b/backend/src/middleware/roleMiddleware.js
+@@ -1,21 +1,28 @@
+-const User = require('../models/User');
+-
+-// Middleware to check if user is a financial manager
+-exports.isFinancialManager = async (req, res, next) => {
+-  try {
+-    const user = await User.findById(req.user.id);
+-    
+-    if (!user) {
+-      return res.status(404).json({ message: 'User not found' });
++// Middleware factory to check if user has one of the allowed roles
++const roleMiddleware = (allowedRoles) => {
++  return (req, res, next) => {
++    // Ensure req.user exists (should be set by authMiddleware)
++    if (!req.user || !req.user.role) {
++      return res.status(401).json({ message: 'Authentication required or user role not found' });
+     }
+-    
+-    if (user.role !== 'financial_manager' && user.role !== 'admin') {
+-      return res.status(403).json({ message: 'Not authorized as a financial manager' });
++
++    const userRole = req.user.role;
++
++    // Check if the user's role is included in the allowed roles
++    // Convert allowedRoles to lowercase for case-insensitive comparison if needed,
++    // or ensure consistency in role naming (e.g., 'financial_manager' vs 'Financial Manager')
++    // Assuming roles in the database match the strings in allowedRoles exactly for now.
++    if (allowedRoles.includes(userRole)) {
++      next(); // User has the required role, proceed to the next middleware/controller
++    } else {
++      console.warn(`Role access denied for user ${req.user.id} with role '${userRole}'. Required: ${allowedRoles.join(' or ')}`);
++      return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+     }
+-    
+-    next();
+-  } catch (error) {
+-    console.error(error);
+-    res.status(500).json({ message: 'Server error' });
+-  }
+-};
+\ No newline at end of file
++  };
++};
++
++// Export the middleware factory function as the default export
++module.exports = roleMiddleware;
++
++// Example refactor for isFinancialManager middleware using the new roleMiddleware
++exports.isFinancialManager = roleMiddleware(['financial_manager', 'admin']);
+\ No newline at end of file
+diff --git a/backend/src/models/SubscriptionPlan.js b/backend/src/models/SubscriptionPlan.js
+index bd3805c..6360060 100644
+--- a/backend/src/models/SubscriptionPlan.js
++++ b/backend/src/models/SubscriptionPlan.js
+@@ -8,9 +8,9 @@ const subscriptionPlanSchema = new mongoose.Schema({
+     unique: true
+   },
+   price: {
+-    type: String,
++    type: Number, // Changed from String to Number
+     required: [true, 'Price is required'],
+-    trim: true
++    min: [0, 'Price cannot be negative'] // Added validation for non-negative price
+   },
+   subscriberCount: {
+     type: Number,
+diff --git a/backend/src/routes/subscriptionPlanRoutes.js b/backend/src/routes/subscriptionPlanRoutes.js
+index b8665b2..49f1980 100644
+--- a/backend/src/routes/subscriptionPlanRoutes.js
++++ b/backend/src/routes/subscriptionPlanRoutes.js
+@@ -1,27 +1,37 @@
+ const express = require('express');
+ const router = express.Router();
+-const { 
+-  getSubscriptionPlans, 
+-  getSubscriptionPlanById, 
+-  createSubscriptionPlan, 
+-  updateSubscriptionPlan, 
+-  deleteSubscriptionPlan 
+-} = require('../controllers/SubscriptionPlanController');
+-const { protect } = require('../middleware/authMiddleware');
+-const { isFinancialManager } = require('../middleware/roleMiddleware');
++const authMiddleware = require('../middleware/authMiddleware');
++const roleMiddleware = require('../middleware/roleMiddleware');
++const subscriptionPlanController = require('../controllers/SubscriptionPlanController');
+ 
+-// Apply middleware to all routes
+-router.use(protect);
+-router.use(isFinancialManager);
++// GET all subscription plans (public)
++router.get('/', subscriptionPlanController.getSubscriptionPlans);
+ 
+-// Routes
+-router.route('/')
+-  .get(getSubscriptionPlans)
+-  .post(createSubscriptionPlan);
++// POST create a new subscription plan (Financial Manager or Admin only)
++router.post(
++    '/',
++    authMiddleware.protect,
++    roleMiddleware(['financial_manager', 'admin']),
++    subscriptionPlanController.createSubscriptionPlan
++);
+ 
+-router.route('/:id')
+-  .get(getSubscriptionPlanById)
+-  .put(updateSubscriptionPlan)
+-  .delete(deleteSubscriptionPlan);
++// GET a specific subscription plan by ID (public)
++router.get('/:id', subscriptionPlanController.getSubscriptionPlanById);
++
++// PUT update a subscription plan (Financial Manager or Admin only)
++router.put(
++    '/:id',
++    authMiddleware.protect,
++    roleMiddleware(['financial_manager', 'admin']),
++    subscriptionPlanController.updateSubscriptionPlan
++);
++
++// DELETE a subscription plan (Financial Manager or Admin only)
++router.delete(
++    '/:id',
++    authMiddleware.protect,
++    roleMiddleware(['financial_manager', 'admin']),
++    subscriptionPlanController.deleteSubscriptionPlan
++);
+ 
+ module.exports = router;
+\ No newline at end of file
+diff --git a/backend/src/server.js b/backend/src/server.js
+index 3055396..62d9fb8 100644
+--- a/backend/src/server.js
++++ b/backend/src/server.js
+@@ -23,6 +23,8 @@ const subscriptionPlanRoutes = require('./routes/subscriptionPlanRoutes');
+ const documentRoutes = require('./routes/documentRoutes');
+ const attendanceRoutes = require('./routes/attendanceRoutes');
+ const performanceRoutes = require('./routes/performanceRoutes');
++const financialRoutes = require('./routes/financialRoutes'); // Import financial routes
++const userSubscriptionRoutes = require('./routes/userSubscriptionRoutes'); // Import user subscription routes
+ 
+ // Use routes
+ app.use('/api/auth', authRoutes);
+@@ -31,6 +33,8 @@ app.use('/api/subscription-plans', subscriptionPlanRoutes);
+ app.use('/api/documents', documentRoutes);
+ app.use('/api/attendance', attendanceRoutes);
+ app.use('/api/performance', performanceRoutes);
++app.use('/api/financials', financialRoutes); // Use financial routes
++app.use('/api/user-subscriptions', userSubscriptionRoutes); // Mount user subscription routes
+ 
+ // Basic route for testing
+ app.get('/', (req, res) => {
+@@ -53,6 +57,12 @@ mongoose
+   .then(() => console.log('Connected to MongoDB'))
+   .catch((err) => console.error('MongoDB connection error:', err));
+ 
++// Global Error Handler
++app.use((err, req, res, next) => {
++  console.error(err.stack);
++  res.status(500).send('Something broke!');
++});
++
+ // Start server
+ const PORT = process.env.PORT || 5000;
+ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+\ No newline at end of file
+diff --git a/frontend/package-lock.json b/frontend/package-lock.json
+index 2dab764..6c5baae 100644
+--- a/frontend/package-lock.json
++++ b/frontend/package-lock.json
+@@ -9,7 +9,9 @@
+       "version": "0.0.0",
+       "dependencies": {
+         "axios": "^1.8.4",
++        "chart.js": "^4.4.9",
+         "react": "^19.0.0",
++        "react-chartjs-2": "^5.3.0",
+         "react-dom": "^19.0.0",
+         "react-router-dom": "^7.4.0"
+       },
+@@ -1016,6 +1018,12 @@
+         "@jridgewell/sourcemap-codec": "^1.4.14"
+       }
+     },
++    "node_modules/@kurkle/color": {
++      "version": "0.3.4",
++      "resolved": "https://registry.npmjs.org/@kurkle/color/-/color-0.3.4.tgz",
++      "integrity": "sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==",
++      "license": "MIT"
++    },
+     "node_modules/@rollup/rollup-android-arm-eabi": {
+       "version": "4.35.0",
+       "resolved": "https://registry.npmjs.org/@rollup/rollup-android-arm-eabi/-/rollup-android-arm-eabi-4.35.0.tgz",
+@@ -1579,6 +1587,18 @@
+         "url": "https://github.com/chalk/chalk?sponsor=1"
+       }
+     },
++    "node_modules/chart.js": {
++      "version": "4.4.9",
++      "resolved": "https://registry.npmjs.org/chart.js/-/chart.js-4.4.9.tgz",
++      "integrity": "sha512-EyZ9wWKgpAU0fLJ43YAEIF8sr5F2W3LqbS40ZJyHIner2lY14ufqv2VMp69MAiZ2rpwxEUxEhIH/0U3xyRynxg==",
++      "license": "MIT",
++      "dependencies": {
++        "@kurkle/color": "^0.3.0"
++      },
++      "engines": {
++        "pnpm": ">=8"
++      }
++    },
+     "node_modules/color-convert": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz",
+@@ -2691,6 +2711,16 @@
+         "node": ">=0.10.0"
+       }
+     },
++    "node_modules/react-chartjs-2": {
++      "version": "5.3.0",
++      "resolved": "https://registry.npmjs.org/react-chartjs-2/-/react-chartjs-2-5.3.0.tgz",
++      "integrity": "sha512-UfZZFnDsERI3c3CZGxzvNJd02SHjaSJ8kgW1djn65H1KK8rehwTjyrRKOG3VTMG8wtHZ5rgAO5oTHtHi9GCCmw==",
++      "license": "MIT",
++      "peerDependencies": {
++        "chart.js": "^4.1.1",
++        "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
++      }
++    },
+     "node_modules/react-dom": {
+       "version": "19.0.0",
+       "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-19.0.0.tgz",
+diff --git a/frontend/package.json b/frontend/package.json
+index f3aa33c..416522f 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -11,7 +11,9 @@
+   },
+   "dependencies": {
+     "axios": "^1.8.4",
++    "chart.js": "^4.4.9",
+     "react": "^19.0.0",
++    "react-chartjs-2": "^5.3.0",
+     "react-dom": "^19.0.0",
+     "react-router-dom": "^7.4.0"
+   },
+diff --git a/frontend/src/components/layouts/DashboardLayout.jsx b/frontend/src/components/layouts/DashboardLayout.jsx
+index f1896a1..ae52b55 100644
+--- a/frontend/src/components/layouts/DashboardLayout.jsx
++++ b/frontend/src/components/layouts/DashboardLayout.jsx
+@@ -1,16 +1,38 @@
+ // frontend/src/components/layouts/DashboardLayout.jsx
+ import React from 'react';
+-import { Routes, Route } from 'react-router-dom';
++import { Routes, Route, Link } from 'react-router-dom';
+ import { useAuth } from '../../contexts/AuthContext';
+ import Header from '../dashboard/Header';
+ import Sidebar from '../dashboard/Sidebar';
+ import SubscriptionPlans from '../financial/SubscriptionPlans';
++import FinancialDashboard from '../financial/FinancialDashboard';
+ import ProfilePage from '../../pages/profile/ProfilePage';
+ import './DashboardLayout.css';
+ 
+-// Placeholder dashboard components
+-const DashboardHome = () => <div className="dashboard-content"><h2>Dashboard Home</h2><p>Welcome to your dashboard!</p></div>;
+-const NotFound = () => <div className="dashboard-content"><h2>404</h2><p>Page not found</p></div>;
++// Placeholder dashboard components for different roles
++const DashboardHome = ({ user }) => {
++  // If user is a financial manager, show financial dashboard
++  if (user?.role === 'financial_manager') {
++    return <FinancialDashboard />;
++  }
++  
++  // Default dashboard for other roles
++  return (
++    <div className="dashboard-content">
++      <h2>Dashboard Home</h2>
++      <p>Welcome to your dashboard!</p>
++    </div>
++  );
++};
++
++// Inline NotFound component
++const NotFoundPage = () => (
++  <div className="dashboard-content" style={{ textAlign: 'center', marginTop: '50px' }}>
++    <h1>404 - Page Not Found</h1>
++    <p>Sorry, the page you are looking for does not exist.</p>
++    <Link to="/dashboard">Go back to Dashboard</Link>
++  </div>
++);
+ 
+ function DashboardLayout() {
+   const { user } = useAuth();
+@@ -22,7 +44,8 @@ function DashboardLayout() {
+         <Header />
+         <main className="dashboard-content-area">
+           <Routes>
+-            <Route path="/" element={<DashboardHome />} />
++            {/* Pass user to DashboardHome so it can conditionally render */}
++            <Route path="/" element={<DashboardHome user={user} />} />
+             <Route path="/profile" element={<ProfilePage />} />
+             
+             {/* Resident/Garbage_Buyer routes */}
+@@ -43,6 +66,7 @@ function DashboardLayout() {
+                 <Route path="/users" element={<div className="dashboard-content"><h2>User Management</h2></div>} />
+                 <Route path="/statistics" element={<div className="dashboard-content"><h2>Statistics</h2></div>} />
+                 <Route path="/settings" element={<div className="dashboard-content"><h2>System Settings</h2></div>} />
++                <Route path="/financial-overview" element={<FinancialDashboard />} /> {/* Add route for Admin */}
+               </>
+             )}
+             
+@@ -53,6 +77,7 @@ function DashboardLayout() {
+                 <Route path="/budget-allocation" element={<div className="dashboard-content"><h2>Budget Allocation</h2></div>} />
+                 <Route path="/salary" element={<div className="dashboard-content"><h2>Salary Management</h2></div>} />
+                 <Route path="/payments" element={<div className="dashboard-content"><h2>Payments</h2></div>} />
++                <Route path="/financial-overview" element={<FinancialDashboard />} /> {/* Add route for Financial Manager */}
+               </>
+             )}
+             
+@@ -66,7 +91,7 @@ function DashboardLayout() {
+             )}
+             
+             {/* Fallback route */}
+-            <Route path="*" element={<NotFound />} />
++            <Route path="*" element={<NotFoundPage />} /> {/* Use the inline NotFound component */}
+           </Routes>
+         </main>
+       </div>
+diff --git a/frontend/src/components/layouts/Sidebar.jsx b/frontend/src/components/layouts/Sidebar.jsx
+index 12c680e..19b1794 100644
+--- a/frontend/src/components/layouts/Sidebar.jsx
++++ b/frontend/src/components/layouts/Sidebar.jsx
+@@ -27,7 +27,8 @@ import {
+   faCog,
+   faClipboardList,
+   faListCheck,
+-  faTrophy
++  faTrophy,
++  faTachometerAlt // Added icon for financial overview
+ } from "@fortawesome/free-solid-svg-icons";
+ 
+ library.add(
+@@ -50,7 +51,8 @@ library.add(
+   faCog,
+   faClipboardList,
+   faListCheck,
+-  faTrophy
++  faTrophy,
++  faTachometerAlt // Add the new icon to the library
+ );
+ 
+ import './Sidebar.css';
+@@ -76,12 +78,14 @@ function Sidebar() {
+         { path: '/dashboard/purchase-history', label: 'Purchase History', icon: faScroll },
+       ],
+       admin: [
++        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Admin
+         { path: '/dashboard/users', label: 'User Management', icon: faUsers },
+         { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
+         { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
+       ],
+       // Maintaining the database role name format (with underscore)
+       financial_manager: [
++        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Financial Manager
+         { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
+         { path: '/dashboard/budget-allocation', label: 'Budget Allocation', icon: faMoneyBillTransfer },
+         { path: '/dashboard/salary', label: 'Salary', icon: faUser },

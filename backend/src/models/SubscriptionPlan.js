@@ -8,9 +8,9 @@ const subscriptionPlanSchema = new mongoose.Schema({
     unique: true
   },
   price: {
-    type: String,
+    type: Number, // Changed from String to Number
     required: [true, 'Price is required'],
-    trim: true
+    min: [0, 'Price cannot be negative'] // Added validation for non-negative price
   },
   subscriberCount: {
     type: Number,

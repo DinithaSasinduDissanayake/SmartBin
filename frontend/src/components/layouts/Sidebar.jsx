@@ -27,7 +27,8 @@ import {
   faCog,
   faClipboardList,
   faListCheck,
-  faTrophy
+  faTrophy,
+  faTachometerAlt // Added icon for financial overview
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -50,7 +51,8 @@ library.add(
   faCog,
   faClipboardList,
   faListCheck,
-  faTrophy
+  faTrophy,
+  faTachometerAlt // Add the new icon to the library
 );
 
 import './Sidebar.css';
@@ -76,12 +78,14 @@ function Sidebar() {
         { path: '/dashboard/purchase-history', label: 'Purchase History', icon: faScroll },
       ],
       admin: [
+        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Admin
         { path: '/dashboard/users', label: 'User Management', icon: faUsers },
         { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
         { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
       ],
       // Maintaining the database role name format (with underscore)
       financial_manager: [
+        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Financial Manager
         { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
         { path: '/dashboard/budget-allocation', label: 'Budget Allocation', icon: faMoneyBillTransfer },
         { path: '/dashboard/salary', label: 'Salary', icon: faUser },

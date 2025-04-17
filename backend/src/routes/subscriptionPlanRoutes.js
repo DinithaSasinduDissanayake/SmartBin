@@ -1,27 +1,37 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  getSubscriptionPlans, 
-  getSubscriptionPlanById, 
-  createSubscriptionPlan, 
-  updateSubscriptionPlan, 
-  deleteSubscriptionPlan 
-} = require('../controllers/SubscriptionPlanController');
-const { protect } = require('../middleware/authMiddleware');
-const { isFinancialManager } = require('../middleware/roleMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
+const subscriptionPlanController = require('../controllers/SubscriptionPlanController');
 
-// Apply middleware to all routes
-router.use(protect);
-router.use(isFinancialManager);
+// GET all subscription plans (public)
+router.get('/', subscriptionPlanController.getSubscriptionPlans);
 
-// Routes
-router.route('/')
-  .get(getSubscriptionPlans)
-  .post(createSubscriptionPlan);
+// POST create a new subscription plan (Financial Manager or Admin only)
+router.post(
+    '/',
+    authMiddleware.protect,
+    roleMiddleware(['financial_manager', 'admin']),
+    subscriptionPlanController.createSubscriptionPlan
+);
 
-router.route('/:id')
-  .get(getSubscriptionPlanById)
-  .put(updateSubscriptionPlan)
-  .delete(deleteSubscriptionPlan);
+// GET a specific subscription plan by ID (public)
+router.get('/:id', subscriptionPlanController.getSubscriptionPlanById);
+
+// PUT update a subscription plan (Financial Manager or Admin only)
+router.put(
+    '/:id',
+    authMiddleware.protect,
+    roleMiddleware(['financial_manager', 'admin']),
+    subscriptionPlanController.updateSubscriptionPlan
+);
+
+// DELETE a subscription plan (Financial Manager or Admin only)
+router.delete(
+    '/:id',
+    authMiddleware.protect,
+    roleMiddleware(['financial_manager', 'admin']),
+    subscriptionPlanController.deleteSubscriptionPlan
+);
 
 module.exports = router;
