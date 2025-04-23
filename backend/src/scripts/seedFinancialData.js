@@ -277,26 +277,28 @@ const seedFinancialData = async () => {
     }
     
     // 4. Create some one-time payments not related to subscriptions
-    const oneTimePaymentDescriptions = [
-      'One-time bin purchase',
-      'Extra collection service',
-      'Recycling equipment',
-      'Special waste disposal',
-      'Composting kit'
-    ];
-    
-    for (let i = 0; i < 25; i++) {
+    console.log('Generating one-time payments...');
+
+    // Generate a larger variety of one-time payments for diverse revenue streams
+    const oneTimePaymentCount = 100;
+    for (let i = 0; i < oneTimePaymentCount; i++) {
       const randomUser = randomElement(users);
       const paymentDate = randomDate(sixMonthsAgo, currentDate);
-      const amount = randomNumber(30, 200);
-      
+      const amount = randomNumber(30, 500); // expanded range for larger payments
+      const oneTimeDescriptions = [
+        ...oneTimePaymentDescriptions,
+        'Emergency pickup service',
+        'Late payment fee',
+        'Bulk waste disposal fee',
+        'Additional recycling service'
+      ];
       const payment = new Payment({
         user: randomUser._id,
         amount,
-        description: randomElement(oneTimePaymentDescriptions),
+        description: randomElement(oneTimeDescriptions),
         paymentDate,
-        status: randomElement(['completed', 'completed', 'completed', 'completed', 'pending']), // 80% completed
-        paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'paypal']),
+        status: randomElement(['completed','completed','completed','pending','failed']),
+        paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'paypal', 'mobile_payment']),
         subscriptionPlan: null
       });
       
@@ -339,10 +341,10 @@ const seedFinancialData = async () => {
       taxes: ['Property tax', 'Business tax payment', 'Regulatory fees', 'Environmental compliance fees', 'Local taxes']
     };
     
-    // Generate monthly expenses for each category for the past 6 months up to the current month
-    const firstExpenseMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 5, 1); // Start 5 months before the current month
+    // Generate monthly expenses for each category for the past 12 months up to the current month
+    const firstExpenseMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 11, 1); // Start 11 months before
 
-    for (let monthOffset = 0; monthOffset <= 5; monthOffset++) {
+    for (let monthOffset = 0; monthOffset <= 11; monthOffset++) {
       const targetMonthDate = addMonths(firstExpenseMonth, monthOffset);
       // Ensure we don't generate for future months beyond the current one
       if (targetMonthDate.getFullYear() > currentDate.getFullYear() || 
@@ -352,8 +354,8 @@ const seedFinancialData = async () => {
 
       // For each expense category
       for (const expenseCat of expenseCategories) {
-        // Create 1-3 expenses per category per month
-        const numExpenses = randomNumber(1, 3);
+        // Create 2-5 expenses per category per month for richer data
+        const numExpenses = randomNumber(2, 5);
 
         for (let i = 0; i < numExpenses; i++) {
           // Generate a random date within the target month, but not exceeding the current date

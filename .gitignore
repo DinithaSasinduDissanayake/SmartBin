@@ -126,16 +126,6 @@ dist
 .tern-port
 
 # Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# IDE settings (except shared configs)
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
@@ -157,3 +147,8 @@ LLMPrompts.md
 LLM_Prompts.md
 uncommitted-changes.patch
 .qodo
+
+# Additional files to ignore
+all_code.txt
+CollectAllCode.ps1
+all_diffs_from_last_commit.patch
