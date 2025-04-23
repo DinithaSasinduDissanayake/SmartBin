@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import profileApi from '../../services/profileApi';
 import './ProfileForms.css';
 
-const DocumentUploadForm = ({ documents = [], onUpload, loading }) => {
+// Accept onDelete prop
+const DocumentUploadForm = ({ documents = [], onUpload, onDelete, loading }) => {
   const [formData, setFormData] = useState({
     name: '',
     type: 'Other',
@@ -98,13 +98,16 @@ const DocumentUploadForm = ({ documents = [], onUpload, loading }) => {
 
   const handleDeleteDocument = async (id) => {
     if (window.confirm('Are you sure you want to delete this document?')) {
+      setFormError(''); // Clear previous errors
+      setFormSuccess('');
       try {
-        await profileApi.deleteDocument(id);
-        // Refresh documents list
-        const _response = await profileApi.getProfile();
-        // Update documents through parent component
-        onUpload(new FormData()); // Trigger a refresh
-        setFormSuccess('Document deleted successfully');
+        // Call the onDelete handler passed from ProfilePage
+        const result = await onDelete(id);
+        if (result.success) {
+          setFormSuccess(result.message);
+        } else {
+          setFormError(result.message);
+        }
       } catch (error) {
         setFormError('Failed to delete document');
         console.error('Error deleting document:', error);
@@ -129,7 +132,6 @@ const DocumentUploadForm = ({ documents = [], onUpload, loading }) => {
             value={formData.name} 
             onChange={handleChange}
             disabled={loading || uploading}
-            placeholder="e.g., National ID Card, Utility Bill"
           />
         </div>
         
@@ -212,13 +214,14 @@ const DocumentUploadForm = ({ documents = [], onUpload, loading }) => {
                   <td>
                     <button 
                       className="document-action-btn view"
-                      onClick={() => window.open(`/uploads/${doc.filePath.split('/').pop()}`, '_blank')}
+                      // Use the full filePath relative to the /uploads route
+                      onClick={() => window.open(`/uploads/${doc.filePath}`, '_blank')} 
                     >
                       View
                     </button>
                     <button 
                       className="document-action-btn delete"
-                      onClick={() => handleDeleteDocument(doc._id)}
+                      onClick={() => handleDeleteDocument(doc._id)} // Use the internal handler
                       disabled={loading}
                     >
                       Delete

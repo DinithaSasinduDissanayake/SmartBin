@@ -252,6 +252,25 @@
     color: #dc3545;
 }
 
+/* Add this after the .error style */
+
+.no-data-message {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    border: 1px dashed #ccc;
+}
+
+.no-data-message p {
+    font-size: 1.1rem;
+    color: #777;
+    text-align: center;
+    padding: 20px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .dashboard-header {

@@ -67,7 +67,7 @@ function Sidebar() {
     ];
 
     const roleSpecificItems = {
-      'Resident/Garbage_Buyer': [
+      customer: [ // Updated role name
         { path: '/dashboard/collection-history', label: 'Collection History', icon: faCalendarDays },
         { path: '/dashboard/financial-history', label: 'Financial History', icon: faMoneyBill },
         { path: '/dashboard/complaints', label: 'Complaints', icon: faFileSignature },

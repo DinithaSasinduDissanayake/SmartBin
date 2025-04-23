@@ -56,11 +56,13 @@ const seedFinancialData = async () => {
   try {
     // Connect to MongoDB
     console.log('Connecting to MongoDB...');
-    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://sasindu10:12345@smartbincluster.ij7fd.mongodb.net/smartbin?retryWrites=true&w=majority&appName=SmartBinCluster';
+    const MONGODB_URI = process.env.MONGODB_URI;
+    if (!MONGODB_URI) {
+      throw new Error("MONGODB_URI environment variable not set. Please check your .env file.");
+    }
     
-    console.log('Using MongoDB connection from environment');
     await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB successfully');
+    console.log('MongoDB Connected');
 
     // Get financial manager user (needed for expense creation)
     const financialManager = await User.findOne({ role: 'financial_manager' });
@@ -276,8 +278,36 @@ const seedFinancialData = async () => {
       console.log(`Created payment history for ${subscription.user.name}`);
     }
     
+    // Guarantee at least 3 completed payments for the current month
+    const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const validPlans = allPlans.filter(p => !isNaN(parseFloat(p.price)));
+    for (let i = 0; i < 3; i++) {
+      const randomUser = randomElement(users);
+      const randomPlan = randomElement(validPlans);
+      if (!randomPlan) continue; // skip if no valid plan
+      const payment = new Payment({
+        user: randomUser._id,
+        amount: parseFloat(randomPlan.price),
+        description: `${randomPlan.name} Plan - ${randomPlan.duration}`,
+        paymentDate: addDays(currentMonthStart, Math.floor(Math.random() * (currentDate.getDate()))),
+        status: 'completed',
+        paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'cash', 'paypal', 'other']),
+        subscriptionPlan: randomPlan._id
+      });
+      await payment.save();
+    }
+    
     // 4. Create some one-time payments not related to subscriptions
     console.log('Generating one-time payments...');
+
+    // Define default one-time payment descriptions
+    const oneTimePaymentDescriptions = [
+      'Service fee',
+      'Consultation fee',
+      'Setup fee',
+      'Installation fee',
+      'Penalty fee'
+    ];
 
     // Generate a larger variety of one-time payments for diverse revenue streams
     const oneTimePaymentCount = 100;
@@ -298,7 +328,7 @@ const seedFinancialData = async () => {
         description: randomElement(oneTimeDescriptions),
         paymentDate,
         status: randomElement(['completed','completed','completed','pending','failed']),
-        paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'paypal', 'mobile_payment']),
+        paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'cash', 'paypal', 'other']),
         subscriptionPlan: null
       });
       
@@ -389,6 +419,21 @@ const seedFinancialData = async () => {
       }
       
       console.log(`Created expenses for ${targetMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
+    }
+    
+    // Guarantee at least 3 approved expenses for the current month
+    const expenseCategoriesList = ['fuel', 'maintenance', 'salaries', 'utilities', 'equipment', 'office', 'rent', 'marketing', 'insurance', 'taxes'];
+    for (let i = 0; i < 3; i++) {
+      const expense = new Expense({
+        category: randomElement(expenseCategoriesList),
+        amount: randomNumber(200, 2000),
+        description: `Seeded expense for dashboard (${i + 1})`,
+        date: addDays(currentMonthStart, Math.floor(Math.random() * (currentDate.getDate()))),
+        createdBy: financialManager._id,
+        status: 'approved',
+        paymentMethod: randomElement(['company_account', 'credit_card', 'bank_transfer'])
+      });
+      await expense.save();
     }
     
     // Calculate and log summary statistics

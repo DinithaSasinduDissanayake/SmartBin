@@ -46,4 +46,9 @@ const documentSchema = new mongoose.Schema({
   }
 });
 
+// Indexes
+documentSchema.index({ user: 1 }); // Index for querying by user
+documentSchema.index({ type: 1 }); // Index for querying by document type
+documentSchema.index({ verificationStatus: 1 }); // Index for querying by status
+
 module.exports = mongoose.model('Document', documentSchema);

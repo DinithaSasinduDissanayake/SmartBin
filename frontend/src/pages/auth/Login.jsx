@@ -23,20 +23,31 @@ function Login() {
     setError('');
     setLoading(true);
 
+    // Basic frontend validation
+    if (!formData.email || !formData.password) {
+      setError('Please enter both email and password.');
+      setLoading(false);
+      return;
+    }
+
     try {
       await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
       // Improved error handling
-      if (err.response) {
-        // The server responded with an error message
-        setError(err.response.data.message || 'Login failed. Please check your credentials.');
+      if (err.response?.data?.errors) {
+        // Handle validation errors array from express-validator
+        const messages = err.response.data.errors.map(e => e.msg).join(', ');
+        setError(`Login failed: ${messages}`);
+      } else if (err.response?.data?.message) {
+        // Handle specific error message from backend
+        setError(err.response.data.message);
       } else if (err.request) {
-        // The request was made but no response was received
-        setError('Network error. Please check your connection and try again.');
+        // Handle network error
+        setError('Network error. Please check connection.');
       } else {
-        // Something else caused the error
-        setError('An unexpected error occurred. Please try again.');
+        // Handle other unexpected errors
+        setError('An unexpected error occurred during login.');
       }
       console.error('Login error:', err);
     } finally {

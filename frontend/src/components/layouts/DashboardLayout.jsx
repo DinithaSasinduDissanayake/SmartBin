@@ -7,6 +7,9 @@ import Sidebar from '../dashboard/Sidebar';
 import SubscriptionPlans from '../financial/SubscriptionPlans';
 import FinancialDashboard from '../financial/FinancialDashboard';
 import ProfilePage from '../../pages/profile/ProfilePage';
+// Import new staff components
+import AttendanceTracker from '../staff/AttendanceTracker';
+import PerformanceMetrics from '../staff/PerformanceMetrics';
 import './DashboardLayout.css';
 
 // Placeholder dashboard components for different roles
@@ -48,18 +51,15 @@ function DashboardLayout() {
             <Route path="/" element={<DashboardHome user={user} />} />
             <Route path="/profile" element={<ProfilePage />} />
             
-            {/* Resident/Garbage_Buyer routes */}
-            {user?.role === 'Resident/Garbage_Buyer' && (
+            {/* Customer routes */}
+            {user?.role === 'customer' && (
               <>
-                <Route path="/collection-history" element={<div className="dashboard-content"><h2>Collection History</h2></div>} />
-                <Route path="/financial-history" element={<div className="dashboard-content"><h2>Financial History</h2></div>} />
-                <Route path="/complaints" element={<div className="dashboard-content"><h2>Complaints</h2></div>} />
-                <Route path="/pickup-requests" element={<div className="dashboard-content"><h2>Pickup Requests</h2></div>} />
-                <Route path="/available-garbage" element={<div className="dashboard-content"><h2>Available Garbage</h2></div>} />
-                <Route path="/purchase-history" element={<div className="dashboard-content"><h2>Purchase History</h2></div>} />
+                <Route path="subscriptions" element={<UserSubscriptionsPage />} />
+                <Route path="documents" element={<UserDocumentsPage />} />
+                {/* Add other customer-specific routes */}
               </>
             )}
-            
+
             {/* Admin routes */}
             {user?.role === 'admin' && (
               <>
@@ -84,9 +84,9 @@ function DashboardLayout() {
             {/* Staff routes */}
             {user?.role === 'staff' && (
               <>
-                <Route path="/attendance" element={<div className="dashboard-content"><h2>Attendance</h2></div>} />
+                <Route path="/attendance" element={<AttendanceTracker />} /> 
                 <Route path="/tasks" element={<div className="dashboard-content"><h2>Tasks</h2></div>} />
-                <Route path="/performance" element={<div className="dashboard-content"><h2>Performance</h2></div>} />
+                <Route path="/performance" element={<PerformanceMetrics />} /> 
               </>
             )}
             

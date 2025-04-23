@@ -57,36 +57,48 @@ function Register() {
     e.preventDefault();
     setFormError('');
     
-    // Validate email
+    // Frontend Validation Checks before API call
+    if (!formData.name.trim()) {
+      setFormError('Full Name is required.');
+      return;
+    }
     if (!validateEmail(formData.email)) {
-      setFormError('Please enter a valid email address');
+      setFormError('Please enter a valid email address.');
       return;
     }
-    
-    // Validate password
     if (formData.password.length < 8) {
-      setFormError('Password must be at least 8 characters long');
+      setFormError('Password must be at least 8 characters long.');
       return;
     }
-    
-    // Validate phone
-    if (!validatePhone(formData.phone)) {
-      setFormError('Please enter a valid phone number');
-      return;
-    }
-    
-    // Validate address
     if (!validateAddress(formData.address)) {
-      setFormError('Please enter a valid address (minimum 5 characters)');
+      setFormError('Please enter a valid address (minimum 5 characters).');
+      return;
+    }
+    if (!validatePhone(formData.phone)) {
+      setFormError('Please enter a valid phone number.');
       return;
     }
     
     try {
       await register(formData);
       navigate('/dashboard');
-    } catch (error) {
-      console.error(error);
-      setFormError(error.response?.data?.message || 'Registration failed. Please check your information.');
+    } catch (err) {
+      // Improved error handling for backend responses
+      if (err.response?.data?.errors) {
+        // Handle validation errors array from express-validator
+        const messages = err.response.data.errors.map(e => e.msg).join(', ');
+        setFormError(`Registration failed: ${messages}`);
+      } else if (err.response?.data?.message) {
+        // Handle specific error message from backend
+        setFormError(err.response.data.message);
+      } else if (err.request) {
+        // Handle network error
+        setFormError('Network error. Please check connection.');
+      } else {
+        // Handle other unexpected errors
+        setFormError('An unexpected error occurred during registration.');
+      }
+      console.error('Registration error:', err);
     }
   };
 
@@ -168,7 +180,6 @@ function Register() {
               onBlur={handleBlur}
               required
               aria-label="Phone Number"
-              placeholder="e.g., +947XXXXXXXX"
             />
             <small className="form-text text-muted">
               Enter a valid phone number with country code

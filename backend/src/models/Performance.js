@@ -73,6 +73,11 @@ const performanceSchema = new mongoose.Schema({
   }
 });
 
+// Indexes
+performanceSchema.index({ staff: 1 }); // Index for querying by staff
+performanceSchema.index({ reviewer: 1 }); // Index for querying by reviewer
+performanceSchema.index({ 'reviewPeriod.endDate': -1 }); // Index for sorting/querying by review end date
+
 // Calculate overall rating from individual metrics
 performanceSchema.pre('save', function(next) {
   const metrics = this.metrics;

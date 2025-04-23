@@ -1,0 +1,5552 @@
+// File: c:\y2s2ITP\SmartBin\frontend\package.json
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "chart.js": "^4.4.9",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "vite": "^6.2.0"
+  }
+}
+
+
+
+
+// File: c:\y2s2ITP\SmartBin\frontend\index.html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartBin</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+
+
+
+// File: c:\y2s2ITP\SmartBin\frontend\vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+
+
+
+
+// File: c:\y2s2ITP\SmartBin\frontend\eslint.config.js
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+
+export default [
+  { ignores: ['dist'] },
+  {
+    files: ['**/*.{js,jsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
+  },
+]
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\dashboard\Header.css
+/* frontend/src/components/dashboard/Header.css */
+/* Dashboard Header - Reset and fix */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 70px;
+  background-color: #3e4b2e; /* Updated to match sidebar color */
+  border-bottom: 1px solid #4a5a37;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0 25px;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Left side with title */
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-left h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #ffffff; /* Updated for better contrast */
+}
+
+/* Right side with user info and logout */
+.header-right {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* This pushes it to the right */
+}
+
+/* User information container */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  margin-right: 15px;
+  text-align: right;
+}
+
+/* Username display */
+.user-info span:first-child {
+  font-weight: 500;
+  color: #ffffff; /* Updated for better contrast */
+}
+
+/* User role display */
+.user-role {
+  font-size: 0.8rem;
+  color: #e0e0e0; /* Updated for better contrast */
+}
+
+/* Logout button */
+.logout-button {
+  padding: 6px 12px;
+  background-color: #4ea14a; /* Updated to match theme */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+  background-color: #3c8a38; /* Darker version for hover */
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+}
+
+.user-menu .user-info {
+  margin-right: 15px;
+  text-align: right;
+}
+
+.user-menu .username {
+  font-weight: 500;
+  color: #ffffff; /* Updated for better contrast */
+}
+
+.user-menu .role {
+  font-size: 0.8rem;
+  color: #e0e0e0; /* Updated for better contrast */
+}
+
+.user-menu button {
+  background-color: #4ea14a; /* Updated to match theme */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.user-menu button:hover {
+  background-color: #3c8a38; /* Darker version for hover */
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\dashboard\Header.jsx
+// frontend/src/components/dashboard/Header.jsx
+import React from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import './Header.css';
+
+function Header() {
+  const { user, logout } = useAuth();
+
+  return (
+    <header className="dashboard-header">
+      <div className="header-left">
+        <h2>SmartBin Dashboard</h2>
+      </div>
+      
+      <div className="header-right">
+        <div className="user-info">
+          <span>{user?.name || 'User'}</span>
+          <span className="user-role">{user?.role || 'Guest'}</span>
+        </div>
+        <button onClick={logout} className="logout-button">Logout</button>
+      </div>
+    </header>
+  );
+}
+
+export default Header;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\dashboard\Sidebar.css
+/* Google Fonts - Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    min-height: 100%;
+    background: #f3f5f0;
+}
+
+nav .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    padding: 20px 0;
+    background-color: #c3ceb6;
+    box-shadow: 0 5px 1px rgba(27, 27, 27, 0.1);
+    transition: all 0.4s ease;
+    text-decoration: none;
+}
+
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    margin: 0 24px 30px;
+    cursor: pointer;
+}
+
+.logo .logo-name {
+    color: #141a17;
+    font-size: 22px;
+    font-weight: 500;
+    margin-left: 20px;
+}
+
+.sidebar .sidebar-content {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 16px;
+}
+
+.sidebar-content .list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-content .list-item {
+    list-style: none;
+    margin: 8px 0;
+    border-radius: 12px; 
+    width: 90%;
+    height: 50px;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.sidebar-content .list-item a {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background-color: #88afa1;
+    border-radius: 12px;
+    height: 100%;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.sidebar-content .list-item:hover a {
+    background-color: rgb(130, 150, 106);
+    transform: scale(1.02);
+}
+
+/* Update the nav-icon style to make icons more visible */
+.nav-icon {
+    margin-right: 14px;
+    font-size: 20px;
+    color: #141a17; /* Dark color for visibility */
+    transition: color 0.3s ease;
+    display: inline-block; /* Ensure proper display */
+    width: 20px;
+    text-align: center;
+}
+
+/* Also ensure FontAwesome icons are properly sized and visible */
+.sidebar-content .list-item a .nav-icon {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+}
+
+/* Ensure active nav items show icons clearly */
+.sidebar-content .list-item a.active .nav-icon {
+    color: #141a17;
+}
+
+.link {
+    font-size: 16px;
+    color: #141a17;
+    font-weight: 400;
+}
+
+.sidebar-content .list-item:hover .nav-icon {
+    color: #141a17;
+}
+
+.bottom-content {
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 10px 10px;
+    padding-right: 30px;
+}
+
+.social-icons .icon {
+    font-size: 24px;
+    color: #4ea14a;
+    margin-right: 10px;
+    transition: color 0.3s ease;
+}
+
+/* Make social icons more visible too */
+.social-icons .icon svg {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+
+.social-icons .icon svg path {
+    fill: #4ea14a !important;
+}
+
+.social-icons .icon:hover {
+    color: #141a17;
+}
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\dashboard\Sidebar.jsx
+// frontend/src/components/dashboard/Sidebar.jsx
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { 
+  faFacebook, 
+  faInstagram, 
+  faTwitter
+} from "@fortawesome/free-brands-svg-icons";
+
+import {
+  faGaugeHigh,
+  faFileLines,
+  faMoneyBillTransfer,
+  faUser,
+  faCreditCard,
+  faChartLine,
+  faCalendarDays,
+  faMoneyBill,
+  faFileSignature,
+  faTruck,
+  faRecycle,
+  faScroll,
+  faUsers,
+  faCog,
+  faClipboardList,
+  faListCheck,
+  faTrophy
+} from "@fortawesome/free-solid-svg-icons";
+
+library.add(
+  faFacebook, 
+  faInstagram, 
+  faTwitter,
+  faGaugeHigh,
+  faFileLines,
+  faMoneyBillTransfer,
+  faUser,
+  faCreditCard,
+  faChartLine,
+  faCalendarDays,
+  faMoneyBill,
+  faFileSignature,
+  faTruck,
+  faRecycle,
+  faScroll,
+  faUsers,
+  faCog,
+  faClipboardList,
+  faListCheck,
+  faTrophy
+);
+
+import './Sidebar.css';
+
+function Sidebar() {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  // Define navigation items with FontAwesome icons
+  const getNavItems = () => {
+    const commonItems = [
+      { path: '/dashboard', label: 'Dashboard', icon: faGaugeHigh },
+      { path: '/dashboard/profile', label: 'My Profile', icon: faUser },
+    ];
+
+    const roleSpecificItems = {
+      'Resident/Garbage_Buyer': [
+        { path: '/dashboard/collection-history', label: 'Collection History', icon: faCalendarDays },
+        { path: '/dashboard/financial-history', label: 'Financial History', icon: faMoneyBill },
+        { path: '/dashboard/complaints', label: 'Complaints', icon: faFileSignature },
+        { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: faTruck },
+        { path: '/dashboard/available-garbage', label: 'Available Garbage', icon: faRecycle },
+        { path: '/dashboard/purchase-history', label: 'Purchase History', icon: faScroll },
+      ],
+      admin: [
+        { path: '/dashboard/users', label: 'User Management', icon: faUsers },
+        { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
+        { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
+      ],
+      // Maintaining the database role name format (with underscore)
+      financial_manager: [
+        { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
+        { path: '/dashboard/budget-allocation', label: 'Budget Allocation', icon: faMoneyBillTransfer },
+        { path: '/dashboard/salary', label: 'Salary', icon: faUser },
+        { path: '/dashboard/payments', label: 'Payments', icon: faCreditCard },
+      ],
+      staff: [
+        { path: '/dashboard/attendance', label: 'Attendance', icon: faClipboardList },
+        { path: '/dashboard/tasks', label: 'Tasks', icon: faListCheck },
+        { path: '/dashboard/performance', label: 'Performance', icon: faTrophy },
+      ],
+    };
+
+    return [
+      ...commonItems,
+      ...(roleSpecificItems[user?.role] || []),
+    ];
+  };
+
+  const navItems = getNavItems();
+
+  return (
+    <nav>
+      <div className="sidebar">
+        <div className="logo">
+          <img src="#" alt="logo" className="logo-img" />
+          <span className="logo-name">SmartBin</span>
+        </div>
+        
+        <div className="sidebar-content">
+          <ul className="list">
+            {navItems.map((item) => (
+              <li key={item.path} className="list-item">
+                <Link 
+                  to={item.path} 
+                  className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
+                >
+                  <FontAwesomeIcon icon={item.icon} className="nav-icon" />
+                  <span className="link">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+            {/* Removed duplicate conditional rendering block */}
+          </ul>
+          
+          <div className="bottom-content">
+            <div className="social-icons">
+              <a href="#" className="icon"><FontAwesomeIcon icon={faFacebook} /></a>
+              <a href="#" className="icon"><FontAwesomeIcon icon={faInstagram} /></a>
+              <a href="#" className="icon"><FontAwesomeIcon icon={faTwitter} /></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+export default Sidebar;
+
+
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\financial\FinancialDashboard.css
+.financial-dashboard {
+    padding: 20px;
+    background-color: #f5f7fa;
+    border-radius: 8px;
+    color: #333;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #2c3e50;
+}
+
+.dashboard-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.date-range-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-range-selector label {
+    font-weight: 500;
+}
+
+.date-range-selector select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.9rem;
+}
+
+.export-btn {
+    padding: 8px 16px;
+    background-color: #3e4b2e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.export-btn:hover {
+    background-color: #4a5a37;
+}
+
+.dashboard-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.dashboard-tabs button {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #777;
+    white-space: nowrap;
+}
+
+.dashboard-tabs button:hover {
+    color: #3e4b2e;
+}
+
+.dashboard-tabs button.active {
+    color: #3e4b2e;
+    border-bottom: 2px solid #3e4b2e;
+    font-weight: 500;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.dashboard-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.dashboard-card p {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #3e4b2e;
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+.dashboard-card.highlight p {
+    color: #3498db;
+}
+
+.card-subtitle {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.dashboard-charts {
+    margin-bottom: 30px;
+}
+
+.chart-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.chart-container h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.chart-wrapper {
+    height: 300px;
+    position: relative;
+}
+
+.recent-transactions, .subscription-plans {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.recent-transactions h3, .subscription-plans h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+    background-color: #f8f9fa;
+    color: #555;
+    font-weight: 500;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+}
+
+.status.completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status.failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.view-all {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.view-all-btn {
+    padding: 8px 16px;
+    background-color: transparent;
+    color: #3e4b2e;
+    border: 1px solid #3e4b2e;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.view-all-btn:hover {
+    background-color: #3e4b2e;
+    color: white;
+}
+
+.loading, .error {
+    padding: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error {
+    color: #dc3545;
+}
+
+/* Add this after the .error style */
+
+.no-data-message {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    border: 1px dashed #ccc;
+}
+
+.no-data-message p {
+    font-size: 1.1rem;
+    color: #777;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-controls {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .date-range-selector, .date-range-selector select {
+        width: 100%;
+    }
+    
+    .export-btn {
+        width: 100%;
+    }
+}
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\financial\FinancialDashboard.jsx
+import React, { useState, useEffect, useContext } from 'react';
+import AuthContext from '../../contexts/AuthContext';
+import api from '../../services/api';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Colors
+} from 'chart.js';
+import './FinancialDashboard.css';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Colors
+);
+
+const formatCurrency = (amount) => {
+  const numericAmount = Number(amount);
+  if (isNaN(numericAmount)) {
+    return '$0.00';
+  }
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(numericAmount);
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return 'Invalid Date';
+  }
+};
+
+const FinancialDashboard = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState('month');
+  const [activeTab, setActiveTab] = useState('overview');
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user || (user.role !== 'financial_manager' && user.role !== 'admin')) {
+        setError('Access Denied');
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        const response = await api.get(`/financials/dashboard?range=${dateRange}`);
+        setDashboardData(response.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching financial dashboard data:", err);
+        setError(err.response?.data?.message || 'Failed to fetch dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user, dateRange]);
+
+  const prepareChartData = () => {
+    if (!dashboardData) {
+      return { revenueExpenseData: {}, planRevenueData: {}, expenseCategoryData: {}, planSubscriptionData: {} };
+    }
+
+    // Generate complete set of labels based on date range
+    let completeLabels = [];
+    let revenueTrendMap = new Map();
+    let expenseTrendMap = new Map();
+
+    // Convert existing data to maps for easy lookup
+    (dashboardData.trends?.revenue || []).forEach(item => revenueTrendMap.set(item.month, item.total));
+    (dashboardData.trends?.expenses || []).forEach(item => expenseTrendMap.set(item.month, item.total));
+
+    const today = new Date();
+    
+    // Generate complete set of labels based on dateRange
+    if (dateRange === 'month') {
+      // For month: days 1-current day of month
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const currentDay = Math.min(today.getDate(), daysInMonth);
+      
+      for (let i = 1; i <= currentDay; i++) {
+        const dayStr = i.toString();
+        completeLabels.push(dayStr);
+        if (!revenueTrendMap.has(dayStr)) revenueTrendMap.set(dayStr, 0);
+        if (!expenseTrendMap.has(dayStr)) expenseTrendMap.set(dayStr, 0);
+      }
+    } else if (dateRange === 'last3months') {
+      // For last 3 months: get the previous 3 months including current
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      
+      // Loop through the last 3 months (including current)
+      for (let i = 0; i < 3; i++) {
+        // Calculate month index (handling year wrap-around)
+        let monthIndex = currentMonth - 2 + i;
+        let year = currentYear;
+        
+        if (monthIndex < 0) {
+          monthIndex += 12;
+          year -= 1;
+        }
+        
+        const monthLabel = `${monthNames[monthIndex]}-${year}`;
+        completeLabels.push(monthLabel);
+        
+        // For all months, initialize with available data or 0
+        if (!revenueTrendMap.has(monthLabel)) revenueTrendMap.set(monthLabel, 0);
+        if (!expenseTrendMap.has(monthLabel)) expenseTrendMap.set(monthLabel, 0);
+      }
+    } else { // year
+      // For year: Jan-current month
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const year = today.getFullYear();
+      
+      for (let i = 0; i <= today.getMonth(); i++) {
+        const monthLabel = `${monthNames[i]}-${year}`;
+        completeLabels.push(monthLabel);
+        if (!revenueTrendMap.has(monthLabel)) revenueTrendMap.set(monthLabel, 0);
+        if (!expenseTrendMap.has(monthLabel)) expenseTrendMap.set(monthLabel, 0);
+      }
+    }
+
+    // Use our complete labels for the chart with values from maps (will be 0 for missing data)
+    const revenueExpenseData = {
+      labels: completeLabels,
+      datasets: [
+        {
+          label: 'Revenue',
+          data: completeLabels.map(label => revenueTrendMap.get(label)),
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.4,
+          spanGaps: true
+        },
+        {
+          label: 'Expenses',
+          data: completeLabels.map(label => expenseTrendMap.get(label)),
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.4,
+          spanGaps: true
+        }
+      ]
+    };
+
+    // Check if there's any non-null data to display
+    const allZeroValues = revenueExpenseData.datasets.every(dataset => 
+      dataset.data.every(value => value === 0 || value === null)
+    );
+
+    // For other chart data, keep the original logic
+    const planRevenueLabels = dashboardData.revenueByPlan?.map(item => item.plan) || [];
+    const planRevenueData = {
+      labels: planRevenueLabels,
+      datasets: [{
+        label: 'Revenue',
+        data: dashboardData.revenueByPlan?.map(item => item.revenue) || [],
+        borderWidth: 1
+      }]
+    };
+
+    const expenseCategoryLabels = dashboardData.expensesByCategory?.map(item => item.category) || [];
+    const expenseCategoryData = {
+      labels: expenseCategoryLabels,
+      datasets: [{
+        label: 'Expenses by Category',
+        data: dashboardData.expensesByCategory?.map(item => item.total) || [],
+        borderWidth: 1
+      }]
+    };
+
+    const planSubscriptionLabels = dashboardData.revenueByPlan?.map(item => item.plan) || [];
+    const planSubscriptionData = {
+      labels: planSubscriptionLabels,
+      datasets: [{
+        label: 'Subscriptions (by Revenue)',
+        data: dashboardData.revenueByPlan?.map(item => item.revenue) || [],
+        borderWidth: 1
+      }]
+    };
+
+    return { 
+      revenueExpenseData, 
+      planRevenueData, 
+      expenseCategoryData, 
+      planSubscriptionData, 
+      allZeroValues 
+    };
+  };
+
+  const { revenueExpenseData, planRevenueData, expenseCategoryData, planSubscriptionData, allZeroValues } = prepareChartData();
+
+  const commonChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+      },
+      colors: {
+        enabled: true
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  };
+
+  // Get the appropriate chart title based on the selected date range
+  const getChartTitle = () => {
+    switch(dateRange) {
+      case 'month':
+        return 'Revenue vs Expenses Trend (This Month)';
+      case 'last3months':
+        return 'Revenue vs Expenses Trend (Last 3 Months)';
+      case 'year':
+        return 'Revenue vs Expenses Trend (Year to Date)';
+      default:
+        return 'Revenue vs Expenses Trend';
+    }
+  };
+
+  const lineChartOptions = { 
+    ...commonChartOptions, 
+    plugins: { 
+      ...commonChartOptions.plugins, 
+      title: { 
+        display: true, 
+        text: getChartTitle() 
+      } 
+    } 
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right' },
+      title: { display: true, text: 'Distribution' },
+      colors: { enabled: true }
+    }
+  };
+  const barChartOptions = { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, legend: { display: false }, title: { display: true, text: 'Expenses by Category' } } };
+
+  if (loading) {
+    return <div className="loading">Loading Financial Dashboard...</div>;
+  }
+
+  if (error) {
+    return <div className="error">Error: {error}</div>;
+  }
+
+  if (!dashboardData) {
+    return <div className="loading">No data available.</div>;
+  }
+
+  const isEmptyData =
+    dashboardData.activeSubscriptions === 0 &&
+    (dashboardData.totalRevenue?.period || 0) === 0 &&
+    (dashboardData.totalExpenses?.period || 0) === 0 &&
+    (dashboardData.outstandingPayments || 0) === 0 &&
+    Array.isArray(dashboardData.revenueByPlan) && dashboardData.revenueByPlan.length === 0 &&
+    Array.isArray(dashboardData.expensesByCategory) && dashboardData.expensesByCategory.length === 0;
+
+  if (isEmptyData) {
+    return (
+      <div className="empty-state">
+        <p>No financial data available for this period.</p>
+      </div>
+    );
+  }
+
+  const renderPeriodSubtitle = () => (
+    <span className="card-subtitle">
+      {dateRange === 'month' ? 'This Month' :
+        dateRange === 'last3months' ? 'Last 3 Months' :
+          'This Year'}
+    </span>
+  );
+
+  return (
+    <div className="financial-dashboard">
+      <div className="dashboard-header">
+        <h2>Financial Dashboard</h2>
+        <div className="dashboard-controls">
+          <div className="date-range-selector">
+            <label htmlFor="date-range">Time Period:</label>
+            <select
+              id="date-range"
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value)}
+            >
+              <option value="month">This Month</option>
+              <option value="last3months">Last 3 Months</option>
+              <option value="year">This Year</option>
+            </select>
+          </div>
+          <button
+            className="export-btn"
+            onClick={() => alert('Export functionality to be implemented')}
+          >
+            Export Report
+          </button>
+        </div>
+      </div>
+
+      <div className="dashboard-tabs">
+        <button
+          className={activeTab === 'overview' ? 'active' : ''}
+          onClick={() => setActiveTab('overview')}
+        >
+          Overview
+        </button>
+        <button
+          className={activeTab === 'revenue' ? 'active' : ''}
+          onClick={() => setActiveTab('revenue')}
+        >
+          Revenue
+        </button>
+        <button
+          className={activeTab === 'expenses' ? 'active' : ''}
+          onClick={() => setActiveTab('expenses')}
+        >
+          Expenses
+        </button>
+        <button
+          className={activeTab === 'subscriptions' ? 'active' : ''}
+          onClick={() => setActiveTab('subscriptions')}
+        >
+          Subscriptions
+        </button>
+      </div>
+
+      {activeTab === 'overview' && (
+        <>
+          <div className="dashboard-grid">
+            <div className="dashboard-card highlight">
+              <h3>Total Revenue</h3>
+              <p>{formatCurrency(dashboardData.totalRevenue?.period || 0)}</p>
+              {renderPeriodSubtitle()}
+            </div>
+            <div className="dashboard-card highlight">
+              <h3>Total Expenses</h3>
+              <p>{formatCurrency(dashboardData.totalExpenses?.period || 0)}</p>
+              {renderPeriodSubtitle()}
+            </div>
+            <div className="dashboard-card highlight">
+              <h3>Net Profit</h3>
+              <p>{formatCurrency((dashboardData.totalRevenue?.period || 0) - (dashboardData.totalExpenses?.period || 0))}</p>
+              {renderPeriodSubtitle()}
+            </div>
+            <div className="dashboard-card">
+              <h3>Active Subscriptions</h3>
+              <p>{dashboardData.activeSubscriptions || 0}</p>
+              <span className="card-subtitle">Total Active</span>
+            </div>
+            <div className="dashboard-card">
+              <h3>Outstanding Payments</h3>
+              <p>{formatCurrency(dashboardData.outstandingPayments || 0)}</p>
+              <span className="card-subtitle">Pending Collection</span>
+            </div>
+            <div className="dashboard-card">
+              <h3>Subscription Revenue</h3>
+              <p>{formatCurrency(dashboardData.totalRevenue?.subscriptions || 0)}</p>
+              {renderPeriodSubtitle()}
+            </div>
+          </div>
+
+          <div className="dashboard-charts">
+            <div className="chart-container">
+              {allZeroValues ? (
+                <div className="no-data-message">
+                  <p>No revenue or expense data available for {dateRange === 'month' ? 'this month' : dateRange === 'last3months' ? 'last 3 months' : 'this year'}.</p>
+                </div>
+              ) : (
+                <div className="chart-wrapper">
+                  <Line
+                    data={revenueExpenseData}
+                    options={lineChartOptions}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'revenue' && (
+        <>
+          <div className="dashboard-grid">
+            <div className="dashboard-card highlight">
+              <h3>Total Revenue</h3>
+              <p>{formatCurrency(dashboardData.totalRevenue?.period || 0)}</p>
+              {renderPeriodSubtitle()}
+            </div>
+            <div className="dashboard-card">
+              <h3>Revenue Growth</h3>
+              <p>{(dashboardData.revenueGrowthPercentage || 0).toFixed(1)}%</p>
+              <span className="card-subtitle">From Previous Period</span>
+            </div>
+            <div className="dashboard-card">
+              <h3>Average Revenue</h3>
+              <p>{formatCurrency(dashboardData.averageDailyRevenue || 0)}</p>
+              <span className="card-subtitle">Per Day (in Period)</span>
+            </div>
+          </div>
+
+          <div className="dashboard-charts">
+            <div className="chart-container">
+              <h3>Revenue by Subscription Plan</h3>
+              <div className="chart-wrapper">
+                <Doughnut
+                  data={planRevenueData}
+                  options={{ ...doughnutOptions, plugins: { ...doughnutOptions.plugins, title: { display: true, text: 'Revenue by Subscription Plan' } } }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="recent-transactions">
+            <h3>Recent Transactions</h3>
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dashboardData.recentTransactions?.payments?.length > 0 ? (
+                    dashboardData.recentTransactions.payments.map((payment) => (
+                      <tr key={payment.id}>
+                        <td>{formatDate(payment.date)}</td>
+                        <td>{payment.customer || 'N/A'}</td>
+                        <td>{payment.description || 'N/A'}</td>
+                        <td>{formatCurrency(payment.amount)}</td>
+                        <td><span className={`status ${payment.status?.toLowerCase()}`}>{payment.status}</span></td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="5">No recent payments found for this period.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'expenses' && (
+        <>
+          <div className="dashboard-grid">
+            <div className="dashboard-card highlight">
+              <h3>Total Expenses</h3>
+              <p>{formatCurrency(dashboardData.totalExpenses?.period || 0)}</p>
+              {renderPeriodSubtitle()}
+            </div>
+            <div className="dashboard-card">
+              <h3>Largest Category</h3>
+              <p>{dashboardData.largestExpenseCategory?.category || 'N/A'}</p>
+              <span className="card-subtitle">{formatCurrency(dashboardData.largestExpenseCategory?.total || 0)}</span>
+            </div>
+            <div className="dashboard-card">
+              <h3>Budget Status</h3>
+              <p>N/A</p>
+              <span className="card-subtitle">Budget data needed</span>
+            </div>
+          </div>
+
+          <div className="dashboard-charts">
+            <div className="chart-container">
+              <h3>Expenses by Category</h3>
+              <div className="chart-wrapper">
+                <Bar
+                  data={expenseCategoryData}
+                  options={barChartOptions}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="recent-transactions">
+            <h3>Recent Expenses</h3>
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dashboardData.recentTransactions?.expenses?.length > 0 ? (
+                    dashboardData.recentTransactions.expenses.map((expense) => (
+                      <tr key={expense.id}>
+                        <td>{formatDate(expense.date)}</td>
+                        <td>{expense.category}</td>
+                        <td>{expense.description || 'N/A'}</td>
+                        <td>{formatCurrency(expense.amount)}</td>
+                        <td><span className={`status ${expense.status?.toLowerCase()}`}>{expense.status}</span></td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="5">No recent expenses found for this period.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'subscriptions' && (
+        <>
+          <div className="dashboard-grid">
+            <div className="dashboard-card highlight">
+              <h3>Active Subscriptions</h3>
+              <p>{dashboardData.activeSubscriptions || 0}</p>
+              <span className="card-subtitle">Total</span>
+            </div>
+            <div className="dashboard-card">
+              <h3>New Subscriptions</h3>
+              <p>{dashboardData.newSubscriptions || 0}</p>
+              {renderPeriodSubtitle()}
+            </div>
+            <div className="dashboard-card">
+              <h3>Cancellations</h3>
+              <p>{dashboardData.cancellations || 0}</p>
+              {renderPeriodSubtitle()}
+            </div>
+          </div>
+
+          <div className="dashboard-charts">
+            <div className="chart-container">
+              <h3>Subscriptions by Plan</h3>
+              <div className="chart-wrapper">
+                <Doughnut
+                  data={planSubscriptionData}
+                  options={{ ...doughnutOptions, plugins: { ...doughnutOptions.plugins, title: { display: true, text: 'Subscriptions by Revenue' } } }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="subscription-plans">
+            <h3>Subscription Plans Overview</h3>
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Plan Name</th>
+                    <th>Price</th>
+                    <th>Billing</th>
+                    <th>Active Users</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dashboardData.subscriptionPlans?.length > 0 ? (
+                    dashboardData.subscriptionPlans.map((plan) => (
+                      <tr key={plan.id}>
+                        <td>{plan.name}</td>
+                        <td>{formatCurrency(plan.price)}</td>
+                        <td>{plan.duration}</td>
+                        <td>{plan.subscriberCount}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="4">No subscription plans found.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="view-all">
+              <button className="view-all-btn" onClick={() => window.location.href = '/dashboard/subscription-plans'}>Manage Subscription Plans</button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default FinancialDashboard;
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\financial\SubscriptionPlans.css
+.subscription-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    color: #333; /* Dark text color for the entire container */
+  }
+  
+  .subscription-container h2 {
+    text-align: left;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .search-box {
+    padding: 10px;
+    width: 60%;
+    border: 1px solid #d2ddc4;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    margin-left: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-btn {
+    background: #4ea14a;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .view-btn {
+    background: #88afa1;
+    color: white;
+  }
+  
+  .update-btn {
+    background: #88afa1;
+    color: white;
+  }
+  
+  .delete-btn {
+    background: #88afa1;
+    color: white;
+  }
+  
+  .add-btn:hover {
+    background: #3c8a38;
+  }
+  
+  .view-btn:hover, .update-btn:hover {
+    background: #6b9b8d;
+  }
+  
+  .delete-btn:hover {
+    background: #d9534f;
+    color: white;
+  }
+  
+  .btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+  }
+  
+  .submit-btn:disabled {
+    background-color: #a0d09c;
+    color: white;
+  }
+  
+  .cancel-btn:disabled {
+    background-color: #adb5bd;
+    color: white;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #b4c3a2;
+    color: #141a17;
+    font-weight: 500;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  tr:hover {
+    background-color: #f1f7eb;
+  }
+  
+  .subscription-container table td {
+    color: #333; /* Explicit dark color for table cells */
+  }
+  
+  /* Plan Details Styles */
+  .plan-details {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .plan-details h3 {
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #4ea14a;
+    padding-bottom: 10px;
+  }
+  
+  .detail-row {
+    display: flex;
+    margin-bottom: 15px;
+  }
+  
+  .detail-label {
+    font-weight: bold;
+    width: 120px;
+    color: #555;
+  }
+  
+  .detail-value {
+    flex: 1;
+    color: #333;
+  }
+  
+  .close-btn {
+    background-color: #6c757d;
+    color: white;
+    margin-top: 15px;
+  }
+  
+  .close-btn:hover {
+    background-color: #5a6268;
+  }
+  
+  /* Form Styles */
+  .subscription-form {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .subscription-form h3 {
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #4ea14a;
+    padding-bottom: 10px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #444;
+  }
+  
+  .form-group input, 
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #333;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #4ea14a;
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  
+  .submit-btn {
+    background-color: #4ea14a;
+    color: white;
+  }
+  
+  .submit-btn:hover {
+    background-color: #3c8a38;
+  }
+  
+  .cancel-btn {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #5a6268;
+  }
+
+  /* Add to the end of your SubscriptionPlans.css file */
+.loading {
+  padding: 20px;
+  text-align: center;
+  color: #555;
+  font-size: 16px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+.form-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+.no-plans {
+  text-align: center;
+  padding: 30px 0;
+  color: #666;
+  font-style: italic;
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\financial\SubscriptionPlans.jsx
+import React, { useState, useEffect } from 'react';
+import { subscriptionPlansApi } from '../../services/api';
+import './SubscriptionPlans.css';
+
+const SubscriptionPlans = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showViewDetails, setShowViewDetails] = useState(false);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState(null);
+
+  // Fetch subscription plans
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      setLoading(true);
+      const response = await subscriptionPlansApi.getAll();
+      setPlans(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch subscription plans. Please try again later.');
+      console.error('Error fetching plans:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter plans based on search term
+  const filteredPlans = plans.filter((plan) =>
+    plan.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleAddNew = () => {
+    setShowAddForm(true);
+    setShowViewDetails(false);
+    setShowUpdateForm(false);
+  };
+
+  const handleViewDetails = (plan) => {
+    setCurrentPlan(plan);
+    setShowViewDetails(true);
+    setShowAddForm(false);
+    setShowUpdateForm(false);
+  };
+
+  const handleUpdate = (plan) => {
+    setCurrentPlan(plan);
+    setShowUpdateForm(true);
+    setShowAddForm(false);
+    setShowViewDetails(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this subscription plan?')) {
+      try {
+        await subscriptionPlansApi.delete(id);
+        setPlans(plans.filter(plan => plan._id !== id));
+      } catch (err) {
+        setError('Failed to delete the plan. Please try again.');
+        console.error('Error deleting plan:', err);
+      }
+    }
+  };
+
+  const handleAddPlan = async (planData) => {
+    try {
+      const response = await subscriptionPlansApi.create(planData);
+      setPlans([...plans, response.data]);
+      setShowAddForm(false);
+      return true;
+    } catch (err) {
+      setError('Failed to add new plan. Please try again.');
+      console.error('Error adding plan:', err);
+      return false;
+    }
+  };
+
+  const handleUpdatePlan = async (planData) => {
+    try {
+      const response = await subscriptionPlansApi.update(planData._id, planData);
+      setPlans(plans.map(p => p._id === planData._id ? response.data : p));
+      setShowUpdateForm(false);
+      return true;
+    } catch (err) {
+      setError('Failed to update the plan. Please try again.');
+      console.error('Error updating plan:', err);
+      return false;
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Loading subscription plans...</div>;
+  }
+
+  return (
+    <div className="subscription-container">
+      <h2>Subscription Plans</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      {/* Add form, view details, or update form */}
+      {showAddForm && (
+        <SubscriptionForm 
+          onClose={() => setShowAddForm(false)} 
+          onSubmit={handleAddPlan}
+        />
+      )}
+      
+      {showViewDetails && currentPlan && (
+        <PlanDetails 
+          plan={currentPlan} 
+          onClose={() => setShowViewDetails(false)} 
+        />
+      )}
+      
+      {showUpdateForm && currentPlan && (
+        <SubscriptionForm 
+          plan={currentPlan} 
+          onClose={() => setShowUpdateForm(false)} 
+          onSubmit={handleUpdatePlan}
+        />
+      )}
+      
+      {/* Main content */}
+      {!showAddForm && !showViewDetails && !showUpdateForm && (
+        <>
+          <div className="top-bar">
+            <input 
+              type="text" 
+              className="search-box" 
+              placeholder="Search Subscription..." 
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <button className="btn add-btn" onClick={handleAddNew}>+ Add New Subscription</button>
+          </div>
+
+          {plans.length === 0 ? (
+            <div className="no-plans">No subscription plans found. Add a new plan to get started.</div>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Count of Subscribers</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPlans.map((plan) => (
+                  <tr key={plan._id}>
+                    <td>{plan.name}</td>
+                    <td>{plan.price}</td>
+                    <td>{plan.subscriberCount}</td>
+                    <td>
+                      <button className="btn view-btn" onClick={() => handleViewDetails(plan)}>View More</button>
+                      <button className="btn update-btn" onClick={() => handleUpdate(plan)}>Update</button>
+                      <button className="btn delete-btn" onClick={() => handleDelete(plan._id)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+// Component for viewing plan details
+const PlanDetails = ({ plan, onClose }) => {
+  return (
+    <div className="plan-details">
+      <h3>Plan Details</h3>
+      <div className="detail-row">
+        <span className="detail-label">Name:</span>
+        <span className="detail-value">{plan.name}</span>
+      </div>
+      <div className="detail-row">
+        <span className="detail-label">Price:</span>
+        <span className="detail-value">{plan.price}</span>
+      </div>
+      <div className="detail-row">
+        <span className="detail-label">Subscribers:</span>
+        <span className="detail-value">{plan.subscriberCount}</span>
+      </div>
+      <div className="detail-row">
+        <span className="detail-label">Description:</span>
+        <span className="detail-value">{plan.description}</span>
+      </div>
+      <div className="detail-row">
+        <span className="detail-label">Duration:</span>
+        <span className="detail-value">{plan.duration}</span>
+      </div>
+      <button className="btn close-btn" onClick={onClose}>Close</button>
+    </div>
+  );
+};
+
+// Component for adding/updating subscription plan
+const SubscriptionForm = ({ plan, onClose, onSubmit }) => {
+  const [formData, setFormData] = useState({
+    _id: plan?._id || '',
+    name: plan?.name || '',
+    price: plan?.price || '',
+    subscriberCount: plan?.subscriberCount || 0,
+    description: plan?.description || '',
+    duration: plan?.duration || 'Monthly'
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setFormError('');
+    
+    try {
+      const success = await onSubmit(formData);
+      if (success) {
+        onClose();
+      }
+    } catch {
+      setFormError('An error occurred. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="subscription-form">
+      <h3>{plan ? 'Update Subscription Plan' : 'Add New Subscription Plan'}</h3>
+      
+      {formError && <div className="form-error">{formError}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="name">Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            value={formData.name} 
+            onChange={handleChange}
+            required
+            disabled={submitting}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="price">Price</label>
+          <input 
+            type="text" 
+            id="price" 
+            name="price" 
+            value={formData.price} 
+            onChange={handleChange}
+            required
+            disabled={submitting}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="subscriberCount">Subscribers</label>
+          <input 
+            type="number" 
+            id="subscriberCount" 
+            name="subscriberCount" 
+            value={formData.subscriberCount} 
+            onChange={handleChange}
+            required
+            min="0"
+            disabled={submitting}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="description">Description</label>
+          <textarea 
+            id="description" 
+            name="description" 
+            value={formData.description} 
+            onChange={handleChange}
+            rows="4"
+            disabled={submitting}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="duration">Duration</label>
+          <select 
+            id="duration" 
+            name="duration" 
+            value={formData.duration} 
+            onChange={handleChange}
+            disabled={submitting}
+          >
+            <option value="Monthly">Monthly</option>
+            <option value="Quarterly">Quarterly</option>
+            <option value="Semi-Annual">Semi-Annual</option>
+            <option value="Annual">Annual</option>
+          </select>
+        </div>
+        <div className="form-actions">
+          <button 
+            type="submit" 
+            className="btn submit-btn"
+            disabled={submitting}
+          >
+            {submitting ? 'Processing...' : (plan ? 'Update Plan' : 'Add Plan')}
+          </button>
+          <button 
+            type="button" 
+            className="btn cancel-btn" 
+            onClick={onClose}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default SubscriptionPlans;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\layouts\DashboardLayout.css
+/* frontend/src/components/layouts/DashboardLayout.css */
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: 260px; /* Width of sidebar */
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 260px); /* Ensure proper width calculation */
+  overflow: hidden;
+}
+
+.dashboard-content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #eaefea;
+}
+
+/* Ensure only one component renders at a time */
+.dashboard-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Fix header placement */
+.dashboard-main header {
+  width: 100%;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Make main content area take remaining height */
+.dashboard-main main {
+  flex: 1;
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\layouts\DashboardLayout.jsx
+// frontend/src/components/layouts/DashboardLayout.jsx
+import React from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import Header from '../dashboard/Header';
+import Sidebar from '../dashboard/Sidebar';
+import SubscriptionPlans from '../financial/SubscriptionPlans';
+import FinancialDashboard from '../financial/FinancialDashboard';
+import ProfilePage from '../../pages/profile/ProfilePage';
+import './DashboardLayout.css';
+
+// Placeholder dashboard components for different roles
+const DashboardHome = ({ user }) => {
+  // If user is a financial manager, show financial dashboard
+  if (user?.role === 'financial_manager') {
+    return <FinancialDashboard />;
+  }
+  
+  // Default dashboard for other roles
+  return (
+    <div className="dashboard-content">
+      <h2>Dashboard Home</h2>
+      <p>Welcome to your dashboard!</p>
+    </div>
+  );
+};
+
+// Inline NotFound component
+const NotFoundPage = () => (
+  <div className="dashboard-content" style={{ textAlign: 'center', marginTop: '50px' }}>
+    <h1>404 - Page Not Found</h1>
+    <p>Sorry, the page you are looking for does not exist.</p>
+    <Link to="/dashboard">Go back to Dashboard</Link>
+  </div>
+);
+
+function DashboardLayout() {
+  const { user } = useAuth();
+
+  return (
+    <div className="dashboard-layout">
+      <Sidebar />
+      <div className="dashboard-main">
+        <Header />
+        <main className="dashboard-content-area">
+          <Routes>
+            {/* Pass user to DashboardHome so it can conditionally render */}
+            <Route path="/" element={<DashboardHome user={user} />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            
+            {/* Resident/Garbage_Buyer routes */}
+            {user?.role === 'Resident/Garbage_Buyer' && (
+              <>
+                <Route path="/collection-history" element={<div className="dashboard-content"><h2>Collection History</h2></div>} />
+                <Route path="/financial-history" element={<div className="dashboard-content"><h2>Financial History</h2></div>} />
+                <Route path="/complaints" element={<div className="dashboard-content"><h2>Complaints</h2></div>} />
+                <Route path="/pickup-requests" element={<div className="dashboard-content"><h2>Pickup Requests</h2></div>} />
+                <Route path="/available-garbage" element={<div className="dashboard-content"><h2>Available Garbage</h2></div>} />
+                <Route path="/purchase-history" element={<div className="dashboard-content"><h2>Purchase History</h2></div>} />
+              </>
+            )}
+            
+            {/* Admin routes */}
+            {user?.role === 'admin' && (
+              <>
+                <Route path="/users" element={<div className="dashboard-content"><h2>User Management</h2></div>} />
+                <Route path="/statistics" element={<div className="dashboard-content"><h2>Statistics</h2></div>} />
+                <Route path="/settings" element={<div className="dashboard-content"><h2>System Settings</h2></div>} />
+                <Route path="/financial-overview" element={<FinancialDashboard />} /> {/* Add route for Admin */}
+              </>
+            )}
+            
+            {/* Financial manager routes */}
+            {user?.role === 'financial_manager' && (
+              <>
+                <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+                <Route path="/budget-allocation" element={<div className="dashboard-content"><h2>Budget Allocation</h2></div>} />
+                <Route path="/salary" element={<div className="dashboard-content"><h2>Salary Management</h2></div>} />
+                <Route path="/payments" element={<div className="dashboard-content"><h2>Payments</h2></div>} />
+                <Route path="/financial-overview" element={<FinancialDashboard />} /> {/* Add route for Financial Manager */}
+              </>
+            )}
+            
+            {/* Staff routes */}
+            {user?.role === 'staff' && (
+              <>
+                <Route path="/attendance" element={<div className="dashboard-content"><h2>Attendance</h2></div>} />
+                <Route path="/tasks" element={<div className="dashboard-content"><h2>Tasks</h2></div>} />
+                <Route path="/performance" element={<div className="dashboard-content"><h2>Performance</h2></div>} />
+              </>
+            )}
+            
+            {/* Fallback route */}
+            <Route path="*" element={<NotFoundPage />} /> {/* Use the inline NotFound component */}
+          </Routes>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default DashboardLayout;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\layouts\Sidebar.jsx
+// frontend/src/components/dashboard/Sidebar.jsx
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { 
+  faFacebook, 
+  faInstagram, 
+  faTwitter
+} from "@fortawesome/free-brands-svg-icons";
+
+import {
+  faGaugeHigh,
+  faFileLines,
+  faMoneyBillTransfer,
+  faUser,
+  faCreditCard,
+  faChartLine,
+  faCalendarDays,
+  faMoneyBill,
+  faFileSignature,
+  faTruck,
+  faRecycle,
+  faScroll,
+  faUsers,
+  faCog,
+  faClipboardList,
+  faListCheck,
+  faTrophy,
+  faTachometerAlt // Added icon for financial overview
+} from "@fortawesome/free-solid-svg-icons";
+
+library.add(
+  faFacebook, 
+  faInstagram, 
+  faTwitter,
+  faGaugeHigh,
+  faFileLines,
+  faMoneyBillTransfer,
+  faUser,
+  faCreditCard,
+  faChartLine,
+  faCalendarDays,
+  faMoneyBill,
+  faFileSignature,
+  faTruck,
+  faRecycle,
+  faScroll,
+  faUsers,
+  faCog,
+  faClipboardList,
+  faListCheck,
+  faTrophy,
+  faTachometerAlt // Add the new icon to the library
+);
+
+import './Sidebar.css';
+
+function Sidebar() {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  // Define navigation items with FontAwesome icons
+  const getNavItems = () => {
+    const commonItems = [
+      { path: '/dashboard', label: 'Dashboard', icon: faGaugeHigh },
+      { path: '/dashboard/profile', label: 'My Profile', icon: faUser },
+    ];
+
+    const roleSpecificItems = {
+      'Resident/Garbage_Buyer': [
+        { path: '/dashboard/collection-history', label: 'Collection History', icon: faCalendarDays },
+        { path: '/dashboard/financial-history', label: 'Financial History', icon: faMoneyBill },
+        { path: '/dashboard/complaints', label: 'Complaints', icon: faFileSignature },
+        { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: faTruck },
+        { path: '/dashboard/available-garbage', label: 'Available Garbage', icon: faRecycle },
+        { path: '/dashboard/purchase-history', label: 'Purchase History', icon: faScroll },
+      ],
+      admin: [
+        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Admin
+        { path: '/dashboard/users', label: 'User Management', icon: faUsers },
+        { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
+        { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
+      ],
+      // Maintaining the database role name format (with underscore)
+      financial_manager: [
+        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Financial Manager
+        { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
+        { path: '/dashboard/budget-allocation', label: 'Budget Allocation', icon: faMoneyBillTransfer },
+        { path: '/dashboard/salary', label: 'Salary', icon: faUser },
+        { path: '/dashboard/payments', label: 'Payments', icon: faCreditCard },
+      ],
+      staff: [
+        { path: '/dashboard/attendance', label: 'Attendance', icon: faClipboardList },
+        { path: '/dashboard/tasks', label: 'Tasks', icon: faListCheck },
+        { path: '/dashboard/performance', label: 'Performance', icon: faTrophy },
+      ],
+    };
+
+    return [
+      ...commonItems,
+      ...(roleSpecificItems[user?.role] || []),
+    ];
+  };
+
+  const navItems = getNavItems();
+
+  return (
+    <nav>
+      <div className="sidebar">
+        <div className="logo">
+          <img src="#" alt="logo" className="logo-img" />
+          <span className="logo-name">SmartBin</span>
+        </div>
+        
+        <div className="sidebar-content">
+          <ul className="list">
+            {navItems.map((item) => (
+              <li key={item.path} className="list-item">
+                <Link 
+                  to={item.path} 
+                  className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
+                >
+                  <FontAwesomeIcon icon={item.icon} className="nav-icon" />
+                  <span className="link">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          
+          <div className="bottom-content">
+            <div className="social-icons">
+              <a href="#" className="icon"><FontAwesomeIcon icon={faFacebook} /></a>
+              <a href="#" className="icon"><FontAwesomeIcon icon={faInstagram} /></a>
+              <a href="#" className="icon"><FontAwesomeIcon icon={faTwitter} /></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+export default Sidebar;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\profile\DocumentUploadForm.jsx
+import React, { useState } from 'react';
+import profileApi from '../../services/profileApi';
+import './ProfileForms.css';
+
+const DocumentUploadForm = ({ documents = [], onUpload, loading }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    type: 'Other',
+    document: null
+  });
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    
+    if (name === 'document') {
+      setFormData({
+        ...formData,
+        document: files[0]
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+    
+    // Clear messages when form is being edited
+    setFormError('');
+    setFormSuccess('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+    
+    // Validate form
+    if (!formData.name.trim()) {
+      setFormError('Document name is required');
+      return;
+    }
+    
+    if (!formData.document) {
+      setFormError('Please select a file to upload');
+      return;
+    }
+    
+    // Check file size (5MB max)
+    if (formData.document.size > 5 * 1024 * 1024) {
+      setFormError('File size exceeds 5MB limit');
+      return;
+    }
+    
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!allowedTypes.includes(formData.document.type)) {
+      setFormError('Only JPEG, PNG and PDF files are allowed');
+      return;
+    }
+    
+    // Create form data for file upload
+    const uploadData = new FormData();
+    uploadData.append('name', formData.name);
+    uploadData.append('type', formData.type);
+    uploadData.append('document', formData.document);
+    
+    // Submit the form
+    setUploading(true);
+    
+    try {
+      const result = await onUpload(uploadData);
+      
+      if (result.success) {
+        setFormSuccess(result.message);
+        // Reset form
+        setFormData({
+          name: '',
+          type: 'Other',
+          document: null
+        });
+        // Reset file input
+        document.getElementById('document-file').value = '';
+      } else {
+        setFormError(result.message);
+      }
+    } catch (error) {
+      setFormError('An error occurred during upload');
+      console.error(error);
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleDeleteDocument = async (id) => {
+    if (window.confirm('Are you sure you want to delete this document?')) {
+      try {
+        await profileApi.deleteDocument(id);
+        // Refresh documents list
+        const _response = await profileApi.getProfile();
+        // Update documents through parent component
+        onUpload(new FormData()); // Trigger a refresh
+        setFormSuccess('Document deleted successfully');
+      } catch (error) {
+        setFormError('Failed to delete document');
+        console.error('Error deleting document:', error);
+      }
+    }
+  };
+
+  return (
+    <div className="profile-form-container">
+      <h3>Upload Verification Documents</h3>
+      
+      {formError && <div className="form-error">{formError}</div>}
+      {formSuccess && <div className="form-success">{formSuccess}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="name">Document Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            value={formData.name} 
+            onChange={handleChange}
+            disabled={loading || uploading}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="type">Document Type</label>
+          <select 
+            id="type" 
+            name="type" 
+            value={formData.type} 
+            onChange={handleChange}
+            disabled={loading || uploading}
+          >
+            <option value="ID Card">ID Card</option>
+            <option value="Utility Bill">Utility Bill</option>
+            <option value="Driver License">Driver's License</option>
+            <option value="Passport">Passport</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="document-file">Select File</label>
+          <input 
+            type="file" 
+            id="document-file" 
+            name="document" 
+            onChange={handleChange}
+            disabled={loading || uploading}
+            accept=".jpg,.jpeg,.png,.pdf"
+          />
+          <small>Max file size: 5MB. Allowed formats: JPG, PNG, PDF</small>
+        </div>
+        
+        {uploading && (
+          <div className="upload-progress">
+            <div 
+              className="progress-bar" 
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+            <span>{uploadProgress}%</span>
+          </div>
+        )}
+        
+        <button 
+          type="submit" 
+          className="profile-form-button"
+          disabled={loading || uploading}
+        >
+          {uploading ? 'Uploading...' : 'Upload Document'}
+        </button>
+      </form>
+      
+      <div className="documents-list">
+        <h4>Your Documents</h4>
+        
+        {documents.length === 0 ? (
+          <p className="no-documents">You haven't uploaded any documents yet.</p>
+        ) : (
+          <table className="documents-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {documents.map((doc) => (
+                <tr key={doc._id}>
+                  <td>{doc.name}</td>
+                  <td>{doc.type}</td>
+                  <td>
+                    <span className={`status-badge ${doc.verificationStatus.toLowerCase()}`}>
+                      {doc.verificationStatus}
+                    </span>
+                  </td>
+                  <td>{new Date(doc.uploadedAt).toLocaleDateString()}</td>
+                  <td>
+                    <button 
+                      className="document-action-btn view"
+                      // Use the full filePath relative to the /uploads route
+                      onClick={() => window.open(`/uploads/${doc.filePath}`, '_blank')} 
+                    >
+                      View
+                    </button>
+                    <button 
+                      className="document-action-btn delete"
+                      onClick={() => handleDeleteDocument(doc._id)}
+                      disabled={loading}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default DocumentUploadForm;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\profile\PasswordChangeForm.jsx
+import React, { useState } from 'react';
+import './ProfileForms.css';
+
+const PasswordChangeForm = ({ onSubmit, loading }) => {
+  const [formData, setFormData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    // Clear messages when form is being edited
+    setFormError('');
+    setFormSuccess('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+    
+    // Validate passwords
+    if (!formData.currentPassword) {
+      setFormError('Current password is required');
+      return;
+    }
+    
+    if (!formData.newPassword) {
+      setFormError('New password is required');
+      return;
+    }
+    
+    if (formData.newPassword.length < 8) {
+      setFormError('Password must be at least 8 characters long');
+      return;
+    }
+    
+    if (formData.newPassword !== formData.confirmPassword) {
+      setFormError('New passwords do not match');
+      return;
+    }
+    
+    // Submit the form
+    const result = await onSubmit(formData);
+    
+    if (result.success) {
+      setFormSuccess(result.message);
+      // Clear form after successful password change
+      setFormData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } else {
+      setFormError(result.message);
+    }
+  };
+
+  return (
+    <div className="profile-form-container">
+      <h3>Change Password</h3>
+      
+      {formError && <div className="form-error">{formError}</div>}
+      {formSuccess && <div className="form-success">{formSuccess}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="currentPassword">Current Password</label>
+          <input 
+            type="password" 
+            id="currentPassword" 
+            name="currentPassword" 
+            value={formData.currentPassword} 
+            onChange={handleChange}
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="newPassword">New Password</label>
+          <input 
+            type="password" 
+            id="newPassword" 
+            name="newPassword" 
+            value={formData.newPassword} 
+            onChange={handleChange}
+            disabled={loading}
+          />
+          <small>Must be at least 8 characters</small>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="confirmPassword">Confirm New Password</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            name="confirmPassword" 
+            value={formData.confirmPassword} 
+            onChange={handleChange}
+            disabled={loading}
+          />
+        </div>
+        
+        <button 
+          type="submit" 
+          className="profile-form-button"
+          disabled={loading}
+        >
+          {loading ? 'Updating...' : 'Change Password'}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default PasswordChangeForm;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\profile\ProfileForm.jsx
+import React, { useState, useEffect } from 'react';
+import './ProfileForms.css';
+
+const ProfileForm = ({ profileData, onSubmit, loading }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: ''
+  });
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
+
+  // Initialize form with profile data when it loads
+  useEffect(() => {
+    if (profileData) {
+      setFormData({
+        name: profileData.name || '',
+        email: profileData.email || ''
+      });
+    }
+  }, [profileData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    // Clear messages when form is being edited
+    setFormError('');
+    setFormSuccess('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setFormSuccess('');
+    
+    // Basic validation
+    if (!formData.name.trim()) {
+      setFormError('Name is required');
+      return;
+    }
+    
+    if (!formData.email.trim()) {
+      setFormError('Email is required');
+      return;
+    }
+    
+    // Email validation
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if (!emailRegex.test(formData.email)) {
+      setFormError('Please enter a valid email address');
+      return;
+    }
+    
+    // Submit the form
+    const result = await onSubmit(formData);
+    
+    if (result.success) {
+      setFormSuccess(result.message);
+    } else {
+      setFormError(result.message);
+    }
+  };
+
+  return (
+    <div className="profile-form-container">
+      <h3>Edit Profile Information</h3>
+      
+      {formError && <div className="form-error">{formError}</div>}
+      {formSuccess && <div className="form-success">{formSuccess}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="name">Full Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            value={formData.name} 
+            onChange={handleChange}
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="email">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            value={formData.email} 
+            onChange={handleChange}
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Account Type</label>
+          <input 
+            type="text" 
+            value={profileData?.role || 'User'} 
+            disabled 
+            className="read-only"
+          />
+          <small>Account type cannot be changed</small>
+        </div>
+        
+        <div className="form-group">
+          <label>Member Since</label>
+          <input 
+            type="text" 
+            value={profileData?.createdAt 
+              ? new Date(profileData.createdAt).toLocaleDateString() 
+              : 'N/A'} 
+            disabled 
+            className="read-only"
+          />
+        </div>
+        
+        <button 
+          type="submit" 
+          className="profile-form-button"
+          disabled={loading}
+        >
+          {loading ? 'Saving...' : 'Save Changes'}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default ProfileForm;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\profile\ProfileForms.css
+.profile-form-container {
+  width: 100%;
+}
+
+.profile-form-container h3 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #444;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #ffffff; /* Light background color */
+  color: #333; /* Dark text color */
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder {
+  color: #999; /* Placeholder text color */
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4ea14a; /* Add focus border color */
+}
+
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #777;
+  font-size: 12px;
+}
+
+.read-only {
+  background-color: #f9f9f9;
+  color: #666;
+}
+
+.form-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+.form-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #c3e6cb;
+}
+
+.profile-form-button {
+  padding: 10px 20px;
+  background-color: #4ea14a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.profile-form-button:hover {
+  background-color: #3c8a38;
+}
+
+.profile-form-button:disabled {
+  background-color: #a0d09c;
+  cursor: not-allowed;
+}
+
+/* Document Upload Form specific styles */
+.upload-progress {
+  height: 20px;
+  width: 100%;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4ea14a;
+  transition: width 0.3s ease;
+}
+
+.upload-progress span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  line-height: 20px;
+  color: white;
+  font-size: 12px;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.documents-list {
+  margin-top: 30px;
+}
+
+.documents-list h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.no-documents {
+  color: #777;
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.documents-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.documents-table th,
+.documents-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.documents-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #333;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-badge.verified {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-badge.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.document-action-btn {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.document-action-btn.view {
+  color: #2c6ecf;
+}
+
+.document-action-btn.view:hover {
+  background-color: #e8f0fe;
+}
+
+.document-action-btn.delete {
+  color: #dc3545;
+}
+
+.document-action-btn.delete:hover {
+  background-color: #f8d7da;
+}
+
+.document-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .documents-table {
+    font-size: 14px;
+  }
+  
+  .documents-table th,
+  .documents-table td {
+    padding: 8px 10px;
+  }
+  
+  .document-action-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 576px) {
+  .documents-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .profile-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\staff\AttendanceTracker.jsx
+import React, { useState, useEffect } from 'react';
+import attendanceApi from '../../services/attendanceApi';
+import './StaffComponents.css';
+
+const AttendanceTracker = () => {
+  const [attendance, setAttendance] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [checkedIn, setCheckedIn] = useState(false);
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(new Date().setDate(1)).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  });
+
+  // Check if already checked in today
+  const checkStatus = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const response = await attendanceApi.getMyAttendance(today, today);
+      
+      const todayRecord = response.data.find(record => {
+        const recordDate = new Date(record.date).toISOString().split('T')[0];
+        return recordDate === today;
+      });
+      
+      setCheckedIn(todayRecord && !todayRecord.checkOutTime);
+    } catch (err) {
+      console.error('Error checking status:', err);
+    }
+  };
+
+  // Fetch attendance data
+  const fetchAttendance = async () => {
+    try {
+      setLoading(true);
+      const response = await attendanceApi.getMyAttendance(
+        dateRange.startDate, 
+        dateRange.endDate
+      );
+      setAttendance(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load attendance data');
+      console.error('Error fetching attendance:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkStatus();
+    fetchAttendance();
+  }, [dateRange]);
+
+  const handleCheckIn = async () => {
+    try {
+      await attendanceApi.checkIn();
+      setCheckedIn(true);
+      await fetchAttendance(); // Refresh data
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to check in');
+    }
+  };
+
+  const handleCheckOut = async () => {
+    try {
+      await attendanceApi.checkOut();
+      setCheckedIn(false);
+      await fetchAttendance(); // Refresh data
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to check out');
+    }
+  };
+
+  const handleDateChange = (e) => {
+    setDateRange({
+      ...dateRange,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Calculate stats
+  const getStats = () => {
+    if (!attendance.length) return { total: 0, hours: 0 };
+    
+    const totalDays = attendance.length;
+    const totalHours = attendance.reduce((sum, record) => sum + (record.totalHours || 0), 0);
+    
+    return {
+      total: totalDays,
+      hours: totalHours.toFixed(1)
+    };
+  };
+
+  const stats = getStats();
+
+  return (
+    <div className="attendance-tracker">
+      <div className="tracker-header">
+        <h2>Attendance Tracker</h2>
+        <div className="attendance-actions">
+          {!checkedIn ? (
+            <button 
+              className="check-in-btn" 
+              onClick={handleCheckIn}
+            >
+              Check In
+            </button>
+          ) : (
+            <button 
+              className="check-out-btn" 
+              onClick={handleCheckOut}
+            >
+              Check Out
+            </button>
+          )}
+        </div>
+      </div>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="attendance-stats">
+        <div className="stat-box">
+          <span className="stat-label">Total Working Days</span>
+          <span className="stat-value">{stats.total}</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Total Hours</span>
+          <span className="stat-value">{stats.hours}</span>
+        </div>
+      </div>
+      
+      <div className="date-filter">
+        <div className="filter-item">
+          <label>From:</label>
+          <input 
+            type="date" 
+            name="startDate" 
+            value={dateRange.startDate} 
+            onChange={handleDateChange}
+          />
+        </div>
+        <div className="filter-item">
+          <label>To:</label>
+          <input 
+            type="date" 
+            name="endDate" 
+            value={dateRange.endDate} 
+            onChange={handleDateChange}
+          />
+        </div>
+      </div>
+      
+      {loading ? (
+        <div className="loading">Loading attendance records...</div>
+      ) : attendance.length > 0 ? (
+        <table className="attendance-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Hours</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attendance.map(record => (
+              <tr key={record._id}>
+                <td>{new Date(record.date).toLocaleDateString()}</td>
+                <td>{record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString() : '-'}</td>
+                <td>{record.checkOutTime ? new Date(record.checkOutTime).toLocaleTimeString() : '-'}</td>
+                <td>{record.totalHours ? record.totalHours.toFixed(1) : '-'}</td>
+                <td><span className={`status-badge ${record.status.toLowerCase()}`}>{record.status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div className="no-records">No attendance records found for the selected period.</div>
+      )}
+    </div>
+  );
+};
+
+export default AttendanceTracker;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\staff\PerformanceMetrics.jsx
+import React, { useState, useEffect } from 'react';
+import performanceApi from '../../services/performanceApi';
+import './StaffComponents.css';
+
+const PerformanceMetrics = () => {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+
+  useEffect(() => {
+    const fetchPerformanceReviews = async () => {
+      try {
+        setLoading(true);
+        const response = await performanceApi.getMyReviews();
+        setReviews(response.data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load performance reviews');
+        console.error('Error fetching reviews:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPerformanceReviews();
+  }, []);
+
+  const handleViewDetails = (review) => {
+    setSelectedReview(review);
+    setShowDetails(true);
+  };
+
+  const closeDetails = () => {
+    setShowDetails(false);
+    setSelectedReview(null);
+  };
+
+  // Calculate average rating
+  const getAverageRating = () => {
+    if (!reviews.length) return 0;
+    
+    const sum = reviews.reduce((acc, review) => acc + review.overallRating, 0);
+    return (sum / reviews.length).toFixed(1);
+  };
+
+  const averageRating = getAverageRating();
+
+  return (
+    <div className="performance-metrics">
+      <h2>Performance Metrics</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="performance-summary">
+        <div className="rating-overview">
+          <div className="average-rating">
+            <span className="rating-label">Average Rating</span>
+            <span className="rating-value">{averageRating}</span>
+            <div className="rating-stars">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(star => (
+                <span 
+                  key={star} 
+                  className={`star ${star <= averageRating ? 'filled' : ''}`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="review-count">
+            <span className="count-label">Total Reviews</span>
+            <span className="count-value">{reviews.length}</span>
+          </div>
+        </div>
+      </div>
+      
+      {loading ? (
+        <div className="loading">Loading performance data...</div>
+      ) : reviews.length > 0 ? (
+        <div className="reviews-list">
+          <h3>Review History</h3>
+          <table className="reviews-table">
+            <thead>
+              <tr>
+                <th>Review Period</th>
+                <th>Rating</th>
+                <th>Reviewed By</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reviews.map(review => (
+                <tr key={review._id}>
+                  <td>
+                    {new Date(review.reviewPeriod.startDate).toLocaleDateString()} - 
+                    {new Date(review.reviewPeriod.endDate).toLocaleDateString()}
+                  </td>
+                  <td>
+                    <span className={`rating-badge rating-${Math.round(review.overallRating)}`}>
+                      {review.overallRating}
+                    </span>
+                  </td>
+                  <td>{review.reviewer.name}</td>
+                  <td>{new Date(review.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    <button 
+                      className="view-details-btn"
+                      onClick={() => handleViewDetails(review)}
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="no-reviews">No performance reviews found.</div>
+      )}
+      
+      {showDetails && selectedReview && (
+        <div className="review-details-modal">
+          <div className="modal-content">
+            <span className="close-btn" onClick={closeDetails}>&times;</span>
+            <h3>Performance Review Details</h3>
+            
+            <div className="review-period">
+              <strong>Review Period:</strong> 
+              {new Date(selectedReview.reviewPeriod.startDate).toLocaleDateString()} - 
+              {new Date(selectedReview.reviewPeriod.endDate).toLocaleDateString()}
+            </div>
+            
+            <div className="metrics-section">
+              <h4>Performance Metrics</h4>
+              <div className="metrics-grid">
+                <div className="metric-item">
+                  <span className="metric-name">Productivity</span>
+                  <span className="metric-value">{selectedReview.metrics.productivity}</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-name">Quality</span>
+                  <span className="metric-value">{selectedReview.metrics.quality}</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-name">Reliability</span>
+                  <span className="metric-value">{selectedReview.metrics.reliability}</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-name">Communication</span>
+                  <span className="metric-value">{selectedReview.metrics.communication}</span>
+                </div>
+                <div className="metric-item">
+                  <span className="metric-name">Initiative</span>
+                  <span className="metric-value">{selectedReview.metrics.initiative}</span>
+                </div>
+              </div>
+              <div className="overall-rating">
+                <strong>Overall Rating:</strong> 
+                <span className={`rating-badge rating-${Math.round(selectedReview.overallRating)}`}>
+                  {selectedReview.overallRating}
+                </span>
+              </div>
+            </div>
+            
+            <div className="feedback-section">
+              <h4>Feedback</h4>
+              <p>{selectedReview.feedback}</p>
+            </div>
+            
+            {selectedReview.goals && selectedReview.goals.length > 0 && (
+              <div className="goals-section">
+                <h4>Goals for Improvement</h4>
+                <ul>
+                  {selectedReview.goals.map((goal, index) => (
+                    <li key={index}>{goal}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            <button className="close-details-btn" onClick={closeDetails}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PerformanceMetrics;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\components\staff\StaffComponents.css
+/* Common styles for staff components */
+.attendance-tracker,
+.performance-metrics {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.attendance-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.check-in-btn,
+.check-out-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.check-in-btn {
+  background-color: #4ea14a;
+  color: white;
+}
+
+.check-out-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.check-in-btn:hover {
+  background-color: #3c8a38;
+}
+
+.check-out-btn:hover {
+  background-color: #c0392b;
+}
+
+.attendance-stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  flex: 1;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.date-filter {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-item label {
+  font-weight: 500;
+  color: #555;
+}
+
+.filter-item input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.attendance-table,
+.reviews-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.attendance-table th,
+.attendance-table td,
+.reviews-table th,
+.reviews-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.attendance-table th,
+.reviews-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #333;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-badge.present {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.absent {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.late {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.half-day {
+  background-color: #e2f0fb;
+  color: #0c5460;
+}
+
+/* Performance Metrics Styles */
+.performance-summary {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.rating-overview {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.average-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rating-label, .count-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.rating-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.rating-stars {
+  display: flex;
+}
+
+.star {
+  font-size: 20px;
+  color: #ddd;
+  margin: 0 1px;
+}
+
+.star.filled {
+  color: #f39c12;
+}
+
+.review-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.count-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+}
+
+.rating-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.rating-badge.rating-10, .rating-badge.rating-9 {
+  background-color: #28a745;
+  color: white;
+}
+
+.rating-badge.rating-8, .rating-badge.rating-7 {
+  background-color: #4ea14a;
+  color: white;
+}
+
+.rating-badge.rating-6, .rating-badge.rating-5 {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.rating-badge.rating-4, .rating-badge.rating-3 {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.rating-badge.rating-2, .rating-badge.rating-1 {
+  background-color: #dc3545;
+  color: white;
+}
+
+.view-details-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.view-details-btn:hover {
+  background-color: #0069d9;
+}
+
+/* Modal styles */
+.review-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 30px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.review-period {
+  margin-bottom: 20px;
+}
+
+.metrics-section, .feedback-section, .goals-section {
+  margin-bottom: 25px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.metric-item {
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-name {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.overall-rating {
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.close-details-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.close-details-btn:hover {
+  background-color: #5a6268;
+}
+
+.loading, .no-reviews, .no-records, .error-message {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+}
+
+/* New styles */
+.staff-component {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.staff-component-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.staff-component-header h2 {
+  font-size: 1.4rem;
+  color: #333;
+  margin: 0;
+}
+
+/* Attendance Tracker specific styles */
+.attendance-card {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.attendance-card:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-details {
+  flex-grow: 1;
+}
+
+.attendance-date {
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.attendance-time {
+  display: flex;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.attendance-time span {
+  margin-right: 15px;
+}
+
+.attendance-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-indicator.checked-in {
+  background-color: #28a745;
+}
+
+.status-indicator.checked-out {
+  background-color: #6c757d;
+}
+
+.attendance-actions {
+  display: flex;
+  align-items: center;
+}
+
+.attendance-action-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.check-in-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.check-in-btn:hover {
+  background-color: #218838;
+}
+
+.check-out-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.check-out-btn:hover {
+  background-color: #5a6268;
+}
+
+/* Performance metrics styles */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4ea14a;
+  margin: 10px 0;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.performance-chart {
+  width: 100%;
+  height: 300px;
+  margin-top: 20px;
+}
+
+.rating-stars {
+  font-size: 1.5rem;
+  color: #ffc107;
+  margin: 10px 0;
+}
+
+.rating-label {
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Admin management styles */
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.staff-table th, 
+.staff-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.staff-table thead th {
+  background-color: #f5f5f5;
+  color: #333;
+  font-weight: 500;
+}
+
+.staff-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.staff-action-btn {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.staff-action-btn.view {
+  background-color: #e3f2fd;
+  color: #0d6efd;
+}
+
+.staff-action-btn.edit {
+  background-color: #e8f5e9;
+  color: #28a745;
+}
+
+.staff-action-btn.delete {
+  background-color: #fbeae9;
+  color: #dc3545;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  
+  .staff-table {
+    font-size: 0.9rem;
+  }
+  
+  .staff-table th, 
+  .staff-table td {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .staff-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\contexts\AuthContext.jsx
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+
+const AuthContext = createContext();
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Check if user is logged in on page load
+    const checkUserLoggedIn = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          // Set auth header
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          
+          // Get user data
+          const response = await axios.get('http://localhost:5000/api/auth/me');
+          setUser(response.data);
+        }
+      } catch (error) {
+        console.error('Authentication error:', error);
+        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUserLoggedIn();
+  }, []);
+
+  // Register new user
+  const register = async (userData) => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/register', userData);
+      
+      // Save token and user data
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data);
+      return response.data;
+    } catch (error) {
+      setError(error.response?.data?.message || 'Registration failed');
+      throw error;
+    }
+  };
+
+  // Login user
+  const login = async (email, password) => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      
+      // Save token and user data
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data);
+      return response.data;
+    } catch (error) {
+      setError(error.response?.data?.message || 'Login failed');
+      throw error;
+    }
+  };
+
+  // Logout user
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    // Any other cleanup needed
+    delete axios.defaults.headers.common['Authorization'];
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, error, register, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// Custom hook to use auth context
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export default AuthContext;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\auth\Auth.css
+/* frontend/src/pages/auth/Auth.css */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 450px;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form-container h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #ffffff; /* Light background color */
+  color: #333; /* Dark text color */
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder {
+  color: #999; /* Placeholder text color */
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4ea14a; /* Add focus border color */
+}
+
+.error-message {
+  background-color: #ffe6e6;
+  color: #e74c3c;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #4ea14a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-button:hover {
+  background-color: #3c8a38;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #777;
+}
+
+.auth-footer a {
+  color: #4ea14a;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Override autofill styles in Chrome/Safari */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #333 !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* For Firefox and other browsers */
+input:-moz-autofill,
+input:-moz-autofill:hover,
+input:-moz-autofill:focus,
+input:-moz-autofill:active {
+    background-color: white !important;
+    color: #333 !important;
+}
+
+.auth-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\auth\Login.jsx
+// src/pages/auth/Login.jsx
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import './Auth.css';
+
+function Login() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await login(formData.email, formData.password);
+      navigate('/dashboard');
+    } catch (err) {
+      // Improved error handling
+      if (err.response) {
+        // The server responded with an error message
+        setError(err.response.data.message || 'Login failed. Please check your credentials.');
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        // Something else caused the error
+        setError('An unexpected error occurred. Please try again.');
+      }
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-form-container">
+        <h2>Login to SmartBin</h2>
+        
+        {error && <div className="auth-error">{error}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+        
+        <div className="auth-footer">
+          Don't have an account? <Link to="/register">Sign up</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\auth\Register.jsx
+// frontend/src/pages/auth/Register.jsx
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import './Auth.css';
+
+const validatePhone = (phone) => {
+  const phoneRegex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
+  return phoneRegex.test(phone);
+};
+
+const validateAddress = (address) => {
+  return address.trim().length >= 5; 
+};
+
+const validateEmail = (email) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email);
+};
+
+function Register() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    address: '',
+    phone: '',
+  });
+  const [formError, setFormError] = useState('');
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'email' && value && !validateEmail(value)) {
+      setFormError('Please enter a valid email address');
+    } else if (name === 'password' && value.length < 8) {
+      setFormError('Password must be at least 8 characters long');
+    } else if (name === 'phone' && value && !validatePhone(value)) {
+      setFormError('Please enter a valid phone number');
+    } else if (name === 'address' && value && !validateAddress(value)) {
+      setFormError('Address should be at least 5 characters long');
+    } else {
+      setFormError('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    
+    // Validate email
+    if (!validateEmail(formData.email)) {
+      setFormError('Please enter a valid email address');
+      return;
+    }
+    
+    // Validate password
+    if (formData.password.length < 8) {
+      setFormError('Password must be at least 8 characters long');
+      return;
+    }
+    
+    // Validate phone
+    if (!validatePhone(formData.phone)) {
+      setFormError('Please enter a valid phone number');
+      return;
+    }
+    
+    // Validate address
+    if (!validateAddress(formData.address)) {
+      setFormError('Please enter a valid address (minimum 5 characters)');
+      return;
+    }
+    
+    try {
+      await register(formData);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error(error);
+      setFormError(error.response?.data?.message || 'Registration failed. Please check your information.');
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-form-container">
+        <h2>Create an Account</h2>
+        
+        {formError && (
+          <div className="error-message" aria-live="assertive">{formError}</div>
+        )}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              aria-label="Full Name"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email" 
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              minLength="8"
+              aria-label="Password"
+              aria-describedby="passwordHelp"
+            />
+            <small id="passwordHelp" className="form-text text-muted">Password must be at least 8 characters long and include numbers or symbols for better security.</small>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address">Address</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-label="Address"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              aria-label="Phone Number"
+            />
+            <small className="form-text text-muted">
+              Enter a valid phone number with country code
+            </small>
+          </div>
+          
+          <button type="submit" className="auth-button">Register</button>
+        </form>
+        
+        <div className="auth-footer">
+          Already have an account? <Link to="/login">Login</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Register;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\profile\ProfilePage.css
+.profile-page {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.profile-page h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.profile-loading {
+  text-align: center;
+  padding: 30px;
+  font-size: 16px;
+  color: #666;
+}
+
+.profile-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+.profile-tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: #f8f8f8; /* Brighter background for inactive tabs */
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #555;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 10px; /* Add margin to create space between tabs */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+}
+
+.tab-button:hover {
+  color: #4ea14a;
+  background-color: #ffffff; /* Even brighter on hover */
+}
+
+.tab-button.active {
+  border-bottom: 3px solid #4ea14a;
+  color: #4ea14a;
+  font-weight: bold; /* Make the active tab text bold */
+  background-color: #ffffff; /* White background for active tab */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slightly stronger shadow for active tab */
+}
+
+.profile-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Update input field styles */
+.profile-form-container input,
+.profile-form-container select,
+.profile-form-container textarea {
+  background-color: #ffffff; /* Light background color */
+  color: #333; /* Dark text color */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.profile-form-container input::placeholder,
+.profile-form-container select::placeholder,
+.profile-form-container textarea::placeholder {
+  color: #999; /* Placeholder text color */
+}
+
+.profile-form-container input:focus,
+.profile-form-container select:focus,
+.profile-form-container textarea:focus {
+  outline: none;
+  border-color: #4ea14a; /* Add focus border color */
+}
+
+/* Add this at the end of your file */
+
+.delete-account-section {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.delete-account-section h3 {
+  color: #dc3545;
+  margin-bottom: 10px;
+}
+
+.delete-account-section p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.delete-account-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.delete-account-button:hover {
+  background-color: #bd2130;
+}
+
+.delete-account-button:disabled {
+  background-color: #e4606d;
+  cursor: not-allowed;
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\profile\ProfilePage.jsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
+import { useAuth } from '../../contexts/AuthContext';
+import ProfileForm from '../../components/profile/ProfileForm';
+import PasswordChangeForm from '../../components/profile/PasswordChangeForm';
+import DocumentUploadForm from '../../components/profile/DocumentUploadForm';
+import profileApi from '../../services/profileApi';
+import './ProfilePage.css';
+
+const ProfilePage = () => {
+  const [activeTab, setActiveTab] = useState('profile');
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { _user, logout } = useAuth(); // Get logout function
+  const navigate = useNavigate(); // Initialize navigate
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        setLoading(true);
+        const response = await profileApi.getProfile();
+        setProfileData(response.data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load profile data. Please try again later.');
+        console.error('Error fetching profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  const handleProfileUpdate = async (updatedData) => {
+    try {
+      setLoading(true);
+      const response = await profileApi.updateProfile(updatedData);
+      setProfileData(response.data);
+      return { success: true, message: 'Profile updated successfully' };
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Failed to update profile' 
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async (passwordData) => {
+    try {
+      setLoading(true);
+      await profileApi.changePassword(passwordData);
+      return { success: true, message: 'Password changed successfully' };
+    } catch (err) {
+      console.error('Error changing password:', err);
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Failed to change password' 
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDocumentUpload = async (formData) => {
+    try {
+      setLoading(true);
+      await profileApi.uploadDocument(formData);
+      // Refresh profile data to get updated documents list
+      const response = await profileApi.getProfile();
+      setProfileData(response.data);
+      return { success: true, message: 'Document uploaded successfully' };
+    } catch (err) {
+      console.error('Error uploading document:', err);
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Failed to upload document' 
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    // Confirmation dialog
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted."
+    );
+    
+    if (!isConfirmed) return;
+    
+    try {
+      setLoading(true);
+      await profileApi.deleteAccount();
+      // Log user out after account deletion
+      logout();
+      // Redirect to homepage
+      navigate('/');
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      setError(err.response?.data?.message || 'Failed to delete account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading && !profileData) {
+    return <div className="profile-loading">Loading profile information...</div>;
+  }
+
+  // Check if user is Resident/Garbage_Buyer to show delete option
+  const canDeleteAccount = profileData?.role === 'Resident/Garbage_Buyer';
+
+  return (
+    <div className="profile-page">
+      <h2>My Profile</h2>
+      {error && <div className="profile-error">{error}</div>}
+      
+      <div className="profile-tabs">
+        <button 
+          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          Profile Information
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'password' ? 'active' : ''}`}
+          onClick={() => setActiveTab('password')}
+        >
+          Change Password
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
+          onClick={() => setActiveTab('documents')}
+        >
+          Documents
+        </button>
+      </div>
+      
+      <div className="profile-content">
+        {activeTab === 'profile' && (
+          <ProfileForm 
+            profileData={profileData} 
+            onSubmit={handleProfileUpdate}
+            loading={loading}
+          />
+        )}
+        
+        {activeTab === 'password' && (
+          <PasswordChangeForm 
+            onSubmit={handlePasswordChange}
+            loading={loading}
+          />
+        )}
+        
+        {activeTab === 'documents' && (
+          <DocumentUploadForm 
+            documents={profileData?.documents || []}
+            onUpload={handleDocumentUpload}
+            loading={loading}
+          />
+        )}
+      </div>
+      
+      {canDeleteAccount && (
+        <div className="delete-account-section">
+          <h3>Delete Account</h3>
+          <p>Once you delete your account, there is no going back. Please be certain.</p>
+          <button 
+            className="delete-account-button"
+            onClick={handleDeleteAccount}
+            disabled={loading}
+          >
+            {loading ? 'Processing...' : 'Delete My Account'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProfilePage;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\LandingPage.css
+/* frontend/src/pages/LandingPage.css */
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2ecc71;
+}
+
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #666;
+  max-width: 600px;
+}
+
+.get-started-button, .dashboard-button, .login-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #2ecc71;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.login-button {
+  background-color: transparent;
+  color: #2ecc71;
+  border: 1px solid #2ecc71;
+}
+
+.get-started-button:hover, .dashboard-button:hover {
+  background-color: #27ae60;
+}
+
+.login-button:hover {
+  background-color: rgba(46, 204, 113, 0.1);
+}
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\LandingPage.jsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import './LandingPage.css';
+
+function LandingPage() {
+  const { user } = useAuth();
+
+  return (
+    <div className="landing-page">
+      <header className="header">
+        <div className="logo">SmartBin</div>
+        <nav>
+          {user ? (
+            <Link to="/dashboard" className="dashboard-button">Dashboard</Link>
+          ) : (
+            <Link to="/login" className="login-button">Login</Link>
+          )}
+        </nav>
+      </header>
+
+      <section className="hero">
+        {!user ? (
+          <>
+            <h1>Smart Waste Management Solution</h1>
+            <p>Revolutionizing how we handle waste for a cleaner, greener future</p>
+            <Link to="/register" className="get-started-button">Get Started With Us</Link>
+          </>
+        ) : (
+          <>
+            <h1>Welcome back, {user.name}!</h1>
+            <p>Continue managing your waste efficiently with SmartBin</p>
+            <Link to="/dashboard" className="dashboard-button">Go to Dashboard</Link>
+          </>
+        )}
+      </section>
+      
+    </div>
+  );
+}
+
+export default LandingPage;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\pages\NotFound.jsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const NotFound = () => {
+  return (
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h1>404 - Page Not Found</h1>
+      <p>Sorry, the page you are looking for does not exist.</p>
+      <Link to="/">Go back to Home</Link>
+    </div>
+  );
+};
+
+export default NotFound;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\services\api.js
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add request interceptor to attach the auth token to every request
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle session expiration
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Subscription Plans API
+export const subscriptionPlansApi = {
+  getAll: () => api.get('/subscription-plans'),
+  getById: (id) => api.get(`/subscription-plans/${id}`),
+  create: (planData) => api.post('/subscription-plans', planData),
+  update: (id, planData) => api.put(`/subscription-plans/${id}`, planData),
+  delete: (id) => api.delete(`/subscription-plans/${id}`)
+};
+
+export default api;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\services\attendanceApi.js
+import api from './api';
+
+const attendanceApi = {
+  // Staff endpoints
+  checkIn: () => api.post('/attendance/check-in'),
+  checkOut: () => api.put('/attendance/check-out'),
+  getMyAttendance: (startDate, endDate) => {
+    let url = '/attendance';
+    if (startDate && endDate) {
+      url += `?startDate=${startDate}&endDate=${endDate}`;
+    }
+    return api.get(url);
+  },
+  
+  // Admin endpoints
+  getAllAttendance: (params) => {
+    let url = '/attendance/all';
+    const queryParams = [];
+    
+    if (params?.startDate) queryParams.push(`startDate=${params.startDate}`);
+    if (params?.endDate) queryParams.push(`endDate=${params.endDate}`);
+    if (params?.staffId) queryParams.push(`staffId=${params.staffId}`);
+    
+    if (queryParams.length > 0) {
+      url += `?${queryParams.join('&')}`;
+    }
+    
+    return api.get(url);
+  },
+  updateAttendance: (id, data) => api.put(`/attendance/${id}`, data),
+  getAttendanceSummary: (month, year) => {
+    let url = '/attendance/summary';
+    if (month && year) {
+      url += `?month=${month}&year=${year}`;
+    }
+    return api.get(url);
+  }
+};
+
+export default attendanceApi;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\services\performanceApi.js
+import api from './api';
+
+const performanceApi = {
+  // Staff endpoints
+  getMyReviews: () => api.get('/performance/my-reviews'),
+  
+  // Admin endpoints
+  createReview: (data) => api.post('/performance', data),
+  getAllReviews: (staffId) => {
+    let url = '/performance';
+    if (staffId) {
+      url += `?staffId=${staffId}`;
+    }
+    return api.get(url);
+  },
+  getReviewById: (id) => api.get(`/performance/${id}`),
+  updateReview: (id, data) => api.put(`/performance/${id}`, data),
+  deleteReview: (id) => api.delete(`/performance/${id}`),
+  getPerformanceSummary: () => api.get('/performance/summary')
+};
+
+export default performanceApi;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\services\profileApi.js
+import api from './api';
+
+const profileApi = {
+  // Get current user profile
+  getProfile: () => api.get('/users/profile'),
+  
+  // Update user profile
+  updateProfile: (userData) => api.put('/users/profile', userData),
+  
+  // Delete user account
+  deleteAccount: () => api.delete('/users/profile'),
+  
+  // Change password
+  changePassword: (passwordData) => api.put('/users/profile', { password: passwordData.newPassword }),
+  
+  // Document operations
+  getDocuments: () => api.get('/documents'),
+  uploadDocument: (formData) => {
+    return api.post('/documents/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+  getDocument: (id) => api.get(`/documents/${id}`),
+  deleteDocument: (id) => api.delete(`/documents/${id}`)
+};
+
+export default profileApi;
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\utils\api.js
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\App.css
+/* Global resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  height: 100vh;
+  width: 100%;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+/* Global Form Styles */
+.form-group {
+  margin-bottom: 20px; /* Consistent margin */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #444; /* Default label color */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px; /* Consistent padding */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #ffffff; /* Ensure light background */
+  color: #333; /* Ensure dark text */
+  box-sizing: border-box; /* Add for consistency */
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder {
+  color: #999; /* Consistent placeholder color */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4ea14a; /* Consistent focus color */
+}
+
+.form-group textarea {
+  resize: vertical; /* Allow vertical resize */
+}
+
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #777;
+  font-size: 12px;
+}
+
+/* Read-only style */
+.read-only {
+  background-color: #f9f9f9 !important; /* Use important to override potential conflicts */
+  color: #666 !important;
+  cursor: not-allowed;
+}
+
+/* Form Error/Success Messages (Basic Structure) */
+.form-message {
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.form-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+.form-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\App.jsx
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LandingPage from './pages/LandingPage';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import DashboardLayout from './components/layouts/DashboardLayout';
+import ProfilePage from './pages/profile/ProfilePage';
+import './App.css';
+
+// Protected route component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  // Show loading state
+  if (loading) return <div>Loading...</div>;
+
+  // Redirect to login if not authenticated
+  if (!user) return <Navigate to="/login" />;
+
+  return children;
+};
+
+function AppContent() {
+  return (
+    <Router>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* Protected routes - all dashboard routes should be nested here */}
+        <Route path="/dashboard/*" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </Router>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+export default App;
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\index.css
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+
+
+
+// File: C:\y2s2ITP\SmartBin\frontend\src\main.jsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { AuthProvider } from './contexts/AuthContext'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </StrictMode>,
+)
+
+
+
+

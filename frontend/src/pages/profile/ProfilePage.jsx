@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Import useCallback
 import { useNavigate } from 'react-router-dom'; // Add this import
 import { useAuth } from '../../contexts/AuthContext';
 import ProfileForm from '../../components/profile/ProfileForm';
@@ -12,26 +12,27 @@ const ProfilePage = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { _user, logout } = useAuth(); // Get logout function
-  const navigate = useNavigate(); // Initialize navigate
+  const { user, logout } = useAuth(); // Get user for role check
+  const navigate = useNavigate();
+
+  // Use useCallback to memoize fetchProfileData
+  const fetchProfileData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await profileApi.getProfile();
+      setProfileData(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load profile data. Please try again later.');
+      console.error('Error fetching profile:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []); // Empty dependency array means it's created once
 
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        setLoading(true);
-        const response = await profileApi.getProfile();
-        setProfileData(response.data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load profile data. Please try again later.');
-        console.error('Error fetching profile:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProfileData();
-  }, []);
+  }, [fetchProfileData]); // Depend on the memoized function
 
   const handleProfileUpdate = async (updatedData) => {
     try {
@@ -71,14 +72,31 @@ const ProfilePage = () => {
       setLoading(true);
       await profileApi.uploadDocument(formData);
       // Refresh profile data to get updated documents list
-      const response = await profileApi.getProfile();
-      setProfileData(response.data);
+      await fetchProfileData(); // Use the fetch function directly
       return { success: true, message: 'Document uploaded successfully' };
     } catch (err) {
       console.error('Error uploading document:', err);
       return { 
         success: false, 
         message: err.response?.data?.message || 'Failed to upload document' 
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to handle document deletion and refresh
+  const handleDocumentDelete = async (docId) => {
+    try {
+      setLoading(true);
+      await profileApi.deleteDocument(docId);
+      await fetchProfileData(); // Refresh after delete
+      return { success: true, message: 'Document deleted successfully' };
+    } catch (err) {
+      console.error('Error deleting document:', err);
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Failed to delete document' 
       };
     } finally {
       setLoading(false);
@@ -112,8 +130,9 @@ const ProfilePage = () => {
     return <div className="profile-loading">Loading profile information...</div>;
   }
 
-  // Check if user is Resident/Garbage_Buyer to show delete option
-  const canDeleteAccount = profileData?.role === 'Resident/Garbage_Buyer';
+  // Check if user is customer to show delete option
+  // Use user from AuthContext for role check if profileData isn't loaded yet
+  const canDeleteAccount = profileData?.role === 'customer' || user?.role === 'customer'; 
 
   return (
     <div className="profile-page">
@@ -161,6 +180,7 @@ const ProfilePage = () => {
           <DocumentUploadForm 
             documents={profileData?.documents || []}
             onUpload={handleDocumentUpload}
+            onDelete={handleDocumentDelete} // Pass the delete handler
             loading={loading}
           />
         )}

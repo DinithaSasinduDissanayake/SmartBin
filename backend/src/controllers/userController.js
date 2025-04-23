@@ -3,47 +3,67 @@ const User = require('../models/User');
 const Document = require('../models/Document');
 const fs = require('fs');
 const path = require('path');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
+const ApiError = require('../errors/ApiError');
 
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private/Admin
-exports.getUsers = async (req, res) => {
+/**
+ * @desc    Get all users
+ * @route   GET /api/users
+ * @access  Private/Admin
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find();
     res.json(users);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching users:', error);
+    next(new ApiError(500, 'Failed to fetch users')); // Pass error to global handler
   }
 };
 
-// @desc    Get user by ID
-// @route   GET /api/users/:id
-// @access  Private/Admin
-exports.getUserById = async (req, res) => {
+/**
+ * @desc    Get user by ID
+ * @route   GET /api/users/:id
+ * @access  Private/Admin
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      // Use custom error
+      throw new NotFoundError(`User not found with id ${req.params.id}`);
     }
+    res.json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error(`Error fetching user ${req.params.id}:`, error);
+    next(error); // Pass error (could be NotFoundError or other) to global handler
   }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/users/profile
-// @access  Private
-exports.getUserProfile = async (req, res) => {
+/**
+ * @desc    Get current user profile
+ * @route   GET /api/users/profile
+ * @access  Private
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.getUserProfile = async (req, res, next) => {
   try {
+    // req.user is attached by the protect middleware
     const user = await User.findById(req.user.id);
     
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      // Should not happen if protect middleware works, but good practice
+      throw new NotFoundError('User not found'); 
     }
     
     // Get user documents if any
@@ -58,33 +78,41 @@ exports.getUserProfile = async (req, res) => {
       documents: documents
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching user profile:', error);
+    next(error); // Pass potential NotFoundError or other errors
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/users/profile
-// @access  Private
-exports.updateUserProfile = async (req, res) => {
+/**
+ * @desc    Update user profile
+ * @route   PUT /api/users/profile
+ * @access  Private
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.updateUserProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).select('+password'); // Select password if updating
     
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      throw new NotFoundError('User not found');
     }
     
-    // Update basic info
-    if (req.body.name) user.name = req.body.name;
-    if (req.body.email) user.email = req.body.email;
+    // Update basic info (validation handled by express-validator)
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    // Consider adding phone number update if applicable
     
-    // Update password if provided
+    // Update password if provided and different
     if (req.body.password) {
-      user.password = req.body.password;
+      // Optionally add a check: await user.matchPassword(req.body.oldPassword)
+      user.password = req.body.password; // Pre-save hook will hash
     }
     
-    const updatedUser = await user.save();
+    const updatedUser = await user.save(); // Mongoose validation runs here
     
+    // Don't send password back, even hashed
     res.json({
       _id: updatedUser._id,
       name: updatedUser.name,
@@ -92,54 +120,75 @@ exports.updateUserProfile = async (req, res) => {
       role: updatedUser.role
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error updating user profile:', error);
+    // Mongoose validation errors will be caught by global handler
+    next(error); // Pass NotFoundError or other errors
   }
 };
 
-// @desc    Delete user account
-// @route   DELETE /api/users/profile
-// @access  Private
-exports.deleteUserProfile = async (req, res) => {
+/**
+ * @desc    Delete user account (self)
+ * @route   DELETE /api/users/profile
+ * @access  Private
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.deleteUserProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
     
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      throw new NotFoundError('User not found');
     }
     
-    if (user.role === 'staff') {
-      return res.status(403).json({ message: 'Staff accounts cannot be deleted through this endpoint' });
+    // Prevent staff/admin deletion via this route for safety?
+    if (['staff', 'admin', 'financial_manager'].includes(user.role)) {
+      throw new ForbiddenError('Admin/Staff/Manager accounts cannot be self-deleted via this endpoint. Contact another administrator.');
     }
+    
+    // TODO: Add more cleanup logic if needed (e.g., cancel subscriptions, reassign tasks)
     
     // Delete user documents first
     await Document.deleteMany({ user: req.user.id });
     
     // Now delete the user
-    await user.deleteOne();
+    await user.deleteOne(); // Use deleteOne() on the document
     
     res.json({ message: 'User account deleted successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error deleting user profile:', error);
+    next(error); // Pass NotFoundError, ForbiddenError, or others
   }
 };
 
-// @desc    Delete user
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
-exports.deleteUser = async (req, res) => {
+/**
+ * @desc    Delete user by ID (Admin only)
+ * @route   DELETE /api/users/:id
+ * @access  Private/Admin
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     
-    if (user) {
-      await user.deleteOne();
-      res.json({ message: 'User removed' });
-    } else {
-      res.status(404).json({ message: 'User not found' });
+    if (!user) {
+       throw new NotFoundError(`User not found with id ${req.params.id}`);
     }
+
+    // Optional: Prevent deleting the last admin? Add more checks as needed.
+
+    // TODO: Add more cleanup logic if needed (e.g., delete related data)
+    await Document.deleteMany({ user: user._id });
+    // Add deletion for Attendance, Performance, Subscriptions etc. if required
+
+    await user.deleteOne(); // Use deleteOne() on the document
+    res.json({ message: 'User removed successfully' });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error(`Error deleting user ${req.params.id}:`, error);
+    next(error); // Pass NotFoundError or others
   }
 };

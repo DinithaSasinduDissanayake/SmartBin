@@ -12,8 +12,13 @@ const createTestUsers = async () => {
     // Connect to MongoDB using .env file
     console.log('Connecting to MongoDB...');
     
-    // Get connection string from environment variable or use a placeholder for documentation
-    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://sasindu10:12345@smartbincluster.ij7fd.mongodb.net/smartbin?retryWrites=true&w=majority&appName=SmartBinCluster';
+    // Get connection string from environment variable
+    const MONGODB_URI = process.env.MONGODB_URI;
+    
+    if (!MONGODB_URI) {
+      console.error('Error: MONGODB_URI environment variable not set.');
+      process.exit(1); // Exit if connection string is missing
+    }
     
     // Hide actual connection details when logging
     console.log('Using MongoDB connection from environment');

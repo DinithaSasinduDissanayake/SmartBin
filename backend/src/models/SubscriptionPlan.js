@@ -31,4 +31,8 @@ const subscriptionPlanSchema = new mongoose.Schema({
   }
 });
 
+// Indexes
+subscriptionPlanSchema.index({ name: 1 }); // Already implicitly indexed due to unique: true
+subscriptionPlanSchema.index({ price: 1 }); // Index for sorting/querying by price
+
 module.exports = mongoose.model('SubscriptionPlan', subscriptionPlanSchema);

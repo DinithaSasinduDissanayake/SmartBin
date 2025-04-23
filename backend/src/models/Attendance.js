@@ -31,6 +31,11 @@ const attendanceSchema = new mongoose.Schema({
   }
 });
 
+// Indexes
+attendanceSchema.index({ staff: 1 }); // Index for querying by staff
+attendanceSchema.index({ date: 1 }); // Index for querying by date
+attendanceSchema.index({ staff: 1, date: 1 }); // Compound index for common queries
+
 // Calculate total hours when checkout is recorded
 attendanceSchema.pre('save', function(next) {
   if (this.checkInTime && this.checkOutTime) {

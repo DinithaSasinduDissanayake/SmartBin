@@ -4,16 +4,41 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const compression = require('compression'); // Import compression
+const rateLimit = require('express-rate-limit'); // Import rate-limit
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
+const ApiError = require('./errors/ApiError'); // Import base custom error
+const multer = require('multer'); // Import multer
 
 const app = express();
 
 // Middleware
+
+// Security Headers
 app.use(helmet());
+
+// Enable CORS
 app.use(cors());
+
+// Response Compression
+app.use(compression()); // Add compression middleware
+
+// Rate Limiting (apply before routes)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use(limiter); // Apply the rate limiting middleware to all requests
+
+// Body Parsing
 app.use(express.json());
+
+// Logging
 app.use(morgan('dev'));
 
 // Import routes
@@ -59,8 +84,40 @@ mongoose
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+  console.error('ERROR:', err.message);
+  // console.error(err.stack); // Uncomment for detailed stack trace during development
+
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({ message: err.message });
+  }
+
+  // Handle Mongoose validation errors
+  if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(val => val.message);
+      return res.status(400).json({ message: 'Validation Error', errors: messages });
+  }
+  // Handle Mongoose duplicate key errors
+  if (err.code === 11000) {
+      const field = Object.keys(err.keyValue)[0];
+      const value = err.keyValue[field];
+      return res.status(400).json({ message: `Duplicate field value entered for ${field}: ${value}. Please use another value.` });
+  }
+  // Handle Mongoose cast errors (e.g., invalid ObjectId)
+  if (err.name === 'CastError') {
+      return res.status(400).json({ message: `Invalid ${err.path}: ${err.value}` });
+  }
+
+  // Handle Multer errors (e.g., file size limit)
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ message: `File upload error: ${err.message}` });
+  }
+  // Handle custom file type errors from multer filter
+  if (err.message.startsWith('Invalid file type')) {
+    return res.status(400).json({ message: err.message });
+  }
+
+  // Default to 500 for other unhandled errors
+  res.status(500).json({ message: 'Internal Server Error' });
 });
 
 // Start server

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { subscriptionPlansApi } from '../../services/api';
+import subscriptionPlansApi from '../../services/subscriptionPlansApi'; // Corrected import
 import './SubscriptionPlans.css';
 
 const SubscriptionPlans = () => {
@@ -7,10 +7,17 @@ const SubscriptionPlans = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(''); // State for success messages
   const [showAddForm, setShowAddForm] = useState(false);
   const [showViewDetails, setShowViewDetails] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [currentPlan, setCurrentPlan] = useState(null);
+
+  // Function to clear messages after a delay
+  const clearMessages = () => {
+    setError(null);
+    setSuccessMessage('');
+  };
 
   // Fetch subscription plans
   useEffect(() => {
@@ -62,37 +69,49 @@ const SubscriptionPlans = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this subscription plan?')) {
+      clearMessages(); // Clear previous messages
       try {
         await subscriptionPlansApi.delete(id);
         setPlans(plans.filter(plan => plan._id !== id));
+        setSuccessMessage('Subscription plan deleted successfully.'); // Set success message
+        setTimeout(clearMessages, 3000); // Clear message after 3 seconds
       } catch (err) {
         setError('Failed to delete the plan. Please try again.');
         console.error('Error deleting plan:', err);
+        setTimeout(clearMessages, 5000); // Clear error after 5 seconds
       }
     }
   };
 
   const handleAddPlan = async (planData) => {
+    clearMessages(); // Clear previous messages
     try {
       const response = await subscriptionPlansApi.create(planData);
       setPlans([...plans, response.data]);
       setShowAddForm(false);
+      setSuccessMessage('Subscription plan added successfully.'); // Set success message
+      setTimeout(clearMessages, 3000);
       return true;
     } catch (err) {
-      setError('Failed to add new plan. Please try again.');
+      const errMsg = err.response?.data?.message || 'Failed to add new plan. Please try again.';
+      setError(errMsg);
       console.error('Error adding plan:', err);
       return false;
     }
   };
 
   const handleUpdatePlan = async (planData) => {
+    clearMessages(); // Clear previous messages
     try {
       const response = await subscriptionPlansApi.update(planData._id, planData);
       setPlans(plans.map(p => p._id === planData._id ? response.data : p));
       setShowUpdateForm(false);
+      setSuccessMessage('Subscription plan updated successfully.'); // Set success message
+      setTimeout(clearMessages, 3000);
       return true;
     } catch (err) {
-      setError('Failed to update the plan. Please try again.');
+      const errMsg = err.response?.data?.message || 'Failed to update the plan. Please try again.';
+      setError(errMsg);
       console.error('Error updating plan:', err);
       return false;
     }
@@ -106,7 +125,9 @@ const SubscriptionPlans = () => {
     <div className="subscription-container">
       <h2>Subscription Plans</h2>
       
+      {/* Display error or success messages */} 
       {error && <div className="error-message">{error}</div>}
+      {successMessage && <div className="success-message">{successMessage}</div>}
       
       {/* Add form, view details, or update form */}
       {showAddForm && (
@@ -229,16 +250,43 @@ const SubscriptionForm = ({ plan, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError(''); // Clear previous errors
+
+    // Frontend Validation
+    if (!formData.name.trim()) {
+      setFormError('Plan name is required.');
+      return;
+    }
+    if (!formData.price) {
+      setFormError('Price is required.');
+      return;
+    }
+    const priceValue = parseFloat(formData.price);
+    if (isNaN(priceValue) || priceValue < 0) {
+      setFormError('Price must be a valid non-negative number.');
+      return;
+    }
+    const subscriberCountValue = parseInt(formData.subscriberCount, 10);
+    if (isNaN(subscriberCountValue) || subscriberCountValue < 0) {
+      setFormError('Subscriber count must be a valid non-negative number.');
+      return;
+    }
+
     setSubmitting(true);
-    setFormError('');
     
     try {
-      const success = await onSubmit(formData);
+      const dataToSubmit = {
+        ...formData,
+        price: priceValue,
+        subscriberCount: subscriberCountValue
+      };
+      const success = await onSubmit(dataToSubmit);
       if (success) {
         onClose();
       }
-    } catch {
-      setFormError('An error occurred. Please try again.');
+    } catch (err) {
+      setFormError(err.message || 'An error occurred. Please try again.');
+      console.error("Submission Error:", err);
     } finally {
       setSubmitting(false);
     }
