@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const config = require('../config');
 require('dotenv').config({ path: '../../.env' });
 
 const recreateUsers = async () => {
     try {
-      await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://sasindu10:12345@smartbincluster.ij7fd.mongodb.net/smartbin?retryWrites=true&w=majority&appName=SmartBinCluster');
+      // await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://sasindu10:12345@smartbincluster.ij7fd.mongodb.net/smartbin?retryWrites=true&w=majority&appName=SmartBinCluster'); // Replaced with config
+      if (!config.mongodbUri) {
+        console.error('Error: MONGODB_URI not configured in config/index.js or .env file.');
+        process.exit(1);
+      }
+      await mongoose.connect(config.mongodbUri);
       console.log('Connected to MongoDB');
     
     // Test users with plain-text passwords.

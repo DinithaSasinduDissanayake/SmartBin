@@ -56,9 +56,10 @@ const seedFinancialData = async () => {
   try {
     // Connect to MongoDB
     console.log('Connecting to MongoDB...');
-    const MONGODB_URI = process.env.MONGODB_URI;
+    // const MONGODB_URI = process.env.MONGODB_URI; // Replaced with config
+    const MONGODB_URI = config.mongodbUri;
     if (!MONGODB_URI) {
-      throw new Error("MONGODB_URI environment variable not set. Please check your .env file.");
+      throw new Error("MONGODB_URI not configured in config/index.js or .env file. Please check your .env file.");
     }
     
     await mongoose.connect(MONGODB_URI);
@@ -89,7 +90,7 @@ const seedFinancialData = async () => {
           name: customerNames[i],
           email: customerNames[i].toLowerCase().replace(' ', '.') + '@example.com',
           password: '$2a$10$XA9UJn3AJlszUVCjsxAN1uhkZ8qzBqOn9jBp0ZBOg5AfU9Hgu5P5W', // Password123!
-          role: 'Resident/Garbage_Buyer',
+          role: 'customer', // Updated role
           createdAt: randomDate(new Date(2024, 0, 1), new Date())
         });
         
@@ -98,7 +99,7 @@ const seedFinancialData = async () => {
       }
       
       // Fetch the newly created users
-      users.push(...await User.find({ role: 'Resident/Garbage_Buyer' }));
+      users.push(...await User.find({ role: 'customer' })); // Updated role
     }
 
     // 1. Create subscription plans if they don't exist
@@ -179,33 +180,9 @@ const seedFinancialData = async () => {
     }
 
     // --- Create Subscription Plans ---
-    const subscriptionPlans = [
-      {
-        name: 'Basic',
-        price: '49.99',
-        description: 'Basic waste collection service with weekly pickup and app access.',
-        duration: 'Monthly'
-      },
-      {
-        name: 'Standard',
-        price: '79.99',
-        description: 'Enhanced service with twice-weekly pickup, recycling options, and advanced app features.',
-        duration: 'Monthly'
-      },
-      {
-        name: 'Premium',
-        price: '99.99',
-        description: 'Premium service with unlimited pickup, priority service, recycling and composting options, and full app features.',
-        duration: 'Monthly'
-      },
-      {
-        name: 'Business',
-        price: '199.99',
-        description: 'Comprehensive waste management solution for small to medium businesses with daily collection and dedicated support.',
-        duration: 'Monthly'
-      }
-    ];
-    
+    // Removed duplicate declaration of subscriptionPlans
+    // const subscriptionPlans = [...]; 
+
     // Create plans if they don't exist
     for (const plan of subscriptionPlans) {
       const existingPlan = await SubscriptionPlan.findOne({ name: plan.name });
@@ -349,16 +326,6 @@ const seedFinancialData = async () => {
       { category: 'marketing', frequency: 0.05, min: 200, max: 1500 },
       { category: 'insurance', frequency: 0.03, min: 500, max: 2000 },
       { category: 'taxes', frequency: 0.02, min: 500, max: 5000 },
-    ];
-    
-    // Expense descriptions for each category
-    const expenseDescriptions = {
-      fuel: ['Vehicle refueling', 'Truck fleet fuel', 'Collection vehicle diesel', 'Transportation fuel'],
-      maintenance: ['Vehicle maintenance', 'Equipment repair', 'Bin repair services', 'Facility maintenance', 'Machinery servicing'],
-      salaries: ['Staff payroll', 'Employee benefits', 'Contractor payments', 'Overtime payments', 'Management salaries'],
-      utilities: ['Electricity bill', 'Water services', 'Internet and phone', 'Gas bill', 'Waste facility utilities'],
-      equipment: ['New sorting equipment', 'Replacement bins', 'Office equipment', 'Safety equipment', 'Processing machinery'],
-      office: ['Office supplies', 'Stationery', 'Cleaning supplies', 'Break room supplies', 'Small equipment
     ];
     
     // Expense descriptions for each category

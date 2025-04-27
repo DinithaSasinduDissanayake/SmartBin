@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const userSchema =  new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Please Enter Your Name'],
@@ -21,8 +21,8 @@ const userSchema =  new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Resident/Garbage_Buyer', 'staff', 'admin', 'financial_manager'],
-    default: 'Resident/Garbage_Buyer'
+    enum: ['admin', 'staff', 'customer'], // Updated enum
+    default: 'customer', // Updated default
   },
   createdAt: {
     type: Date,

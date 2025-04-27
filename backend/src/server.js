@@ -9,11 +9,32 @@ const rateLimit = require('express-rate-limit'); // Import rate-limit
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
-const config = require('./config'); // Import the centralized config
-const ApiError = require('./errors/ApiError'); // Import base custom error
-const { UnauthorizedError, ForbiddenError, BadRequestError, NotFoundError } = require('./errors'); // Import specific errors
-const multer = require('multer'); // Import multer
-const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken'); // Import JWT errors
+const config = require('./config');
+const ApiError = require('./errors/ApiError');
+const { UnauthorizedError, ForbiddenError, BadRequestError, NotFoundError } = require('./errors');
+const multer = require('multer');
+const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
+
+// Global handlers for uncaught exceptions and unhandled rejections
+process.on('uncaughtException', (error) => {
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  console.error(error.name, error.message, error.stack);
+  process.exit(1); // Mandatory shutdown for uncaught exceptions
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.error(reason);
+  // Graceful shutdown
+  if (server) {
+    server.close(() => {
+      console.log('Server closed due to unhandled promise rejection');
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+});
 
 const app = express();
 
@@ -78,71 +99,161 @@ if (!fs.existsSync(uploadDir)) {
 // Make the uploads directory accessible
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Connect to MongoDB
-mongoose
-  .connect(config.mongodbUri) // Use config value
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => {
+// --- Database Connection ---
+const connectDB = async () => {
+  try {
+    // Use config value
+    await mongoose.connect(config.mongodbUri);
+    console.log('Connected to MongoDB');
+  } catch (err) {
     console.error('MongoDB connection error:', err);
     process.exit(1); // Exit if DB connection fails
-  });
+  }
+};
 
-// Global Error Handler
+// --- Server Start/Stop ---
+let server; // Define server variable outside
+
+const startServer = () => {
+  if (!server) { // Prevent multiple starts
+     // Use config value
+     server = app.listen(config.port, () => console.log(`Server running on port ${config.port}`));
+  }
+  return server;
+};
+
+const closeServer = (callback) => {
+  if (server) {
+    console.log('Closing HTTP server...');
+    server.close(() => {
+        console.log('HTTP server closed.');
+        if (callback) callback();
+    });
+  } else if (callback) {
+    callback(); // If server never started, just callback
+  }
+};
+
+
+// --- Global Error Handler --- (Keep this after routes and before starting server)
 app.use((err, req, res, next) => {
-  // Log the error with more context
-  console.error(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - ERROR: ${err.message}`);
-  if (!(err instanceof ApiError)) { // Log stack for unexpected errors
-     console.error(err.stack);
+  // Log the error with enhanced context
+  const timestamp = new Date().toISOString();
+  console.error(`[${timestamp}] ${req.method} ${req.originalUrl} - ERROR: ${err.name || 'Unknown'} - ${err.message}`);
+  if (err.code) {
+    console.error(`Error code: ${err.code}`);
+  }
+  
+  if (!(err instanceof ApiError)) {
+     console.error(err.stack); // Always log stack trace server-side for non-API errors
   }
 
-  // Handle custom ApiErrors
+  // Standard response structure
+  let responseError = {
+    message: 'An error occurred',
+    timestamp: timestamp
+  };
+
+  // Handle custom ApiErrors with instanceof check
   if (err instanceof ApiError) {
-    return res.status(err.statusCode).json({ message: err.message });
+    responseError.message = err.message;
+    
+    // Add specific error details for certain error types
+    if (err instanceof BadRequestError && err.errors) {
+      responseError.errors = err.errors;
+    }
+    
+    return res.status(err.statusCode).json(responseError);
   }
 
   // Handle Mongoose validation errors
   if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map(val => val.message);
-      const badRequestError = new BadRequestError('Validation Error', messages);
-      return res.status(badRequestError.statusCode).json({ message: badRequestError.message, errors: badRequestError.errors });
+    const messages = Object.values(err.errors).map(val => val.message);
+    responseError = {
+      message: 'Validation Error',
+      errors: messages,
+      timestamp: timestamp
+    };
+    return res.status(400).json(responseError);
   }
+  
   // Handle Mongoose duplicate key errors
   if (err.code === 11000) {
-      const field = Object.keys(err.keyValue)[0];
-      const value = err.keyValue[field];
-      const badRequestError = new BadRequestError(`Duplicate field value entered for ${field}: ${value}. Please use another value.`);
-      return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
+    const field = Object.keys(err.keyValue)[0];
+    const value = err.keyValue[field];
+    responseError.message = `Duplicate value for ${field}: "${value}". Please use another value.`;
+    return res.status(400).json(responseError);
   }
+  
   // Handle Mongoose cast errors (e.g., invalid ObjectId)
   if (err.name === 'CastError') {
-      const badRequestError = new BadRequestError(`Invalid ${err.path}: ${err.value}`);
-      return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
+    responseError.message = `Invalid ${err.path}: "${err.value}"`;
+    return res.status(400).json(responseError);
   }
 
   // Handle Multer errors (e.g., file size limit)
   if (err instanceof multer.MulterError) {
-    const badRequestError = new BadRequestError(`File upload error: ${err.message}`);
-    return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
+    responseError.message = `File upload error: ${err.message}`;
+    return res.status(400).json(responseError);
   }
+  
   // Handle custom file type errors from multer filter
-  if (err.message && err.message.startsWith('Invalid file type')) { // Check if err.message exists
-    const badRequestError = new BadRequestError(err.message);
-    return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
+  if (err.message && err.message.startsWith('Invalid file type')) {
+    responseError.message = err.message;
+    return res.status(400).json(responseError);
   }
 
-  // Handle JWT errors
-  if (err instanceof JsonWebTokenError || err instanceof TokenExpiredError) {
-    const unauthorizedError = new UnauthorizedError('Not authorized, token failed or expired');
-    return res.status(unauthorizedError.statusCode).json({ message: unauthorizedError.message });
+  // Handle JWT errors with explicit checks
+  if (err instanceof JsonWebTokenError) {
+    responseError.message = 'Invalid authentication token';
+    return res.status(401).json(responseError);
   }
 
+  if (err instanceof TokenExpiredError) {
+    responseError.message = 'Authentication token has expired';
+    return res.status(401).json(responseError);
+  }
 
   // Default 500 handler for other unhandled errors
-  // Check if response headers have already been sent
   if (!res.headersSent) {
-     res.status(500).json({ message: 'Internal Server Error' });
+    // Set production-safe default message
+    responseError.message = 'Internal Server Error';
+    
+    // Only add technical details in development
+    if (config.nodeEnv !== 'production') {
+      responseError.details = err.message;
+      // Don't expose stack traces to the client even in development
+    }
+    
+    res.status(500).json(responseError);
   }
 });
 
-// Start server
-app.listen(config.port, () => console.log(`Server running on port ${config.port}`)); // Use config value
+
+// --- Main Execution Block ---
+// Connect to DB and start server only if this file is run directly
+if (require.main === module) {
+  connectDB().then(() => {
+    startServer();
+  });
+
+  // Graceful shutdown handler
+  const gracefulShutdown = (signal) => {
+    console.log(`${signal} signal received: closing gracefully.`);
+    closeServer(() => {
+      mongoose.connection.close(false, () => {
+         console.log('MongoDb connection closed.');
+         process.exit(0);
+      });
+    });
+  };
+
+  // Listen for termination signals
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT')); // Handle Ctrl+C
+
+}
+
+// Export app and control functions for testing
+// Note: We export mongoose itself, not connectDB, as tests handle their own connection
+module.exports = { app, startServer, closeServer, mongooseInstance: mongoose };

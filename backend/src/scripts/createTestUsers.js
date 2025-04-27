@@ -4,6 +4,7 @@ const bcryptjs = require('bcryptjs');  // CHANGE: Use bcryptjs instead of bcrypt
 const mongoose = require('mongoose');   
 const User = require('../models/User');  
 const path = require('path');
+const config = require('../config');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 // Main function to create test users
@@ -13,10 +14,11 @@ const createTestUsers = async () => {
     console.log('Connecting to MongoDB...');
     
     // Get connection string from environment variable
-    const MONGODB_URI = process.env.MONGODB_URI;
+    // const MONGODB_URI = process.env.MONGODB_URI; // Replaced with config
+    const MONGODB_URI = config.mongodbUri;
     
     if (!MONGODB_URI) {
-      console.error('Error: MONGODB_URI environment variable not set.');
+      console.error('Error: MONGODB_URI not configured in config/index.js or .env file.');
       process.exit(1); // Exit if connection string is missing
     }
     
