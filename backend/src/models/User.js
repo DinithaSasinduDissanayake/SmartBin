@@ -38,6 +38,20 @@ const userSchema = new mongoose.Schema({
     type: String, // Could be 'Mon-Fri 9-5', 'Weekends Only', etc.
     trim: true
   },
+  // Salary and compensation fields for payroll
+  baseSalary: { 
+    type: Number, 
+    min: 0,
+    default: 30000 // Default placeholder salary
+  },
+  hourlyRate: { 
+    type: Number, 
+    min: 0,
+    default: function() {
+      // Default hourly rate calculation if not specified
+      return this.baseSalary ? this.baseSalary / (4 * 40) : 0;
+    }
+  },
   password: {
     type: String,
     required: [true, 'Please Enter Your Password'],
@@ -46,8 +60,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'staff', 'customer'], // Updated enum
-    default: 'customer', // Updated default
+    enum: ['admin', 'staff', 'customer', 'financial_manager'], // Updated to include financial_manager
+    default: 'customer',
   },
   mfaEnabled: { type: Boolean, default: false },
   mfaSecret: { type: String, select: false }, // Don't return secret by default

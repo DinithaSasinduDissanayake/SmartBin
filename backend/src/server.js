@@ -14,6 +14,7 @@ const ApiError = require('./errors/ApiError');
 const { UnauthorizedError, ForbiddenError, BadRequestError, NotFoundError } = require('./errors');
 const multer = require('multer');
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
+const { preserveRawBody } = require('./middleware/webhookMiddleware'); // Import webhook middleware
 
 // Global handlers for uncaught exceptions and unhandled rejections
 process.on('uncaughtException', (error) => {
@@ -40,6 +41,9 @@ const app = express();
 
 // Middleware
 
+// Webhook middleware - must be before body parsing middleware
+app.use(preserveRawBody);
+
 // Security Headers
 app.use(helmet());
 
@@ -59,7 +63,7 @@ const limiter = rateLimit({
 });
 app.use(limiter); // Apply the rate limiting middleware to all requests
 
-// Body Parsing
+// Body Parsing - must be after preserveRawBody to not interfere with webhook processing
 app.use(express.json());
 
 // Logging
@@ -75,6 +79,8 @@ const performanceRoutes = require('./routes/performanceRoutes');
 const financialRoutes = require('./routes/financialRoutes');
 const userSubscriptionRoutes = require('./routes/userSubscriptionRoutes');
 const mfaRoutes = require('./routes/mfaRoutes'); // Import MFA routes
+const complaintRoutes = require('./routes/complaintRoutes'); // Import complaint routes
+const payrollRoutes = require('./routes/payrollRoutes'); // Import payroll routes
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -86,6 +92,8 @@ app.use('/api/performance', performanceRoutes);
 app.use('/api/financials', financialRoutes);
 app.use('/api/user-subscriptions', userSubscriptionRoutes);
 app.use('/api/mfa', mfaRoutes); // Mount MFA routes
+app.use('/api/complaints', complaintRoutes); // Mount complaint routes
+app.use('/api/payroll', payrollRoutes); // Mount payroll routes
 
 // Basic route for testing
 app.get('/', (req, res) => {
