@@ -103,4 +103,22 @@ This project follows a full-stack architecture with separate frontend and backen
 - Establish performance benchmarks and budgets
 - Monitor server resource utilization
 
+## Git Workflow Guidelines
+- Check git status after making changes: `git status`
+- Add all modified files: `git add .`
+- Create commits with both a brief message AND a detailed description:
+  ```
+  git commit -m "Brief summary message" -m "- Detailed point 1
+  - Detailed point 2
+  - Detailed point 3
+  - Explain why changes were made
+  - Describe key implementation details"
+  ```
+- The first `-m` parameter is the commit message (title)
+- The second `-m` parameter is the detailed point-form description
+- Push changes to the remote repository: `git push`
+- Commit after every significant change or feature implementation
+- Pull before starting work: `git pull`
+- Create feature branches for major changes
+
 remind me to git commit and push your changes after completing significant work!

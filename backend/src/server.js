@@ -72,8 +72,9 @@ const subscriptionPlanRoutes = require('./routes/subscriptionPlanRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const performanceRoutes = require('./routes/performanceRoutes');
-const financialRoutes = require('./routes/financialRoutes'); // Import financial routes
-const userSubscriptionRoutes = require('./routes/userSubscriptionRoutes'); // Import user subscription routes
+const financialRoutes = require('./routes/financialRoutes');
+const userSubscriptionRoutes = require('./routes/userSubscriptionRoutes');
+const mfaRoutes = require('./routes/mfaRoutes'); // Import MFA routes
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -82,8 +83,9 @@ app.use('/api/subscription-plans', subscriptionPlanRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/performance', performanceRoutes);
-app.use('/api/financials', financialRoutes); // Use financial routes
-app.use('/api/user-subscriptions', userSubscriptionRoutes); // Mount user subscription routes
+app.use('/api/financials', financialRoutes);
+app.use('/api/user-subscriptions', userSubscriptionRoutes);
+app.use('/api/mfa', mfaRoutes); // Mount MFA routes
 
 // Basic route for testing
 app.get('/', (req, res) => {

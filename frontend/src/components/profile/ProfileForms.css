@@ -1,58 +1,65 @@
+/* ProfileForms.css - Include styles for both Profile Form and MFA Form */
+
+/* Common form styles */
 .profile-form-container {
-  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
 .profile-form-container h3 {
-  margin-bottom: 20px;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
   color: #333;
-  font-size: 1.2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.profile-form-container h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #444;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1.2rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #444;
+  color: #555;
 }
 
 .form-group input,
-.form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
-  background-color: #ffffff; /* Light background color */
-  color: #333; /* Dark text color */
+  font-size: 1rem;
 }
 
-.form-group input::placeholder,
-.form-group select::placeholder,
-.form-group textarea::placeholder {
-  color: #999; /* Placeholder text color */
-}
 .form-group input:focus,
-.form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #4ea14a; /* Add focus border color */
+  border-color: #4ea14a;
+  box-shadow: 0 0 0 2px rgba(78, 161, 74, 0.1);
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
 }
 
 .form-group small {
   display: block;
-  margin-top: 5px;
+  margin-top: 0.25rem;
   color: #777;
-  font-size: 12px;
-}
-
-.read-only {
-  background-color: #f9f9f9;
-  color: #666;
+  font-size: 0.875rem;
 }
 
 .form-error {
@@ -74,14 +81,14 @@
 }
 
 .profile-form-button {
-  padding: 10px 20px;
   background-color: #4ea14a;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
 .profile-form-button:hover {
@@ -89,162 +96,218 @@
 }
 
 .profile-form-button:disabled {
-  background-color: #a0d09c;
+  background-color: #8bc887;
   cursor: not-allowed;
 }
 
-/* Document Upload Form specific styles */
-.upload-progress {
-  height: 20px;
-  width: 100%;
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  overflow: hidden;
-  position: relative;
+.read-only {
+  background-color: #f9f9f9;
+  cursor: not-allowed;
 }
 
-.progress-bar {
-  height: 100%;
-  background-color: #4ea14a;
-  transition: width 0.3s ease;
-}
-
-.upload-progress span {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  line-height: 20px;
-  color: white;
-  font-size: 12px;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-}
-
-.documents-list {
-  margin-top: 30px;
-}
-
-.documents-list h4 {
+/* Skills input specific styling */
+.skills-container {
   margin-bottom: 15px;
-  color: #333;
 }
 
-.no-documents {
-  color: #777;
-  font-style: italic;
-  text-align: center;
-  padding: 20px 0;
+.skills-input {
+  display: flex;
+  margin-bottom: 10px;
 }
 
-.documents-table {
-  width: 100%;
-  border-collapse: collapse;
+.skills-input input {
+  flex: 1;
+  margin-right: 10px;
 }
 
-.documents-table th,
-.documents-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+.skills-input button {
+  background-color: #4ea14a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 15px;
+  cursor: pointer;
 }
 
-.documents-table th {
-  background-color: #f5f5f5;
-  font-weight: 500;
-  color: #333;
+.skills-input button:disabled {
+  background-color: #8bc887;
+  cursor: not-allowed;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  text-align: center;
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.status-badge.pending {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
+.skill-tag {
+  background-color: #e9f5e9;
+  border: 1px solid #4ea14a;
+  border-radius: 16px;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
 }
 
-.status-badge.verified {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.status-badge.rejected {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.document-action-btn {
+.skill-tag button {
   background: none;
   border: none;
-  padding: 5px 10px;
-  margin-right: 5px;
-  border-radius: 4px;
+  color: #666;
+  margin-left: 6px;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.2s;
+  font-size: 1.2rem;
+  line-height: 0.5;
+  padding: 0 0 0 5px;
 }
 
-.document-action-btn.view {
-  color: #2c6ecf;
+/* MFA specific styling */
+.mfa-status {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
 }
 
-.document-action-btn.view:hover {
-  background-color: #e8f0fe;
+.status-indicator {
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  width: fit-content;
+  margin-bottom: 10px;
 }
 
-.document-action-btn.delete {
-  color: #dc3545;
+.status-indicator.enabled {
+  background-color: #d4edda;
+  color: #155724;
 }
 
-.document-action-btn.delete:hover {
+.status-indicator.disabled {
   background-color: #f8d7da;
+  color: #721c24;
 }
 
-.document-action-btn:disabled {
-  opacity: 0.6;
+.mfa-button {
+  background-color: #4ea14a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.mfa-button:hover {
+  background-color: #3c8a38;
+}
+
+.mfa-button:disabled {
+  background-color: #8bc887;
   cursor: not-allowed;
+}
+
+.mfa-button.secondary {
+  background-color: #6c757d;
+  margin-left: 10px;
+}
+
+.mfa-button.secondary:hover {
+  background-color: #5a6268;
+}
+
+.mfa-button.warning {
+  background-color: #dc3545;
+}
+
+.mfa-button.warning:hover {
+  background-color: #c82333;
+}
+
+.form-buttons {
+  display: flex;
+  margin-top: 1.5rem;
+}
+
+.setup-initial {
+  margin-top: 1rem;
+}
+
+.setup-initial ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.setup-initial li {
+  margin-bottom: 0.75rem;
+}
+
+.qr-code-container {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px dashed #ddd;
+  background-color: #f9f9f9;
+}
+
+.qr-code-container img {
+  max-width: 200px;
+}
+
+.manual-code {
+  display: block;
+  background-color: #f9f9f9;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border: 1px solid #ddd;
+  word-break: break-all;
+}
+
+.recovery-codes h5 {
+  color: #dc3545;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.codes-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.recovery-code {
+  font-family: monospace;
+  background-color: #fff;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .documents-table {
-    font-size: 14px;
-  }
-  
-  .documents-table th,
-  .documents-table td {
-    padding: 8px 10px;
-  }
-  
-  .document-action-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
-}
-
-@media (max-width: 576px) {
-  .documents-table {
-    display: block;
-    overflow-x: auto;
-  }
-  
-  .profile-tabs {
+  .form-buttons {
     flex-direction: column;
   }
   
-  .tab-button {
-    width: 100%;
-    text-align: center;
+  .mfa-button.secondary {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  
+  .codes-container {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }

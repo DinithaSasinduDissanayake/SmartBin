@@ -69,11 +69,21 @@ exports.getUserProfile = async (req, res, next) => {
     // Get user documents if any
     const documents = await Document.find({ user: req.user.id });
     
+    // Include new fields in response
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      address: user.address,
       role: user.role,
+      preferences: user.preferences,
+      // Include skills and availability only for staff
+      ...(user.role === 'staff' && { 
+        skills: user.skills, 
+        availability: user.availability 
+      }),
+      mfaEnabled: user.mfaEnabled,
       createdAt: user.createdAt,
       documents: documents
     });
@@ -102,7 +112,36 @@ exports.updateUserProfile = async (req, res, next) => {
     // Update basic info (validation handled by express-validator)
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    // Consider adding phone number update if applicable
+    user.phone = req.body.phone || user.phone;
+    
+    // Update address if provided
+    if (req.body.address) {
+      user.address = {
+        street: req.body.address.street || user.address?.street,
+        city: req.body.address.city || user.address?.city,
+        postalCode: req.body.address.postalCode || user.address?.postalCode,
+        country: req.body.address.country || user.address?.country || 'Sri Lanka',
+        // Keep location as is or update if provided
+        location: req.body.address.location || user.address?.location
+      };
+    }
+    
+    // Update preferences if customer
+    if (user.role === 'customer' && req.body.preferences) {
+      user.preferences = {
+        pickupNotes: req.body.preferences.pickupNotes || user.preferences?.pickupNotes
+      };
+    }
+    
+    // Update staff-specific fields if staff
+    if (user.role === 'staff') {
+      if (req.body.skills) {
+        user.skills = req.body.skills;
+      }
+      if (req.body.availability) {
+        user.availability = req.body.availability;
+      }
+    }
     
     // Update password if provided and different
     if (req.body.password) {
@@ -117,12 +156,96 @@ exports.updateUserProfile = async (req, res, next) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
-      role: updatedUser.role
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      role: updatedUser.role,
+      preferences: updatedUser.preferences,
+      ...(updatedUser.role === 'staff' && { 
+        skills: updatedUser.skills, 
+        availability: updatedUser.availability 
+      }),
+      mfaEnabled: updatedUser.mfaEnabled,
+      createdAt: updatedUser.createdAt
     });
   } catch (error) {
     console.error('Error updating user profile:', error);
     // Mongoose validation errors will be caught by global handler
     next(error); // Pass NotFoundError or other errors
+  }
+};
+
+/**
+ * @desc    Admin update user
+ * @route   PUT /api/users/:id
+ * @access  Private/Admin
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.adminUpdateUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      throw new NotFoundError(`User not found with id ${req.params.id}`);
+    }
+    
+    // Update all fields that can be modified by admin
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone;
+    user.role = req.body.role || user.role;
+    
+    // Update address if provided
+    if (req.body.address) {
+      user.address = {
+        street: req.body.address.street || user.address?.street,
+        city: req.body.address.city || user.address?.city,
+        postalCode: req.body.address.postalCode || user.address?.postalCode,
+        country: req.body.address.country || user.address?.country || 'Sri Lanka',
+        location: req.body.address.location || user.address?.location
+      };
+    }
+    
+    // Update preferences
+    if (req.body.preferences) {
+      user.preferences = {
+        pickupNotes: req.body.preferences.pickupNotes || user.preferences?.pickupNotes
+      };
+    }
+    
+    // Update staff-specific fields
+    if (req.body.skills) {
+      user.skills = req.body.skills;
+    }
+    
+    if (req.body.availability) {
+      user.availability = req.body.availability;
+    }
+    
+    // Admin can reset password if needed
+    if (req.body.password) {
+      user.password = req.body.password; // Will be hashed by pre-save hook
+    }
+    
+    const updatedUser = await user.save();
+    
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      role: updatedUser.role,
+      preferences: updatedUser.preferences,
+      skills: updatedUser.skills,
+      availability: updatedUser.availability,
+      mfaEnabled: updatedUser.mfaEnabled,
+      createdAt: updatedUser.createdAt
+    });
+  } catch (error) {
+    console.error(`Error updating user ${req.params.id}:`, error);
+    next(error);
   }
 };
 

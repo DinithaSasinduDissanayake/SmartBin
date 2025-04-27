@@ -5,12 +5,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import './Auth.css';
 
 const validatePhone = (phone) => {
-  const phoneRegex = /^(\+\d{1,3}[- ]?)?\d{10}$/;
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
   return phoneRegex.test(phone);
-};
-
-const validateAddress = (address) => {
-  return address.trim().length >= 5; 
 };
 
 const validateEmail = (email) => {
@@ -23,18 +19,37 @@ function Register() {
     name: '',
     email: '',
     password: '',
-    address: '',
     phone: '',
+    address: {
+      street: '',
+      city: '',
+      postalCode: '',
+      country: 'Sri Lanka'
+    }
   });
   const [formError, setFormError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    
+    if (name.startsWith('address.')) {
+      const addressField = name.split('.')[1];
+      setFormData({
+        ...formData,
+        address: {
+          ...formData.address,
+          [addressField]: value
+        }
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
   };
 
   const handleBlur = (e) => {
@@ -45,9 +60,11 @@ function Register() {
     } else if (name === 'password' && value.length < 8) {
       setFormError('Password must be at least 8 characters long');
     } else if (name === 'phone' && value && !validatePhone(value)) {
-      setFormError('Please enter a valid phone number');
-    } else if (name === 'address' && value && !validateAddress(value)) {
-      setFormError('Address should be at least 5 characters long');
+      setFormError('Please enter a valid phone number (with country code if international)');
+    } else if (name === 'address.street' && value.trim().length < 3) {
+      setFormError('Street address should be at least 3 characters long');
+    } else if (name === 'address.city' && value.trim().length < 2) {
+      setFormError('City should be at least 2 characters long');
     } else {
       setFormError('');
     }
@@ -56,26 +73,37 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    setLoading(true);
     
     // Frontend Validation Checks before API call
     if (!formData.name.trim()) {
-      setFormError('Full Name is required.');
+      setFormError('Full Name is required');
+      setLoading(false);
       return;
     }
     if (!validateEmail(formData.email)) {
-      setFormError('Please enter a valid email address.');
+      setFormError('Please enter a valid email address');
+      setLoading(false);
       return;
     }
     if (formData.password.length < 8) {
-      setFormError('Password must be at least 8 characters long.');
-      return;
-    }
-    if (!validateAddress(formData.address)) {
-      setFormError('Please enter a valid address (minimum 5 characters).');
+      setFormError('Password must be at least 8 characters long');
+      setLoading(false);
       return;
     }
     if (!validatePhone(formData.phone)) {
-      setFormError('Please enter a valid phone number.');
+      setFormError('Please enter a valid phone number');
+      setLoading(false);
+      return;
+    }
+    if (!formData.address.street.trim()) {
+      setFormError('Street address is required');
+      setLoading(false);
+      return;
+    }
+    if (!formData.address.city.trim()) {
+      setFormError('City is required');
+      setLoading(false);
       return;
     }
     
@@ -93,12 +121,14 @@ function Register() {
         setFormError(err.response.data.message);
       } else if (err.request) {
         // Handle network error
-        setFormError('Network error. Please check connection.');
+        setFormError('Network error. Please check connection');
       } else {
         // Handle other unexpected errors
-        setFormError('An unexpected error occurred during registration.');
+        setFormError('An unexpected error occurred during registration');
       }
       console.error('Registration error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,7 +138,7 @@ function Register() {
         <h2>Create an Account</h2>
         
         {formError && (
-          <div className="error-message" aria-live="assertive">{formError}</div>
+          <div className="auth-error" aria-live="assertive">{formError}</div>
         )}
         
         <form onSubmit={handleSubmit}>
@@ -120,6 +150,8 @@ function Register() {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              onBlur={handleBlur}
+              disabled={loading}
               required
               aria-label="Full Name"
             />
@@ -134,6 +166,7 @@ function Register() {
               value={formData.email}
               onChange={handleChange}
               onBlur={handleBlur}
+              disabled={loading}
               required
             />
           </div>
@@ -147,26 +180,15 @@ function Register() {
               value={formData.password}
               onChange={handleChange}
               onBlur={handleBlur}
+              disabled={loading}
               required
               minLength="8"
               aria-label="Password"
               aria-describedby="passwordHelp"
             />
-            <small id="passwordHelp" className="form-text text-muted">Password must be at least 8 characters long and include numbers or symbols for better security.</small>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="address">Address</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              required
-              aria-label="Address"
-            />
+            <small id="passwordHelp" className="form-text text-muted">
+              Password must be at least 8 characters long and include numbers or symbols for better security.
+            </small>
           </div>
 
           <div className="form-group">
@@ -178,6 +200,8 @@ function Register() {
               value={formData.phone}
               onChange={handleChange}
               onBlur={handleBlur}
+              placeholder="+94XXXXXXXXX"
+              disabled={loading}
               required
               aria-label="Phone Number"
             />
@@ -185,8 +209,71 @@ function Register() {
               Enter a valid phone number with country code
             </small>
           </div>
+
+          <h3 className="address-heading">Address Information</h3>
+
+          <div className="form-group">
+            <label htmlFor="address.street">Street Address</label>
+            <input
+              type="text"
+              id="address.street"
+              name="address.street"
+              value={formData.address.street}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              disabled={loading}
+              required
+              aria-label="Street Address"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address.city">City</label>
+            <input
+              type="text"
+              id="address.city"
+              name="address.city"
+              value={formData.address.city}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              disabled={loading}
+              required
+              aria-label="City"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address.postalCode">Postal Code</label>
+            <input
+              type="text"
+              id="address.postalCode"
+              name="address.postalCode"
+              value={formData.address.postalCode}
+              onChange={handleChange}
+              disabled={loading}
+              aria-label="Postal Code"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address.country">Country</label>
+            <input
+              type="text"
+              id="address.country"
+              name="address.country"
+              value={formData.address.country}
+              onChange={handleChange}
+              disabled={loading}
+              aria-label="Country"
+            />
+            <small className="form-text text-muted">
+              Default is Sri Lanka. Change if you're in another country.
+            </small>
+          </div>
           
-          <button type="submit" className="auth-button">Register</button>
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? 'Registering...' : 'Register'}
+          </button>
         </form>
         
         <div className="auth-footer">

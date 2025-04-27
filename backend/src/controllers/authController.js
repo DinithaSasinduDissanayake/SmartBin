@@ -26,7 +26,7 @@ const generateToken = (id) => {
  */
 exports.registerUser = async (req, res, next) => {
   // Validation is handled by express-validator middleware
-  const { name, email, password, role, phone } = req.body; // Include optional fields
+  const { name, email, password, role, phone, address } = req.body; // Include new fields
 
   try {
     // Check if user exists
@@ -36,13 +36,25 @@ exports.registerUser = async (req, res, next) => {
       throw new BadRequestError('User already exists with this email');
     }
 
-    // Create user
+    // Create user with all provided fields
     const user = await User.create({
       name,
       email,
       password,
       role: role || 'customer', // Use validated role or default to 'customer'
-      phone // Add phone if provided
+      phone, // Add phone if provided
+      address, // Add address if provided
+      // Initialize preferences if role is customer
+      ...((!role || role === 'customer') && {
+        preferences: {
+          pickupNotes: ''
+        }
+      }),
+      // Initialize staff fields if role is staff
+      ...(role === 'staff' && {
+        skills: [],
+        availability: ''
+      })
     });
 
     // User creation includes pre-save hook for password hashing
@@ -52,6 +64,8 @@ exports.registerUser = async (req, res, next) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      phone: user.phone,
+      address: user.address,
       token: generateToken(user._id)
     });
 
@@ -75,10 +89,10 @@ exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    // Find user by email (case-insensitive) and select password
+    // Find user by email (case-insensitive) and select password and MFA fields
     const user = await User.findOne({ 
       email: { $regex: new RegExp(`^${email}$`, 'i') } 
-    }).select('+password');
+    }).select('+password +mfaSecret');
     
     if (!user) {
       throw new UnauthorizedError('Invalid credentials'); // Use specific error
@@ -90,13 +104,25 @@ exports.loginUser = async (req, res, next) => {
     if (!isMatch) {
       throw new UnauthorizedError('Invalid credentials'); // Use specific error
     }
+
+    // Check if MFA is enabled for this user
+    if (user.mfaEnabled) {
+      // Return only partial authentication - client will need to complete MFA step
+      return res.json({
+        mfaRequired: true,
+        userId: user._id,
+        // Do not provide token yet - will be given after MFA verification
+      });
+    }
     
-    // Generate token and send response
+    // If no MFA or MFA verification passed, generate token and send response
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
+      phone: user.phone,
+      mfaEnabled: user.mfaEnabled,
       token: generateToken(user._id)
     });
 
@@ -117,20 +143,27 @@ exports.loginUser = async (req, res, next) => {
  */
 exports.getMe = async (req, res, next) => {
   try {
-    // req.user is attached by the protect middleware, findById is redundant unless populating
-    // const user = await User.findById(req.user.id);
-    const user = req.user; // User object from protect middleware
+    // Get full user details from database to include all new fields
+    const user = await User.findById(req.user.id);
 
     if (!user) {
-        // This case should ideally be prevented by the protect middleware
         throw new NotFoundError('User data not found after authentication');
     }
     
     res.json({
-      _id: user.id, // Use id from req.user
+      _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      phone: user.phone,
+      address: user.address,
+      role: user.role,
+      preferences: user.preferences,
+      // Include staff-specific fields if applicable
+      ...(user.role === 'staff' && { 
+        skills: user.skills, 
+        availability: user.availability 
+      }),
+      mfaEnabled: user.mfaEnabled
     });
   } catch (error) {
     console.error('GetMe error:', error);

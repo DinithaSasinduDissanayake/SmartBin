@@ -4,7 +4,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import ProfileForm from '../../components/profile/ProfileForm';
 import PasswordChangeForm from '../../components/profile/PasswordChangeForm';
 import DocumentUploadForm from '../../components/profile/DocumentUploadForm';
+import MFASetupForm from '../../components/profile/MFASetupForm'; // Add MFA component
 import profileApi from '../../services/profileApi';
+import mfaApi from '../../services/mfaApi'; // We'll create this API service
 import './ProfilePage.css';
 
 const ProfilePage = () => {
@@ -61,6 +63,62 @@ const ProfilePage = () => {
       return { 
         success: false, 
         message: err.response?.data?.message || 'Failed to change password' 
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // MFA handlers
+  const handleMFAOperations = {
+    generateSecret: async () => {
+      try {
+        setLoading(true);
+        const response = await mfaApi.generateSecret();
+        return { success: true, data: response.data };
+      } catch (err) {
+        console.error('Error generating MFA secret:', err);
+        return { 
+          success: false, 
+          message: err.response?.data?.message || 'Failed to generate MFA secret' 
+        };
+      } finally {
+        setLoading(false);
+      }
+    },
+    enableMFA: async ({ token, secret }) => {
+      try {
+        setLoading(true);
+        const response = await mfaApi.enableMFA(token, secret);
+        await fetchProfileData(); // Refresh profile to update MFA status
+        return { 
+          success: true, 
+          message: 'MFA enabled successfully', 
+          data: { recoveryCodes: response.data.recoveryCodes } 
+        };
+      } catch (err) {
+        console.error('Error enabling MFA:', err);
+        return { 
+          success: false, 
+          message: err.response?.data?.message || 'Failed to enable MFA' 
+        };
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleDisableMFA = async ({ password }) => {
+    try {
+      setLoading(true);
+      await mfaApi.disableMFA(password);
+      await fetchProfileData(); // Refresh profile to update MFA status
+      return { success: true, message: 'MFA disabled successfully' };
+    } catch (err) {
+      console.error('Error disabling MFA:', err);
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Failed to disable MFA' 
       };
     } finally {
       setLoading(false);
@@ -153,6 +211,12 @@ const ProfilePage = () => {
           Change Password
         </button>
         <button 
+          className={`tab-button ${activeTab === 'security' ? 'active' : ''}`}
+          onClick={() => setActiveTab('security')}
+        >
+          Security
+        </button>
+        <button 
           className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
           onClick={() => setActiveTab('documents')}
         >
@@ -172,6 +236,15 @@ const ProfilePage = () => {
         {activeTab === 'password' && (
           <PasswordChangeForm 
             onSubmit={handlePasswordChange}
+            loading={loading}
+          />
+        )}
+        
+        {activeTab === 'security' && (
+          <MFASetupForm 
+            profileData={profileData}
+            onEnableMFA={handleMFAOperations}
+            onDisableMFA={handleDisableMFA}
             loading={loading}
           />
         )}
