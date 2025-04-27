@@ -42,5 +42,6 @@ const userSubscriptionSchema = new mongoose.Schema({
 userSubscriptionSchema.index({ user: 1 });
 userSubscriptionSchema.index({ status: 1 });
 userSubscriptionSchema.index({ nextBillingDate: 1 });
+userSubscriptionSchema.index({ subscriptionPlan: 1 }); // Index for filtering by subscription plan
 
 module.exports = mongoose.model('UserSubscription', userSubscriptionSchema);

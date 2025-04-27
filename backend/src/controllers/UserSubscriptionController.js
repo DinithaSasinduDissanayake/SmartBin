@@ -8,6 +8,22 @@ const ApiError = require('../errors/ApiError');
 const mongoose = require('mongoose');
 
 /**
+ * Helper function to add months to a date
+ * @param {Date} date - The start date
+ * @param {Number} months - Number of months to add
+ * @returns {Date} - New date with months added
+ */
+const addMonths = (date, months) => {
+    const result = new Date(date);
+    result.setMonth(result.getMonth() + months);
+    // Handle edge cases like Feb 29th
+    if (result.getDate() < date.getDate()) {
+        result.setDate(0); // Go to the last day of the previous month
+    }
+    return result;
+};
+
+/**
  * @desc    Create a new subscription for a user
  * @route   POST /api/user-subscriptions
  * @access  Private/financial_manager/admin
@@ -192,6 +208,9 @@ exports.updateUserSubscription = async (req, res, next) => {
       throw new NotFoundError('Subscription not found');
     }
 
+    // Store previous status to detect changes
+    const previousStatus = subscription.status;
+    
     // Update fields if they are provided in the request body
     if (status !== undefined) {
       subscription.status = status;
@@ -200,6 +219,43 @@ exports.updateUserSubscription = async (req, res, next) => {
       subscription.autoRenew = autoRenew;
     }
 
+    // If we're changing from non-active to active, adjust the endDate and nextBillingDate
+    if (previousStatus !== 'active' && subscription.status === 'active') {
+      // Get the plan details to calculate new dates
+      const plan = await SubscriptionPlan.findById(subscription.subscriptionPlan);
+      if (!plan) {
+        throw new NotFoundError('Subscription plan not found');
+      }
+
+      // Calculate duration based on plan
+      let durationMonths = 1; // Default to Monthly
+      switch (plan.duration) {
+        case 'Quarterly':
+          durationMonths = 3;
+          break;
+        case 'Semi-Annual':
+          durationMonths = 6;
+          break;
+        case 'Annual':
+          durationMonths = 12;
+          break;
+      }
+
+      const now = new Date();
+      subscription.endDate = addMonths(now, durationMonths);
+      subscription.nextBillingDate = new Date(subscription.endDate);
+      subscription.lastBillingDate = now;
+
+      // Increment the subscriber count on the plan
+      await SubscriptionPlan.findByIdAndUpdate(subscription.subscriptionPlan, { $inc: { subscriberCount: 1 } });
+    }
+    
+    // If we're changing from active to non-active, decrement the subscriber count
+    if (previousStatus === 'active' && subscription.status !== 'active') {
+      await SubscriptionPlan.findByIdAndUpdate(subscription.subscriptionPlan, { $inc: { subscriberCount: -1 } });
+    }
+
+    // Save changes
     const updatedSubscription = await subscription.save();
 
     res.status(200).json(updatedSubscription);

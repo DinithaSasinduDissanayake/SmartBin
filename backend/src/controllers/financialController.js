@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ApiError = require('../errors/ApiError');
+const paymentService = require('../services/paymentService');
 
 /**
  * @desc    Get aggregated financial data for the dashboard
@@ -497,4 +498,327 @@ exports.deleteExpense = async (req, res, next) => {
         // Simply pass the error to the global handler
         next(error); 
     }
+};
+
+/**
+ * @desc    Initiate a payment via payment gateway (e.g., Stripe)
+ * @route   POST /api/financials/payments/initiate
+ * @access  Private (customer, financial_manager, admin)
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.initiatePayment = async (req, res, next) => {
+    try {
+        const { userId, planId, amount, currency = 'usd' } = req.body;
+        
+        // Validate required parameters
+        if (!userId || !planId || !amount) {
+            throw new BadRequestError('Missing required parameters: userId, planId, amount');
+        }
+        
+        // Validate user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new NotFoundError(`User not found with ID: ${userId}`);
+        }
+        
+        // Validate plan exists
+        const plan = await SubscriptionPlan.findById(planId);
+        if (!plan) {
+            throw new NotFoundError(`Subscription plan not found with ID: ${planId}`);
+        }
+
+        // Create payment intent with Stripe
+        const paymentIntent = await paymentService.createPaymentIntent({
+            amount,
+            currency,
+            userId,
+            planId,
+            userEmail: user.email
+        });
+        
+        // Create a pending payment record
+        const payment = await Payment.create({
+            user: userId,
+            amount,
+            description: `Payment for ${plan.name} plan`,
+            status: 'pending',
+            paymentMethod: 'credit_card',
+            currency,
+            transactionId: paymentIntent.intentId,
+            gatewayResponse: { clientSecret: paymentIntent.clientSecret }
+        });
+        
+        // Return the client secret to the frontend for completing the payment
+        res.status(200).json({
+            clientSecret: paymentIntent.clientSecret,
+            paymentId: payment._id
+        });
+        
+    } catch (error) {
+        console.error('Error initiating payment:', error);
+        next(error);
+    }
+};
+
+/**
+ * @desc    Handle payment webhooks from payment gateway (e.g., Stripe)
+ * @route   POST /api/financials/payments/webhook
+ * @access  Public (called by payment gateway)
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.handlePaymentWebhook = async (req, res, next) => {
+    const sig = req.headers['stripe-signature'];
+    const rawBody = req.rawBody; // Ensure middleware preserves the raw body
+    
+    try {
+        if (!sig || !rawBody) {
+            throw new BadRequestError('Missing webhook signature or request body');
+        }
+        
+        // Verify webhook signature with Stripe
+        const event = paymentService.verifyAndConstructEvent(rawBody, sig);
+        
+        // Handle different webhook events
+        switch (event.type) {
+            case 'payment_intent.succeeded':
+                await handlePaymentSucceeded(event.data.object);
+                break;
+                
+            case 'payment_intent.payment_failed':
+                await handlePaymentFailed(event.data.object);
+                break;
+                
+            case 'payment_intent.requires_action':
+                await handlePaymentRequiresAction(event.data.object);
+                break;
+                
+            default:
+                // Log but do not act on unhandled event types
+                console.log(`Unhandled event type: ${event.type}`);
+        }
+        
+        // Return a 200 response to acknowledge receipt of the webhook
+        res.status(200).json({ received: true });
+        
+    } catch (error) {
+        console.error('Webhook Error:', error);
+        // Return a different error code for signature verification failures
+        if (error.message.includes('signature verification failed')) {
+            res.status(400).json({ error: 'Invalid signature' });
+        } else {
+            res.status(400).json({ error: 'Webhook error' });
+        }
+    }
+};
+
+/**
+ * @desc    Update a payment status (for manual update by admin/financial_manager)
+ * @route   PATCH /api/financials/payments/:id/status
+ * @access  Private (financial_manager, admin)
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.updatePaymentStatus = async (req, res, next) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    try {
+        // Validate status
+        if (!['pending', 'completed', 'failed', 'refunded', 'requires_action'].includes(status)) {
+            throw new BadRequestError('Invalid status value');
+        }
+        
+        // Find the payment
+        const payment = await Payment.findById(id);
+        if (!payment) {
+            throw new NotFoundError('Payment not found');
+        }
+        
+        // Store previous status for change tracking
+        const previousStatus = payment.status;
+        payment.status = status;
+        
+        // Handle status transitions
+        if (previousStatus !== 'completed' && status === 'completed') {
+            // If payment is associated with a subscription, link them and activate
+            if (payment.userSubscription) {
+                const subscription = await UserSubscription.findById(payment.userSubscription);
+                if (subscription) {
+                    subscription.status = 'active';
+                    await subscription.save();
+                }
+            }
+        }
+        
+        // Save the updated payment
+        await payment.save();
+        
+        res.status(200).json({ message: 'Payment status updated successfully', payment });
+        
+    } catch (error) {
+        console.error('Error updating payment status:', error);
+        next(error);
+    }
+};
+
+// ---- Helper functions for webhook handling -----
+
+/**
+ * Handle successful payment from webhook
+ * @param {Object} paymentIntent - Payment intent from Stripe
+ */
+async function handlePaymentSucceeded(paymentIntent) {
+    try {
+        // Find the payment by transaction ID
+        const payment = await Payment.findOne({ transactionId: paymentIntent.id });
+        if (!payment) {
+            console.error('Payment not found for webhook:', paymentIntent.id);
+            return;
+        }
+        
+        // Update payment status
+        payment.status = 'completed';
+        payment.gatewayResponse = { 
+            ...payment.gatewayResponse, 
+            paymentIntentId: paymentIntent.id,
+            paymentStatus: 'succeeded',
+            paymentMethod: paymentIntent.payment_method
+        };
+        
+        await payment.save();
+        
+        // If payment is for a subscription, create/activate the subscription
+        const { userId, planId } = paymentIntent.metadata;
+        if (userId && planId) {
+            const user = await User.findById(userId);
+            const plan = await SubscriptionPlan.findById(planId);
+            
+            if (user && plan) {
+                // Calculate subscription dates based on plan duration
+                let durationMonths = 1; // Default to Monthly
+                switch (plan.duration) {
+                    case 'Quarterly': durationMonths = 3; break;
+                    case 'Semi-Annual': durationMonths = 6; break;
+                    case 'Annual': durationMonths = 12; break;
+                }
+                
+                const startDate = new Date();
+                const endDate = addMonths(startDate, durationMonths);
+                
+                // Create new subscription or find existing pending one
+                let subscription = await UserSubscription.findOne({
+                    user: userId,
+                    subscriptionPlan: planId,
+                    status: 'pending'
+                });
+                
+                if (subscription) {
+                    // Update existing pending subscription
+                    subscription.status = 'active';
+                    subscription.startDate = startDate;
+                    subscription.endDate = endDate;
+                    subscription.nextBillingDate = endDate;
+                } else {
+                    // Create new subscription
+                    subscription = new UserSubscription({
+                        user: userId,
+                        subscriptionPlan: planId,
+                        startDate,
+                        endDate,
+                        status: 'active',
+                        autoRenew: true,
+                        lastBillingDate: startDate,
+                        nextBillingDate: endDate
+                    });
+                }
+                
+                await subscription.save();
+                
+                // Link payment to subscription
+                payment.userSubscription = subscription._id;
+                await payment.save();
+                
+                // Increment subscriber count on the plan
+                await SubscriptionPlan.findByIdAndUpdate(planId, { 
+                    $inc: { subscriberCount: 1 } 
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error handling payment success webhook:', error);
+    }
+}
+
+/**
+ * Handle failed payment from webhook
+ * @param {Object} paymentIntent - Payment intent from Stripe
+ */
+async function handlePaymentFailed(paymentIntent) {
+    try {
+        // Find the payment by transaction ID
+        const payment = await Payment.findOne({ transactionId: paymentIntent.id });
+        if (!payment) {
+            console.error('Payment not found for webhook:', paymentIntent.id);
+            return;
+        }
+        
+        // Update payment status
+        payment.status = 'failed';
+        payment.gatewayResponse = { 
+            ...payment.gatewayResponse, 
+            paymentIntentId: paymentIntent.id,
+            paymentStatus: 'failed',
+            lastError: paymentIntent.last_payment_error
+        };
+        
+        await payment.save();
+        
+    } catch (error) {
+        console.error('Error handling payment failed webhook:', error);
+    }
+}
+
+/**
+ * Handle payment requires additional action
+ * @param {Object} paymentIntent - Payment intent from Stripe
+ */
+async function handlePaymentRequiresAction(paymentIntent) {
+    try {
+        // Find the payment by transaction ID
+        const payment = await Payment.findOne({ transactionId: paymentIntent.id });
+        if (!payment) {
+            console.error('Payment not found for webhook:', paymentIntent.id);
+            return;
+        }
+        
+        // Update payment status
+        payment.status = 'requires_action';
+        payment.gatewayResponse = { 
+            ...payment.gatewayResponse, 
+            paymentIntentId: paymentIntent.id,
+            paymentStatus: 'requires_action',
+            nextAction: paymentIntent.next_action
+        };
+        
+        await payment.save();
+        
+    } catch (error) {
+        console.error('Error handling payment requires action webhook:', error);
+    }
+}
+
+// Helper function to add months to a date
+const addMonths = (date, months) => {
+    const result = new Date(date);
+    result.setMonth(result.getMonth() + months);
+    // Handle edge cases like Feb 29th
+    if (result.getDate() < date.getDate()) {
+        result.setDate(0); // Go to the last day of the previous month
+    }
+    return result;
 };

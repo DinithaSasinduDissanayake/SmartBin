@@ -7,6 +7,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import DashboardLayout from './components/layouts/DashboardLayout';
 import ProfilePage from './pages/profile/ProfilePage';
+import SubscriptionPlansPage from './pages/subscription/SubscriptionPlansPage';
 import './App.css';
 
 // Loading Indicator component
@@ -73,6 +74,13 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        
+        {/* Subscription route */}
+        <Route path="/subscription-plans" element={
+          <ProtectedRoute>
+            <SubscriptionPlansPage />
+          </ProtectedRoute>
+        } />
         
         {/* Protected routes - all dashboard routes should be nested here */}
         <Route path="/dashboard/*" element={

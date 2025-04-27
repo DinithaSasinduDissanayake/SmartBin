@@ -35,9 +35,10 @@ const config = {
   emailPassword: process.env.EMAIL_PASSWORD,
   emailFrom: process.env.EMAIL_FROM,
   
-  // Payment gateway configuration (for future use)
-  paymentGatewayKey: process.env.PAYMENT_GATEWAY_KEY,
-  paymentGatewaySecret: process.env.PAYMENT_GATEWAY_SECRET,
+  // Payment gateway configuration (Stripe)
+  stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   
   // Geolocation API configuration (for future use)
   geoApiKey: process.env.GEO_API_KEY,

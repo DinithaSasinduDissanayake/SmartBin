@@ -1,5 +1,5 @@
 const Complaint = require('../models/Complaint');
-const User = require('../models/User');
+const User = require('../models/User'); // Needed for assigning admin
 const { NotFoundError, ForbiddenError, BadRequestError } = require('../errors');
 const mongoose = require('mongoose');
 

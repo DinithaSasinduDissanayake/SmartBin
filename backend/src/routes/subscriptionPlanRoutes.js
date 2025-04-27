@@ -16,6 +16,7 @@ const planValidation = [
   body('duration', 'Duration is required (e.g., 1 month, 3 months)').notEmpty().trim().escape(),
   body('features').optional().isArray().withMessage('Features must be an array of strings'),
   body('features.*').optional().isString().trim().escape(), // Validate each item in the array
+  body('status').optional().isIn(['active', 'inactive']).withMessage('Status must be either active or inactive')
 ];
 
 // GET all subscription plans (public)

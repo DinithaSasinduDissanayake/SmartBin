@@ -32,5 +32,4 @@ router.patch('/:logId/mark-paid', authorize('admin', 'financial_manager'), [
     body('transactionRef').optional().isString().trim().escape()
 ], handleValidationErrors, markPayrollAsPaid);
 
-
 module.exports = router;
