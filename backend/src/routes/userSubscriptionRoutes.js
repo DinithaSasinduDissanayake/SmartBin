@@ -1,24 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
-const roleMiddleware = require('../middleware/roleMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware'); 
 const userSubscriptionController = require('../controllers/UserSubscriptionController');
-const { body, validationResult } = require('express-validator'); // Import validator
-
-// Middleware for protecting routes
-const { protect } = authMiddleware;
-
-// Middleware for checking roles
-const requireAdminOrFinancialManager = roleMiddleware(['admin', 'financial_manager']);
-
-// Middleware to handle validation errors
-const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
+const { body } = require('express-validator'); // Import only body
+// Import shared validation error handler
+const { handleValidationErrors } = require('../middleware/validationErrorHandler'); 
 
 // Validation for creating a user subscription
 const createUserSubscriptionValidation = [
@@ -40,7 +26,7 @@ const updateUserSubscriptionValidation = [
 router.get(
     '/', 
     protect, 
-    requireAdminOrFinancialManager, 
+    authorize('admin', 'financial_manager'), // Use authorize directly
     userSubscriptionController.getAllActiveSubscriptions
 );
 
@@ -48,9 +34,9 @@ router.get(
 router.post(
     '/', 
     protect, 
-    requireAdminOrFinancialManager, 
-    createUserSubscriptionValidation, // Add validation
-    handleValidationErrors, // Handle errors
+    authorize('admin', 'financial_manager'), // Use authorize directly
+    createUserSubscriptionValidation, 
+    handleValidationErrors, // Use shared handler
     userSubscriptionController.createUserSubscription
 );
 
@@ -74,9 +60,9 @@ router.get(
 router.put(
     '/:id', 
     protect, 
-    requireAdminOrFinancialManager, 
-    updateUserSubscriptionValidation, // Add validation
-    handleValidationErrors, // Handle errors
+    authorize('admin', 'financial_manager'), // Use authorize directly
+    updateUserSubscriptionValidation, 
+    handleValidationErrors, // Use shared handler
     userSubscriptionController.updateUserSubscription
 );
 
@@ -84,7 +70,7 @@ router.put(
 router.delete(
     '/:id', 
     protect, 
-    requireAdminOrFinancialManager, 
+    authorize('admin', 'financial_manager'), // Use authorize directly
     userSubscriptionController.cancelUserSubscription
 );
 

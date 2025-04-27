@@ -11,13 +11,74 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* SmartBin theme colors */
+  --primary-color: #2e7d32;
+  --primary-light: rgba(46, 125, 50, 0.12);
+  --primary-hover: rgba(46, 125, 50, 0.08);
+  --text-color: #333333;
+  --text-light: #757575;
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --border-color: #f0f0f0;
+  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Updated page transition effects */
+.page-transition {
+  opacity: 1;
+  transition: 300ms ease-in-out;
+  transition-property: opacity, transform;
+}
+
+.page-transition.fadeIn {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.page-transition.fadeOut {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+
+/* Loading indicator animation */
+.loading-indicator {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+  margin: 40px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Pulse animation for interactive elements */
+@keyframes pulse-light {
+  0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(46, 125, 50, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+}
+
+/* Enhanced focus states for better accessibility */
+:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
+  position: relative;
+  transition: all 0.2s ease;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -28,6 +89,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  color: var(--text-color);
+  background-color: var(--bg-color);
 }
 
 h1 {
@@ -44,14 +107,32 @@ button {
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
 button:hover {
   border-color: #646cff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
+
+button:active {
+  transform: translateY(0);
+}
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Card hover effect for all card-like elements */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 @media (prefers-color-scheme: light) {

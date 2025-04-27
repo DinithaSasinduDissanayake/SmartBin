@@ -4,41 +4,95 @@
   height: 100vh;
   width: 100%;
   overflow: hidden;
+  background-color: #f8f9fa;
 }
 
 .dashboard-main {
   flex: 1;
-  margin-left: 260px; /* Width of sidebar */
+  margin-left: 280px; /* Updated to match new sidebar width */
   display: flex;
   flex-direction: column;
-  width: calc(100% - 260px); /* Ensure proper width calculation */
+  width: calc(100% - 280px); /* Updated to match new sidebar width */
   overflow: hidden;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .dashboard-content-area {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
-  background-color: #eaefea;
+  padding: 24px;
+  background-color: #f8f9fa;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 /* Ensure only one component renders at a time */
 .dashboard-content {
   background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  margin-bottom: 24px;
+  animation: cardAppear 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+.dashboard-content:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Create a staggered animation effect for multiple content blocks */
+.dashboard-content:nth-child(1) { animation-delay: 0.1s; }
+.dashboard-content:nth-child(2) { animation-delay: 0.2s; }
+.dashboard-content:nth-child(3) { animation-delay: 0.3s; }
+.dashboard-content:nth-child(4) { animation-delay: 0.4s; }
 
 /* Fix header placement */
 .dashboard-main header {
   width: 100%;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 95;
 }
 
 /* Make main content area take remaining height */
 .dashboard-main main {
   flex: 1;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .dashboard-main {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .dashboard-content-area {
+    padding: 16px;
+  }
+  
+  .dashboard-content {
+    padding: 16px;
+  }
+}
+
+/* Dashboard content animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

@@ -9,8 +9,11 @@ const rateLimit = require('express-rate-limit'); // Import rate-limit
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
+const config = require('./config'); // Import the centralized config
 const ApiError = require('./errors/ApiError'); // Import base custom error
+const { UnauthorizedError, ForbiddenError, BadRequestError, NotFoundError } = require('./errors'); // Import specific errors
 const multer = require('multer'); // Import multer
+const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken'); // Import JWT errors
 
 const app = express();
 
@@ -27,8 +30,8 @@ app.use(compression()); // Add compression middleware
 
 // Rate Limiting (apply before routes)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: config.rateLimitWindowMs, // Use config value
+  max: config.rateLimitMax,         // Use config value
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: 'Too many requests from this IP, please try again after 15 minutes'
@@ -76,17 +79,23 @@ if (!fs.existsSync(uploadDir)) {
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI;
 mongoose
-  .connect(MONGODB_URI)
+  .connect(config.mongodbUri) // Use config value
   .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1); // Exit if DB connection fails
+  });
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('ERROR:', err.message);
-  // console.error(err.stack); // Uncomment for detailed stack trace during development
+  // Log the error with more context
+  console.error(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} - ERROR: ${err.message}`);
+  if (!(err instanceof ApiError)) { // Log stack for unexpected errors
+     console.error(err.stack);
+  }
 
+  // Handle custom ApiErrors
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({ message: err.message });
   }
@@ -94,32 +103,46 @@ app.use((err, req, res, next) => {
   // Handle Mongoose validation errors
   if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map(val => val.message);
-      return res.status(400).json({ message: 'Validation Error', errors: messages });
+      const badRequestError = new BadRequestError('Validation Error', messages);
+      return res.status(badRequestError.statusCode).json({ message: badRequestError.message, errors: badRequestError.errors });
   }
   // Handle Mongoose duplicate key errors
   if (err.code === 11000) {
       const field = Object.keys(err.keyValue)[0];
       const value = err.keyValue[field];
-      return res.status(400).json({ message: `Duplicate field value entered for ${field}: ${value}. Please use another value.` });
+      const badRequestError = new BadRequestError(`Duplicate field value entered for ${field}: ${value}. Please use another value.`);
+      return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
   }
   // Handle Mongoose cast errors (e.g., invalid ObjectId)
   if (err.name === 'CastError') {
-      return res.status(400).json({ message: `Invalid ${err.path}: ${err.value}` });
+      const badRequestError = new BadRequestError(`Invalid ${err.path}: ${err.value}`);
+      return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
   }
 
   // Handle Multer errors (e.g., file size limit)
   if (err instanceof multer.MulterError) {
-    return res.status(400).json({ message: `File upload error: ${err.message}` });
+    const badRequestError = new BadRequestError(`File upload error: ${err.message}`);
+    return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
   }
   // Handle custom file type errors from multer filter
-  if (err.message.startsWith('Invalid file type')) {
-    return res.status(400).json({ message: err.message });
+  if (err.message && err.message.startsWith('Invalid file type')) { // Check if err.message exists
+    const badRequestError = new BadRequestError(err.message);
+    return res.status(badRequestError.statusCode).json({ message: badRequestError.message });
   }
 
-  // Default to 500 for other unhandled errors
-  res.status(500).json({ message: 'Internal Server Error' });
+  // Handle JWT errors
+  if (err instanceof JsonWebTokenError || err instanceof TokenExpiredError) {
+    const unauthorizedError = new UnauthorizedError('Not authorized, token failed or expired');
+    return res.status(unauthorizedError.statusCode).json({ message: unauthorizedError.message });
+  }
+
+
+  // Default 500 handler for other unhandled errors
+  // Check if response headers have already been sent
+  if (!res.headersSent) {
+     res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(config.port, () => console.log(`Server running on port ${config.port}`)); // Use config value

@@ -1,6 +1,7 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useState, useEffect, useRef } from 'react';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -8,12 +9,27 @@ import DashboardLayout from './components/layouts/DashboardLayout';
 import ProfilePage from './pages/profile/ProfilePage';
 import './App.css';
 
-// Protected route component
+// Loading Indicator component
+const LoadingSpinner = () => {
+  return <div className="loading-indicator"></div>;
+};
+
+// Protected route component with enhanced loading state
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate a minimum loading time for better UX
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 600);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Show loading state
-  if (loading) return <div>Loading...</div>;
+  // Show enhanced loading state
+  if (loading || isLoading) return <LoadingSpinner />;
 
   // Redirect to login if not authenticated
   if (!user) return <Navigate to="/login" />;
@@ -21,10 +37,38 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// Custom hook for animating page transitions
+const usePageTransition = () => {
+  const [displayLocation, setDisplayLocation] = useState(null);
+  const [transitionStage, setTransitionStage] = useState("fadeIn");
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location !== displayLocation) {
+      setTransitionStage("fadeOut");
+    }
+  }, [location, displayLocation]);
+
+  useEffect(() => {
+    if (transitionStage === "fadeOut") {
+      const timeout = setTimeout(() => {
+        setTransitionStage("fadeIn");
+        setDisplayLocation(location);
+      }, 50); // Reduced from 300ms to 50ms for snappier navigation
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [transitionStage, location, displayLocation]);
+
+  return { transitionStage, displayLocation: displayLocation || location };
+};
+
 function AppContent() {
+  const { transitionStage, displayLocation } = usePageTransition();
+  
   return (
-    <Router>
-      <Routes>
+    <div className={`page-transition ${transitionStage}`}>
+      <Routes location={displayLocation}>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
@@ -37,14 +81,16 @@ function AppContent() {
           </ProtectedRoute>
         } />
       </Routes>
-    </Router>
+    </div>
   );
 }
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </AuthProvider>
   );
 }

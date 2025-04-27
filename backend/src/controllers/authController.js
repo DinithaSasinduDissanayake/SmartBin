@@ -6,11 +6,13 @@ const BadRequestError = require('../errors/BadRequestError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ApiError = require('../errors/ApiError');
 const NotFoundError = require('../errors/NotFoundError');
+const config = require('../config'); // Import the centralized config
 
 // Generate JWT token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '30d'
+  // Use config values and ensure they are strings
+  return jwt.sign({ id }, String(config.jwtSecret), {
+    expiresIn: String(config.jwtExpire)
   });
 };
 
@@ -55,13 +57,8 @@ exports.registerUser = async (req, res, next) => {
 
   } catch (error) {
     console.error('Registration error:', error);
-    // Pass specific errors (like BadRequestError) or a generic one
-    if (!(error instanceof ApiError)) {
-      // Mongoose validation errors are handled globally, pass others
-      next(new ApiError(500, 'Failed to register user'));
-    } else {
-      next(error);
-    }
+    // Simply pass the error to the global handler
+    next(error); 
   }
 };
 
@@ -105,12 +102,8 @@ exports.loginUser = async (req, res, next) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    // Pass UnauthorizedError or a generic one
-    if (!(error instanceof ApiError)) {
-        next(new ApiError(500, 'Login failed'));
-    } else {
-        next(error);
-    }
+    // Simply pass the error to the global handler
+    next(error); 
   }
 };
 

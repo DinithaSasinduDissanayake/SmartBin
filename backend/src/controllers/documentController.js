@@ -39,13 +39,8 @@ exports.uploadDocument = async (req, res, next) => {
     res.status(201).json(document);
   } catch (error) {
     console.error('Document upload error:', error);
-    // If it's a multer error or validation error, global handler might catch it.
-    // Pass other errors or a generic one.
-    if (!(error instanceof ApiError)) {
-        next(new ApiError(500, 'Failed to upload document'));
-    } else {
-        next(error);
-    }
+    // Simply pass the error to the global handler
+    next(error);
   }
 };
 
@@ -63,7 +58,8 @@ exports.getUserDocuments = async (req, res, next) => {
     res.json(documents);
   } catch (error) {
     console.error('Error fetching user documents:', error);
-    next(new ApiError(500, 'Failed to retrieve documents'));
+    // Simply pass the error to the global handler
+    next(error); 
   }
 };
 

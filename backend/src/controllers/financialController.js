@@ -20,26 +20,38 @@ exports.getDashboardData = async (req, res, next) => {
     try {
         const { range = 'month' } = req.query; // Default to 'month'
         let startDate, endDate = new Date();
-
-        // Determine date range
+        let groupBy, labelFormatter;
+        // Determine date range and grouping
         switch (range) {
             case 'last3months':
                 startDate = new Date();
                 startDate.setMonth(startDate.getMonth() - 3);
-                startDate.setDate(1); // Start from the beginning of the month 3 months ago
+                startDate.setDate(1);
                 startDate.setHours(0, 0, 0, 0);
+                groupBy = { year: { $year: "$paymentDate" }, month: { $month: "$paymentDate" } };
+                labelFormatter = (g) => {
+                  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                  return `${monthNames[g.month - 1]}-${g.year}`;
+                };
                 break;
             case 'year':
-                startDate = new Date(endDate.getFullYear(), 0, 1); // Start of current year
+                startDate = new Date(endDate.getFullYear(), 0, 1);
                 startDate.setHours(0, 0, 0, 0);
+                groupBy = { year: { $year: "$paymentDate" }, month: { $month: "$paymentDate" } };
+                labelFormatter = (g) => {
+                  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                  return `${monthNames[g.month - 1]}-${g.year}`;
+                };
                 break;
             case 'month':
             default:
-                startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1); // Start of current month
+                startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
                 startDate.setHours(0, 0, 0, 0);
+                groupBy = { day: { $dayOfMonth: "$paymentDate" } };
+                labelFormatter = (g) => g.day.toString();
                 break;
         }
-        endDate.setHours(23, 59, 59, 999); // End of today
+        endDate.setHours(23, 59, 59, 999);
 
         // --- Aggregations ---
 
@@ -71,19 +83,39 @@ exports.getDashboardData = async (req, res, next) => {
             endDate: { $gte: new Date() } // Active if end date is in the future
         });
 
-        // 6. Revenue Breakdown by Plan (Optional - can be complex)
+        // Revenue trend
+        const revenueTrendRaw = await Payment.aggregate([
+            { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed' } },
+            { $group: { _id: groupBy, total: { $sum: '$amount' } } },
+            { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
+        ]);
+        // Expense trend
+        let expenseGroupBy;
+        switch (range) {
+            case 'last3months':
+            case 'year':
+                expenseGroupBy = { year: { $year: "$date" }, month: { $month: "$date" } };
+                break;
+            case 'month':
+            default:
+                expenseGroupBy = { day: { $dayOfMonth: "$date" } };
+                break;
+        }
+        const expenseTrendRaw = await Expense.aggregate([
+            { $match: { date: { $gte: startDate, $lte: endDate } } },
+            { $group: { _id: expenseGroupBy, total: { $sum: '$amount' } } },
+            { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
+        ]);
+        // Format trend data for frontend
+        const revenueTrend = revenueTrendRaw.map(g => ({ month: labelFormatter(g._id), total: g.total }));
+        const expenseTrend = expenseTrendRaw.map(g => ({ month: labelFormatter(g._id), total: g.total }));
+
+        // 6. Revenue Breakdown by Plan
         const revenueByPlan = await Payment.aggregate([
-            { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed', userSubscription: { $exists: true } } },
-            { $lookup: { // Join with UserSubscription
-                from: 'usersubscriptions',
-                localField: 'userSubscription',
-                foreignField: '_id',
-                as: 'subDetails'
-            }},
-            { $unwind: '$subDetails' },
+            { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed', subscriptionPlan: { $exists: true } } }, // Ensure subscriptionPlan field exists
             { $lookup: { // Join with SubscriptionPlan
                 from: 'subscriptionplans',
-                localField: 'subDetails.plan',
+                localField: 'subscriptionPlan', // Use the direct field from Payment model
                 foreignField: '_id',
                 as: 'planDetails'
             }},
@@ -95,23 +127,45 @@ exports.getDashboardData = async (req, res, next) => {
             }},
             { $project: {
                 _id: 0,
-                planName: '$_id',
-                totalAmount: 1,
+                planName: '$_id', // Keep planName for consistency if frontend expects it
+                revenue: '$totalAmount', // Rename totalAmount to revenue
                 count: 1
             }},
-            { $sort: { totalAmount: -1 } }
+            { $sort: { revenue: -1 } } // Sort by revenue
         ]);
 
-        // 7. Recent Payments (limit 5)
+        // 7. Expenses Breakdown by Category
+        const expensesByCategory = await Expense.aggregate([
+            { $match: { date: { $gte: startDate, $lte: endDate } } },
+            { $group: {
+                _id: '$category',
+                total: { $sum: '$amount' }
+            }},
+            { $project: {
+                _id: 0,
+                category: '$_id',
+                total: 1
+            }},
+            { $sort: { total: -1 } }
+        ]);
+
+        // 8. Recent Payments (limit 5)
         const recentPayments = await Payment.find({ paymentDate: { $gte: startDate, $lte: endDate } })
             .populate('user', 'name email')
             .sort({ paymentDate: -1 })
-            .limit(5);
+            .limit(5)
+            .select('paymentDate user description amount status'); // Select specific fields
 
-        // 8. Recent Expenses (limit 5)
+        // 9. Recent Expenses (limit 5)
         const recentExpenses = await Expense.find({ date: { $gte: startDate, $lte: endDate } })
             .sort({ date: -1 })
-            .limit(5);
+            .limit(5)
+            .select('date category description amount status'); // Select specific fields
+
+        // 10. Fetch all Subscription Plans details for the subscription tab
+        const subscriptionPlans = await SubscriptionPlan.find({})
+            .select('name price duration subscriberCount _id') // Select necessary fields
+            .lean(); // Use lean for plain JS objects
 
         // --- Assemble Dashboard Data ---
         const dashboardData = {
@@ -121,18 +175,43 @@ exports.getDashboardData = async (req, res, next) => {
                 netProfit,
                 newSubscriptions,
                 activeSubscriptions,
+                // Add other summary fields if needed, e.g., outstanding payments
+                // outstandingPayments: await Payment.aggregate([...]) // Example
                 dateRange: { start: startDate.toISOString(), end: endDate.toISOString(), label: range }
             },
-            revenueByPlan,
-            recentPayments,
-            recentExpenses
+            revenueByPlan, // Now uses 'revenue' field
+            expensesByCategory, // Added expenses by category
+            recentTransactions: { // Group recent items
+                payments: recentPayments.map(p => ({ // Map to consistent structure if needed
+                    id: p._id,
+                    date: p.paymentDate,
+                    customer: p.user?.name, // Handle potential null user
+                    description: p.description,
+                    amount: p.amount,
+                    status: p.status
+                })),
+                expenses: recentExpenses.map(e => ({ // Map to consistent structure
+                    id: e._id,
+                    date: e.date,
+                    category: e.category,
+                    description: e.description,
+                    amount: e.amount,
+                    status: e.status
+                }))
+            },
+            trends: {
+                revenue: revenueTrend,
+                expenses: expenseTrend
+            },
+            subscriptionPlans // Added subscription plans list
         };
 
         res.status(200).json(dashboardData);
 
     } catch (error) {
         console.error('Error fetching financial dashboard data:', error);
-        next(new ApiError(500, 'Error fetching dashboard data')); // Pass error to global handler
+        // Simply pass the error to the global handler
+        next(error);
     }
 };
 
@@ -181,7 +260,8 @@ exports.getAllPayments = async (req, res, next) => {
 
     } catch (error) {
         console.error('Error fetching payments:', error);
-        next(error); // Pass potential BadRequestError or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };
 
@@ -206,7 +286,8 @@ exports.getPaymentById = async (req, res, next) => {
         res.status(200).json(payment);
     } catch (error) {
         console.error('Error fetching payment by ID:', error);
-        next(error); // Pass potential NotFoundError or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };
 
@@ -257,8 +338,8 @@ exports.recordManualPayment = async (req, res, next) => {
 
     } catch (error) {
         console.error('Error recording manual payment:', error);
-        // Mongoose validation errors handled globally
-        next(error); // Pass NotFoundError, BadRequestError, or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };
 
@@ -298,7 +379,8 @@ exports.getAllExpenses = async (req, res, next) => {
 
     } catch (error) {
         console.error('Error fetching expenses:', error);
-        next(error); // Pass potential BadRequestError or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };
 
@@ -321,7 +403,8 @@ exports.getExpenseById = async (req, res, next) => {
         res.status(200).json(expense);
     } catch (error) {
         console.error('Error fetching expense by ID:', error);
-        next(error); // Pass potential NotFoundError or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };
 
@@ -349,8 +432,8 @@ exports.recordExpense = async (req, res, next) => {
 
     } catch (error) {
         console.error('Error recording expense:', error);
-        // Mongoose validation errors handled globally
-        next(error); // Pass potential validation errors or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };
 
@@ -384,8 +467,8 @@ exports.updateExpense = async (req, res, next) => {
 
     } catch (error) {
         console.error('Error updating expense:', error);
-        // Mongoose validation errors handled globally
-        next(error); // Pass NotFoundError or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };
 
@@ -411,6 +494,7 @@ exports.deleteExpense = async (req, res, next) => {
 
     } catch (error) {
         console.error('Error deleting expense:', error);
-        next(error); // Pass NotFoundError or others
+        // Simply pass the error to the global handler
+        next(error); 
     }
 };

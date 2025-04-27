@@ -1,3 +1,4 @@
+const mongoose = require('mongoose'); // Import mongoose
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
 const NotFoundError = require('../errors/NotFoundError');

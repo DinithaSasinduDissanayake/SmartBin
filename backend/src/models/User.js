@@ -31,7 +31,6 @@ const userSchema =  new mongoose.Schema({
 });
 
 // Indexes
-userSchema.index({ email: 1 }); // Already implicitly indexed due to unique: true
 userSchema.index({ role: 1 }); // Add index for role if queried often
 
 //Encrypting Password Before Saving

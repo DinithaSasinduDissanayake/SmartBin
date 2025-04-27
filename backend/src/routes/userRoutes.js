@@ -10,16 +10,8 @@ const {
   deleteUserProfile
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/authMiddleware');
-const { body, validationResult } = require('express-validator'; // Import validator
-
-// Middleware to handle validation errors (can be moved to a shared utility)
-const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
+const { body } = require('express-validator'); // Import only body
+const { handleValidationErrors } = require('../middleware/validationErrorHandler'); // Import shared handler
 
 // Validation for updating user profile
 const updateProfileValidation = [
@@ -32,7 +24,7 @@ const updateProfileValidation = [
 // User profile routes - all users can access their own profile
 router.route('/profile')
   .get(protect, getUserProfile)
-  .put(protect, updateProfileValidation, handleValidationErrors, updateUserProfile) // Add validation here
+  .put(protect, updateProfileValidation, handleValidationErrors, updateUserProfile) // Use shared handler
   .delete(protect, deleteUserProfile);
 
 // Admin routes - only accessible by admins

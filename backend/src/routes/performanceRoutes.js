@@ -10,16 +10,8 @@ const {
   getPerformanceSummary
 } = require('../controllers/performanceController');
 const { protect, authorize } = require('../middleware/authMiddleware');
-const { body, validationResult } = require('express-validator'); // Import validator
-
-// Middleware to handle validation errors
-const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
+const { body } = require('express-validator'); // Import body
+const { handleValidationErrors } = require('../middleware/validationErrorHandler'); // Import shared handler
 
 // Validation for creating/updating performance reviews
 const performanceValidation = [
@@ -42,8 +34,8 @@ router.get('/my-reviews', getMyPerformanceReviews);
 router.route('/')
   .post(
     authorize('admin'), 
-    performanceValidation, // Add validation
-    handleValidationErrors, // Handle errors
+    performanceValidation, 
+    handleValidationErrors, // Use shared handler
     createPerformanceReview
   )
   .get(authorize('admin'), getPerformanceReviews);
@@ -54,8 +46,8 @@ router.route('/:id')
   .get(getPerformanceReviewById) // Access controlled in controller
   .put(
     authorize('admin'), 
-    performanceValidation, // Add validation (can reuse or create specific update validation)
-    handleValidationErrors, // Handle errors
+    performanceValidation, 
+    handleValidationErrors, // Use shared handler
     updatePerformanceReview
   )
   .delete(authorize('admin'), deletePerformanceReview);

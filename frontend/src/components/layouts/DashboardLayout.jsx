@@ -1,6 +1,6 @@
 // frontend/src/components/layouts/DashboardLayout.jsx
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../dashboard/Header';
 import Sidebar from '../dashboard/Sidebar';
@@ -10,6 +10,8 @@ import ProfilePage from '../../pages/profile/ProfilePage';
 // Import new staff components
 import AttendanceTracker from '../staff/AttendanceTracker';
 import PerformanceMetrics from '../staff/PerformanceMetrics';
+// Import the dedicated NotFound page
+import NotFoundPage from '../../pages/NotFound'; 
 import './DashboardLayout.css';
 
 // Placeholder dashboard components for different roles
@@ -27,15 +29,6 @@ const DashboardHome = ({ user }) => {
     </div>
   );
 };
-
-// Inline NotFound component
-const NotFoundPage = () => (
-  <div className="dashboard-content" style={{ textAlign: 'center', marginTop: '50px' }}>
-    <h1>404 - Page Not Found</h1>
-    <p>Sorry, the page you are looking for does not exist.</p>
-    <Link to="/dashboard">Go back to Dashboard</Link>
-  </div>
-);
 
 function DashboardLayout() {
   const { user } = useAuth();
@@ -90,8 +83,8 @@ function DashboardLayout() {
               </>
             )}
             
-            {/* Fallback route */}
-            <Route path="*" element={<NotFoundPage />} /> {/* Use the inline NotFound component */}
+            {/* Fallback route - Use the imported NotFoundPage */}
+            <Route path="*" element={<NotFoundPage />} /> 
           </Routes>
         </main>
       </div>

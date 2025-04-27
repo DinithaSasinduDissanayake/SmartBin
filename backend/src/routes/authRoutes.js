@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser, getMe } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
-const { body, validationResult } = require('express-validator'); // Import validator
+const { body } = require('express-validator'); // Import only body
+const { handleValidationErrors } = require('../middleware/validationErrorHandler'); // Import the new handler
 
 // Validation middleware for registration
 const registerValidation = [
@@ -20,18 +21,8 @@ const loginValidation = [
   body('password', 'Password is required').exists(),
 ];
 
-// Middleware to handle validation errors
-const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    // Use 400 for validation errors
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
-
-router.post('/register', registerValidation, handleValidationErrors, registerUser);
-router.post('/login', loginValidation, handleValidationErrors, loginUser);
+router.post('/register', registerValidation, handleValidationErrors, registerUser); // Use imported handler
+router.post('/login', loginValidation, handleValidationErrors, loginUser); // Use imported handler
 router.get('/me', protect, getMe);
 
 module.exports = router;

@@ -9,16 +9,8 @@ const {
   getAttendanceSummary
 } = require('../controllers/attendanceController');
 const { protect, authorize } = require('../middleware/authMiddleware');
-const { body, validationResult } = require('express-validator'); // Import validator
-
-// Middleware to handle validation errors
-const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
+const { body } = require('express-validator'); // Import body
+const { handleValidationErrors } = require('../middleware/validationErrorHandler'); // Import shared handler
 
 // Validation for updating attendance
 const updateAttendanceValidation = [
@@ -40,8 +32,8 @@ router.get('/', getMyAttendance);
 router.get('/all', authorize('admin'), getAllAttendance);
 router.put('/:id', 
   authorize('admin'), 
-  updateAttendanceValidation, // Add validation
-  handleValidationErrors, // Handle errors
+  updateAttendanceValidation, 
+  handleValidationErrors, // Use shared handler
   updateAttendance
 );
 router.get('/summary', authorize('admin'), getAttendanceSummary);

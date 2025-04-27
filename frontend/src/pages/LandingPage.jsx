@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Logo from '../components/ui/Logo/Logo';
 import './LandingPage.css';
 
 function LandingPage() {
@@ -9,7 +10,7 @@ function LandingPage() {
   return (
     <div className="landing-page">
       <header className="header">
-        <div className="logo">SmartBin</div>
+        <Logo />
         <nav>
           {user ? (
             <Link to="/dashboard" className="dashboard-button">Dashboard</Link>

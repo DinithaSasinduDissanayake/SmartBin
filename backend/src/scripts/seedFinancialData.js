@@ -150,13 +150,75 @@ const seedFinancialData = async () => {
     console.log('Creating user subscriptions...');
     
     // Get current date for subscription calculations
-    const currentDate = new Date(); // Use the actual current date
-    const sixMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, currentDate.getDate());
-    
+    const currentDate = new Date(2025, 3, 26); // Set a fixed current date for consistency (April 26, 2025)
+    const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const currentYearStart = new Date(currentDate.getFullYear(), 0, 1);
+
+    console.log(`Current Date set to: ${currentDate.toDateString()}`);
+    console.log(`Generating data for the period up to ${currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}...`);
+
     // Clear existing user subscriptions 
     await UserSubscription.deleteMany({});
+    await SubscriptionPlan.deleteMany({});
     
-    // Create realistic distribution of plans among users
+    // --- Ensure Roles Exist ---
+    const roles = ['admin', 'financial_manager', 'staff', 'customer'];
+    for (const role of roles) {
+      const existingRole = await User.findOne({ role });
+      if (!existingRole) {
+        const newUser = new User({
+          name: `${role} User`,
+          email: `${role}@example.com`,
+          password: 'Password123!',
+          role,
+          createdAt: new Date()
+        });
+        await newUser.save();
+        console.log(`Created test ${role} user: ${newUser.name}`);
+      }
+    }
+
+    // --- Create Subscription Plans ---
+    const subscriptionPlans = [
+      {
+        name: 'Basic',
+        price: '49.99',
+        description: 'Basic waste collection service with weekly pickup and app access.',
+        duration: 'Monthly'
+      },
+      {
+        name: 'Standard',
+        price: '79.99',
+        description: 'Enhanced service with twice-weekly pickup, recycling options, and advanced app features.',
+        duration: 'Monthly'
+      },
+      {
+        name: 'Premium',
+        price: '99.99',
+        description: 'Premium service with unlimited pickup, priority service, recycling and composting options, and full app features.',
+        duration: 'Monthly'
+      },
+      {
+        name: 'Business',
+        price: '199.99',
+        description: 'Comprehensive waste management solution for small to medium businesses with daily collection and dedicated support.',
+        duration: 'Monthly'
+      }
+    ];
+    
+    // Create plans if they don't exist
+    for (const plan of subscriptionPlans) {
+      const existingPlan = await SubscriptionPlan.findOne({ name: plan.name });
+      
+      if (existingPlan) {
+        console.log(`Subscription plan ${plan.name} already exists.`);
+      } else {
+        await SubscriptionPlan.create(plan);
+        console.log(`Created subscription plan: ${plan.name}`);
+      }
+    }
+
+    // --- Create Users and Subscriptions ---
     for (const user of users) {
       // Randomly select a plan with weighted distribution
       // Premium and Business plans are less common
@@ -176,7 +238,7 @@ const seedFinancialData = async () => {
       const selectedPlan = allPlans[selectedPlanIndex];
       
       // Random start date between 6 months ago and now
-      const startDate = randomDate(sixMonthsAgo, currentDate);
+      const startDate = randomDate(currentYearStart, currentDate);
       
       // Determine duration based on plan
       let durationInMonths = 1; // Default monthly
@@ -220,124 +282,56 @@ const seedFinancialData = async () => {
         selectedPlan._id, 
         { $inc: { subscriberCount: 1 } }
       );
-    }
-    
-    // 3. Create payment records
-    console.log('Generating payment history...');
-    
-    // Clear existing payments
-    await Payment.deleteMany({});
-    
-    // Get all active subscriptions
-    const activeSubscriptions = await UserSubscription.find({ status: 'active' })
-      .populate('user')
-      .populate('subscriptionPlan');
-    
-    // Generate payment history for each active subscription
-    for (const subscription of activeSubscriptions) {
-      // Calculate how many payment cycles have occurred up to the current date
-      const startDate = new Date(subscription.startDate);
-      // Ensure we cover cycles potentially ending *in* the current month
-      const monthsElapsed = Math.max(0, Math.floor((currentDate.getTime() - startDate.getTime()) / (30 * 24 * 60 * 60 * 1000))); // Approximate months
-      const paymentCyclesToGenerate = monthsElapsed + 1; // Generate for current cycle too
+    } // End user creation loop
 
-      // Generate a payment for each billing cycle that has occurred or is current
-      for (let i = 0; i < paymentCyclesToGenerate; i++) {
-        const paymentDate = addMonths(startDate, i);
+    // --- Guarantee some subscriptions started THIS MONTH ---
+    console.log('\\nEnsuring some subscriptions started this month...');
+    const currentMonthUsers = await User.find({ role: 'customer' }).limit(3); // Get a few customers
+    const currentMonthPlan = await SubscriptionPlan.findOne({ name: 'Standard Monthly' }); // Use a specific plan
 
-        // Only create payments up to the current date
-        if (paymentDate > currentDate) continue;
-        
-        // Determine payment amount based on plan price
-        const price = parseFloat(subscription.subscriptionPlan.price);
-        if (isNaN(price)) {
-          console.error(`Invalid price for subscription plan: ${subscription.subscriptionPlan.name}`);
-          continue; // Skip this payment if the price is invalid
-        }
-        const amount = price;
-        
-        // Generate some overdue and pending payments (10% chance)
-        const status = Math.random() > 0.9 
-          ? randomElement(['pending', 'failed']) 
-          : 'completed';
-        
-        // Create payment record
-        const payment = new Payment({
-          user: subscription.user._id,
-          amount,
-          description: `${subscription.subscriptionPlan.name} Plan - ${subscription.subscriptionPlan.duration}`,
-          paymentDate,
-          status,
-          paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'paypal']),
-          subscriptionPlan: subscription.subscriptionPlan._id
+    if (currentMonthUsers.length > 0 && currentMonthPlan) {
+      for (const user of currentMonthUsers) {
+        // Check if user already has an active sub this month to avoid duplicates
+        const existingSub = await UserSubscription.findOne({ 
+          user: user._id, 
+          startDate: { $gte: currentMonthStart, $lte: currentDate } 
         });
         
-        await payment.save();
+        if (!existingSub) {
+          const newSubStartDate = addDays(currentMonthStart, Math.floor(Math.random() * (currentDate.getDate()))); // Random day this month
+          const newSubEndDate = addMonths(newSubStartDate, 1); // Assuming monthly plan
+          
+          const newUserSub = new UserSubscription({
+            user: user._id,
+            plan: currentMonthPlan._id,
+            startDate: newSubStartDate,
+            endDate: newSubEndDate,
+            status: 'active',
+            billingCycle: currentMonthPlan.duration,
+          });
+          await newUserSub.save();
+          console.log(`Created a new subscription for ${user.name} starting ${newSubStartDate.toLocaleDateString()}`);
+
+          // --- Also create a corresponding PAYMENT for this new subscription ---
+          const paymentForNewSub = new Payment({
+            user: user._id,
+            amount: currentMonthPlan.price,
+            paymentDate: newSubStartDate, // Pay on the start date
+            status: 'completed',
+            paymentMethod: randomElement(['credit_card', 'paypal']),
+            description: `Payment for ${currentMonthPlan.name} subscription`,
+            userSubscription: newUserSub._id // Link payment to the subscription
+          });
+          await paymentForNewSub.save();
+          console.log(`Created corresponding payment for ${user.name}'s new subscription.`);
+        }
       }
-      
-      console.log(`Created payment history for ${subscription.user.name}`);
+    } else {
+      console.log('Could not find users or Standard Monthly plan to guarantee current month subscriptions.');
     }
-    
-    // Guarantee at least 3 completed payments for the current month
-    const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const validPlans = allPlans.filter(p => !isNaN(parseFloat(p.price)));
-    for (let i = 0; i < 3; i++) {
-      const randomUser = randomElement(users);
-      const randomPlan = randomElement(validPlans);
-      if (!randomPlan) continue; // skip if no valid plan
-      const payment = new Payment({
-        user: randomUser._id,
-        amount: parseFloat(randomPlan.price),
-        description: `${randomPlan.name} Plan - ${randomPlan.duration}`,
-        paymentDate: addDays(currentMonthStart, Math.floor(Math.random() * (currentDate.getDate()))),
-        status: 'completed',
-        paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'cash', 'paypal', 'other']),
-        subscriptionPlan: randomPlan._id
-      });
-      await payment.save();
-    }
-    
-    // 4. Create some one-time payments not related to subscriptions
-    console.log('Generating one-time payments...');
 
-    // Define default one-time payment descriptions
-    const oneTimePaymentDescriptions = [
-      'Service fee',
-      'Consultation fee',
-      'Setup fee',
-      'Installation fee',
-      'Penalty fee'
-    ];
 
-    // Generate a larger variety of one-time payments for diverse revenue streams
-    const oneTimePaymentCount = 100;
-    for (let i = 0; i < oneTimePaymentCount; i++) {
-      const randomUser = randomElement(users);
-      const paymentDate = randomDate(sixMonthsAgo, currentDate);
-      const amount = randomNumber(30, 500); // expanded range for larger payments
-      const oneTimeDescriptions = [
-        ...oneTimePaymentDescriptions,
-        'Emergency pickup service',
-        'Late payment fee',
-        'Bulk waste disposal fee',
-        'Additional recycling service'
-      ];
-      const payment = new Payment({
-        user: randomUser._id,
-        amount,
-        description: randomElement(oneTimeDescriptions),
-        paymentDate,
-        status: randomElement(['completed','completed','completed','pending','failed']),
-        paymentMethod: randomElement(['credit_card', 'debit_card', 'bank_transfer', 'cash', 'paypal', 'other']),
-        subscriptionPlan: null
-      });
-      
-      await payment.save();
-    }
-    
-    console.log('Created one-time payments');
-    
-    // 5. Create expense records
+    // --- Generate Expenses ---
     console.log('Generating expense records...');
     
     // Clear existing expenses
@@ -364,6 +358,16 @@ const seedFinancialData = async () => {
       salaries: ['Staff payroll', 'Employee benefits', 'Contractor payments', 'Overtime payments', 'Management salaries'],
       utilities: ['Electricity bill', 'Water services', 'Internet and phone', 'Gas bill', 'Waste facility utilities'],
       equipment: ['New sorting equipment', 'Replacement bins', 'Office equipment', 'Safety equipment', 'Processing machinery'],
+      office: ['Office supplies', 'Stationery', 'Cleaning supplies', 'Break room supplies', 'Small equipment
+    ];
+    
+    // Expense descriptions for each category
+    const expenseDescriptions = {
+      fuel: ['Vehicle refueling', 'Truck fleet fuel', 'Collection vehicle diesel', 'Transportation fuel'],
+      maintenance: ['Vehicle maintenance', 'Equipment repair', 'Bin repair services', 'Facility maintenance', 'Machinery servicing'],
+      salaries: ['Staff payroll', 'Employee benefits', 'Contractor payments', 'Overtime payments', 'Management salaries'],
+      utilities: ['Electricity bill', 'Water services', 'Internet and phone', 'Gas bill', 'Waste facility utilities'],
+      equipment: ['New sorting equipment', 'Replacement bins', 'Office equipment', 'Safety equipment', 'Processing machinery'],
       office: ['Office supplies', 'Stationery', 'Cleaning supplies', 'Break room supplies', 'Small equipment'],
       rent: ['Office space rent', 'Warehouse rental', 'Storage facility', 'Equipment leasing', 'Temporary space rental'],
       marketing: ['Promotional materials', 'Digital advertising', 'Community outreach', 'Website maintenance', 'Marketing campaign'],
@@ -372,70 +376,121 @@ const seedFinancialData = async () => {
     };
     
     // Generate monthly expenses for each category for the past 12 months up to the current month
-    const firstExpenseMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 11, 1); // Start 11 months before
+    // Ensure we cover the start of the current year and the last few months explicitly
+    const firstExpenseMonth = new Date(currentDate.getFullYear(), 0, 1); // Start from Jan of the current year
 
-    for (let monthOffset = 0; monthOffset <= 11; monthOffset++) {
+    // Generate for Jan 2025 up to the current month (April 2025)
+    for (let monthOffset = 0; monthOffset <= currentDate.getMonth(); monthOffset++) {
       const targetMonthDate = addMonths(firstExpenseMonth, monthOffset);
-      // Ensure we don't generate for future months beyond the current one
-      if (targetMonthDate.getFullYear() > currentDate.getFullYear() || 
-          (targetMonthDate.getFullYear() === currentDate.getFullYear() && targetMonthDate.getMonth() > currentDate.getMonth())) {
-          continue;
-      }
+      const daysInMonth = new Date(targetMonthDate.getFullYear(), targetMonthDate.getMonth() + 1, 0).getDate();
+      const monthEndDay = (targetMonthDate.getFullYear() === currentDate.getFullYear() && targetMonthDate.getMonth() === currentDate.getMonth())
+                          ? currentDate.getDate() // Use current day for the current month
+                          : daysInMonth; // Use last day for past months
+
+      console.log(`Generating expenses for ${targetMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}...`);
 
       // For each expense category
       for (const expenseCat of expenseCategories) {
         // Create 2-5 expenses per category per month for richer data
         const numExpenses = randomNumber(2, 5);
-
         for (let i = 0; i < numExpenses; i++) {
-          // Generate a random date within the target month, but not exceeding the current date
-          const daysInMonth = new Date(targetMonthDate.getFullYear(), targetMonthDate.getMonth() + 1, 0).getDate();
-          const randomDay = randomNumber(1, daysInMonth);
-          let expenseDate = new Date(targetMonthDate.getFullYear(), targetMonthDate.getMonth(), randomDay);
-
-          // If this is the current month, ensure the date is not in the future
-          if (targetMonthDate.getFullYear() === currentDate.getFullYear() && targetMonthDate.getMonth() === currentDate.getMonth()) {
-            expenseDate.setDate(Math.min(randomDay, currentDate.getDate()));
-          }
+          const randomDay = randomNumber(1, monthEndDay); // Ensure date is within the valid range for the month
+          const expenseDate = new Date(targetMonthDate.getFullYear(), targetMonthDate.getMonth(), randomDay);
           
-          // Ensure expenseDate is not before sixMonthsAgo (optional, but keeps consistency)
-          if (expenseDate < sixMonthsAgo) expenseDate = new Date(sixMonthsAgo);
+          // Skip if the generated date is in the future relative to currentDate (shouldn't happen with logic above, but good safeguard)
+          if (expenseDate > currentDate) continue;
 
-          const amount = randomNumber(expenseCat.min, expenseCat.max);
-          const description = randomElement(expenseDescriptions[expenseCat.category]);
-          
           const expense = new Expense({
             category: expenseCat.category,
-            amount,
-            description: `${description} - ${expenseDate.toLocaleDateString('en-US', { month: 'long' })}`,
+            amount: randomNumber(expenseCat.min, expenseCat.max),
+            description: randomElement(expenseDescriptions[expenseCat.category]),
             date: expenseDate,
-            createdBy: financialManager._id,
-            status: randomElement(['approved', 'approved', 'approved', 'approved', 'pending']), // 80% approved
+            createdBy: financialManager._id, // Assign to the financial manager
+            status: randomElement(['pending', 'approved', 'rejected']), // Random status
             paymentMethod: randomElement(['company_account', 'credit_card', 'bank_transfer'])
           });
-          
           await expense.save();
         }
       }
-      
-      console.log(`Created expenses for ${targetMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
     }
-    
-    // Guarantee at least 3 approved expenses for the current month
-    const expenseCategoriesList = ['fuel', 'maintenance', 'salaries', 'utilities', 'equipment', 'office', 'rent', 'marketing', 'insurance', 'taxes'];
+
+    // Generate monthly payments for each plan for the past 12 months up to the current month
+    // Ensure we cover the start of the current year and the last few months explicitly
+    const firstPaymentMonth = new Date(currentDate.getFullYear(), 0, 1); // Start from Jan of the current year
+
+    // Generate for Jan 2025 up to the current month (April 2025)
+    for (let monthOffset = 0; monthOffset <= currentDate.getMonth(); monthOffset++) {
+      const targetMonthDate = addMonths(firstPaymentMonth, monthOffset);
+      const daysInMonth = new Date(targetMonthDate.getFullYear(), targetMonthDate.getMonth() + 1, 0).getDate();
+      const monthEndDay = (targetMonthDate.getFullYear() === currentDate.getFullYear() && targetMonthDate.getMonth() === currentDate.getMonth())
+                          ? currentDate.getDate() // Use current day for the current month
+                          : daysInMonth; // Use last day for past months
+
+      console.log(`Generating payments for ${targetMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}...`);
+
+      // For each subscription plan
+      for (const plan of subscriptionPlans) {
+        // Find active subscriptions for this plan
+        const activeSubs = await UserSubscription.find({ plan: plan._id, status: 'active' });
+        
+        // Create payments for a subset of active subscribers each month
+        const numPayments = Math.min(activeSubs.length, randomNumber(5, 15)); // Simulate payments from 5-15 active users
+        
+        for (let i = 0; i < numPayments; i++) {
+          const sub = activeSubs[i]; // Select a subscriber
+          if (!sub) continue; // Skip if no subscriber found (shouldn't happen if activeSubs exist)
+
+          const randomDay = randomNumber(1, monthEndDay); // Ensure date is within the valid range for the month
+          const paymentDate = new Date(targetMonthDate.getFullYear(), targetMonthDate.getMonth(), randomDay);
+
+          // Skip if the generated date is in the future relative to currentDate
+          if (paymentDate > currentDate) continue;
+
+          const payment = new Payment({
+            user: sub.user,
+            userSubscription: sub._id,
+            amount: plan.price,
+            paymentDate: paymentDate,
+            status: randomElement(['completed', 'pending', 'failed']), // Random status
+            paymentMethod: randomElement(['credit_card', 'paypal', 'bank_transfer'])
+          });
+          await payment.save();
+        }
+      }
+    }
+
+    // Guarantee at least 3 approved expenses and 3 completed payments for the CURRENT month (April 2025)
+    console.log(`Ensuring some data exists for the current month (${currentMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })})...`);
+    const expenseCategoriesList = expenseCategories.map(ec => ec.category); // Get list of category names
     for (let i = 0; i < 3; i++) {
       const expense = new Expense({
         category: randomElement(expenseCategoriesList),
         amount: randomNumber(200, 2000),
-        description: `Seeded expense for dashboard (${i + 1})`,
-        date: addDays(currentMonthStart, Math.floor(Math.random() * (currentDate.getDate()))),
+        description: `Guaranteed expense for current month (${i + 1})`,
+        date: addDays(currentMonthStart, randomNumber(0, currentDate.getDate() - 1)), // Random day within current month up to today
         createdBy: financialManager._id,
         status: 'approved',
         paymentMethod: randomElement(['company_account', 'credit_card', 'bank_transfer'])
       });
       await expense.save();
     }
-    
+
+    const activeSubsCurrent = await UserSubscription.find({ status: 'active' }).limit(3);
+    for (let i = 0; i < Math.min(3, activeSubsCurrent.length); i++) {
+      const sub = activeSubsCurrent[i];
+      const plan = await SubscriptionPlan.findById(sub.plan);
+      if (!plan) continue;
+      const payment = new Payment({
+        user: sub.user,
+        userSubscription: sub._id,
+        amount: plan.price,
+        paymentDate: addDays(currentMonthStart, randomNumber(0, currentDate.getDate() - 1)), // Random day within current month up to today
+        status: 'completed',
+        paymentMethod: randomElement(['credit_card', 'paypal', 'bank_transfer'])
+      });
+      await payment.save();
+    }
+
     // Calculate and log summary statistics
     const totalPayments = await Payment.countDocuments();
     const totalExpenses = await Expense.countDocuments();
