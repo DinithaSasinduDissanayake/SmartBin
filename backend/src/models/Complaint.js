@@ -18,7 +18,7 @@ const complaintSchema = new mongoose.Schema({
     required: [true, 'Complaint description is required'],
     maxlength: [2000, 'Description cannot exceed 2000 characters']
   },
-  status: {
+  status: { 
     type: String,
     enum: ['Open', 'In Progress', 'Resolved', 'Closed'],
     default: 'Open',

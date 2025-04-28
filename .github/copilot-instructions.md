@@ -106,6 +106,11 @@ This project follows a full-stack architecture with separate frontend and backen
 ## Git Workflow Guidelines
 - Check git status after making changes: `git status`
 - Add all modified files: `git add .`
+- Gather all changes into a summary file to help with commit messages:
+  ```
+  git diff --cached > commit-summary.txt
+  ```
+- Review the commit-summary.txt file to inform your detailed commit description
 - Create commits with both a brief message AND a detailed description:
   ```
   git commit -m "Brief summary message" -m "- Detailed point 1
@@ -117,6 +122,10 @@ This project follows a full-stack architecture with separate frontend and backen
 - The first `-m` parameter is the commit message (title)
 - The second `-m` parameter is the detailed point-form description
 - Push changes to the remote repository: `git push`
+- Clean up the summary file after committing:
+  ```
+  rm commit-summary.txt
+  ```
 - Commit after every significant change or feature implementation
 - Pull before starting work: `git pull`
 - Create feature branches for major changes

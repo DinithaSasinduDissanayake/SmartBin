@@ -42,4 +42,5 @@ router.patch('/:id/resolve', authorize('admin'), [
     body('resolutionNotes').notEmpty().withMessage('Resolution notes are required').trim().escape()
 ], handleValidationErrors, addResolutionNotes);
 
+
 module.exports = router;
