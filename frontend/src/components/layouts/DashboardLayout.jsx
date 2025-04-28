@@ -2,33 +2,29 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import Header from '../dashboard/Header';
+import Header from './Header';
 import Sidebar from '../dashboard/Sidebar';
-import SubscriptionPlans from '../financial/SubscriptionPlans';
-import FinancialDashboard from '../financial/FinancialDashboard';
+import DashboardHome from '../../pages/dashboard/DashboardHome';
 import ProfilePage from '../../pages/profile/ProfilePage';
-// Import new staff components
-import AttendanceTracker from '../staff/AttendanceTracker';
-import PerformanceMetrics from '../staff/PerformanceMetrics';
-// Import the dedicated NotFound page
-import NotFoundPage from '../../pages/NotFound'; 
-import './DashboardLayout.css';
 
-// Placeholder dashboard components for different roles
-const DashboardHome = ({ user }) => {
-  // If user is a financial manager, show financial dashboard
-  if (user?.role === 'financial_manager') {
-    return <FinancialDashboard />;
-  }
-  
-  // Default dashboard for other roles
-  return (
-    <div className="dashboard-content">
-      <h2>Dashboard Home</h2>
-      <p>Welcome to your dashboard!</p>
-    </div>
-  );
-};
+// Import payroll components
+import AdminPayrollPage from '../../pages/payroll/AdminPayrollPage';
+import StaffPayslipViewPage from '../../pages/payroll/StaffPayslipViewPage';
+
+// Import complaint components
+import MyComplaintsPage from '../../pages/complaints/MyComplaintsPage';
+import AllComplaintsPage from '../../pages/complaints/AllComplaintsPage';
+
+// Import subscription and document components
+import UserSubscriptionsPage from '../../pages/subscriptions/UserSubscriptionsPage';
+import UserDocumentsPage from '../../pages/documents/UserDocumentsPage';
+
+// Import financial components
+import FinancialDashboard from '../../components/financial/FinancialDashboard';
+import SubscriptionPlans from '../../components/financial/SubscriptionPlans';
+import FinancialReportsPage from '../../pages/reports/FinancialReportsPage';
+
+import './DashboardLayout.css';
 
 function DashboardLayout() {
   const { user } = useAuth();
@@ -47,9 +43,21 @@ function DashboardLayout() {
             {/* Customer routes */}
             {user?.role === 'customer' && (
               <>
-                <Route path="subscriptions" element={<UserSubscriptionsPage />} />
-                <Route path="documents" element={<UserDocumentsPage />} />
-                {/* Add other customer-specific routes */}
+                <Route path="/complaints" element={<MyComplaintsPage />} /> 
+                <Route path="/subscriptions" element={<UserSubscriptionsPage />} />
+                <Route path="/documents" element={<UserDocumentsPage />} />
+              </>
+            )}
+
+            {/* Financial Manager routes */}
+            {user?.role === 'financial_manager' && (
+              <>
+                <Route path="/financial-overview" element={<FinancialDashboard />} />
+                <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+                <Route path="/budget-allocation" element={<div className="dashboard-content"><h2>Budget Allocation</h2></div>} />
+                <Route path="/payment-processing" element={<div className="dashboard-content"><h2>Payment Processing</h2></div>} />
+                <Route path="/financial-reports" element={<FinancialReportsPage />} />
+                <Route path="/payroll" element={<AdminPayrollPage />} />
               </>
             )}
 
@@ -59,32 +67,22 @@ function DashboardLayout() {
                 <Route path="/users" element={<div className="dashboard-content"><h2>User Management</h2></div>} />
                 <Route path="/statistics" element={<div className="dashboard-content"><h2>Statistics</h2></div>} />
                 <Route path="/settings" element={<div className="dashboard-content"><h2>System Settings</h2></div>} />
-                <Route path="/financial-overview" element={<FinancialDashboard />} /> {/* Add route for Admin */}
-              </>
-            )}
-            
-            {/* Financial manager routes */}
-            {user?.role === 'financial_manager' && (
-              <>
+                <Route path="/complaints" element={<AllComplaintsPage />} />
+                <Route path="/payroll" element={<AdminPayrollPage />} />
+                <Route path="/financial-overview" element={<FinancialDashboard />} />
                 <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-                <Route path="/budget-allocation" element={<div className="dashboard-content"><h2>Budget Allocation</h2></div>} />
-                <Route path="/salary" element={<div className="dashboard-content"><h2>Salary Management</h2></div>} />
-                <Route path="/payments" element={<div className="dashboard-content"><h2>Payments</h2></div>} />
-                <Route path="/financial-overview" element={<FinancialDashboard />} /> {/* Add route for Financial Manager */}
+                <Route path="/financial-reports" element={<FinancialReportsPage />} />
               </>
             )}
-            
+
             {/* Staff routes */}
             {user?.role === 'staff' && (
               <>
-                <Route path="/attendance" element={<AttendanceTracker />} /> 
-                <Route path="/tasks" element={<div className="dashboard-content"><h2>Tasks</h2></div>} />
-                <Route path="/performance" element={<PerformanceMetrics />} /> 
+                <Route path="/my-payslips" element={<StaffPayslipViewPage />} />
+                <Route path="/my-performance" element={<div className="dashboard-content"><h2>My Performance</h2></div>} />
+                <Route path="/complaints" element={<AllComplaintsPage />} />
               </>
             )}
-            
-            {/* Fallback route - Use the imported NotFoundPage */}
-            <Route path="*" element={<NotFoundPage />} /> 
           </Routes>
         </main>
       </div>

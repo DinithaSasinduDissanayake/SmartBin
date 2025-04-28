@@ -79,12 +79,14 @@ function Sidebar() {
           { path: '/dashboard/profile', label: 'My Profile', icon: faUser },
         ]},
         { section: 'FINANCE', items: [
+          { path: '/dashboard/financial-overview', label: 'Financial Dashboard', icon: faChartLine },
           { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
           { path: '/dashboard/budget-allocation', label: 'Budget Allocation', icon: faMoneyBillTransfer },
           { path: '/dashboard/payments', label: 'Payments', icon: faCreditCard },
+          { path: '/dashboard/financial-reports', label: 'Financial Reports', icon: faScroll },
         ]},
         { section: 'STAFF', items: [
-          { path: '/dashboard/salary', label: 'Salary', icon: faMoneyBill },
+          { path: '/dashboard/payroll', label: 'Payroll Management', icon: faMoneyBill },
         ]},
       ],
       customer: [
@@ -113,7 +115,14 @@ function Sidebar() {
         { section: 'ADMINISTRATION', items: [
           { path: '/dashboard/users', label: 'User Management', icon: faUsers },
           { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
+          { path: '/dashboard/complaints', label: 'Manage Complaints', icon: faFileSignature },
           { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
+        ]},
+        { section: 'FINANCE', items: [
+          { path: '/dashboard/financial-overview', label: 'Financial Dashboard', icon: faChartLine },
+          { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
+          { path: '/dashboard/payroll', label: 'Payroll Management', icon: faMoneyBill },
+          { path: '/dashboard/financial-reports', label: 'Financial Reports', icon: faScroll },
         ]},
       ],
       staff: [
@@ -124,7 +133,11 @@ function Sidebar() {
         { section: 'MY WORK', items: [
           { path: '/dashboard/attendance', label: 'Attendance', icon: faClipboardList },
           { path: '/dashboard/tasks', label: 'Tasks', icon: faListCheck },
+          { path: '/dashboard/my-payslips', label: 'My Payslips', icon: faMoneyBill },
           { path: '/dashboard/performance', label: 'Performance', icon: faTrophy },
+        ]},
+        { section: 'SUPPORT', items: [
+          { path: '/dashboard/complaints', label: 'Complaints', icon: faFileSignature },
         ]},
       ]
     };

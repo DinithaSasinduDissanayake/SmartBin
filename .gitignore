@@ -79,6 +79,7 @@ Financial\ Backup/ # Escaped space for clarity
 LLMPrompts.md
 LLM_Prompts.md
 CollectAllCode.ps1
+.github/copilot-instructions.md
 
 # Yarn v2+
 .yarn/cache
