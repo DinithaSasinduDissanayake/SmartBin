@@ -1,148 +1,206 @@
-import React, { useState, useEffect, useContext } from 'react';
-import subscriptionPlansApi from '../../services/subscriptionPlansApi';
-import userSubscriptionApi from '../../services/userSubscriptionApi';
-import AuthContext from '../../contexts/AuthContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import './SubscriptionPlans.css';
 import SubscribeModal from './SubscribeModal';
-import './CustomerSubscriptionPlans.css';
+import api from '../../services/api';
 
 /**
- * Customer-facing subscription plans component
- * Displays available plans and allows customers to subscribe
+ * CustomerSubscriptionPlans component
+ * Displays available subscription plans and allows customers to subscribe
  */
 const CustomerSubscriptionPlans = () => {
   const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [userSubscription, setUserSubscription] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useContext(AuthContext);
-  
-  // Fetch subscription plans and user's active subscription (if any)
-  useEffect(() => {
-    fetchData();
-  }, []);
-  
-  // Fetch all necessary data
-  const fetchData = async () => {
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const { user } = useAuth();
+
+  // Fetch subscription plans and user's current subscription
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    
     try {
-      setLoading(true);
+      // Get all active plans
+      const plansResponse = await api.get('/subscription-plans?status=active');
+      setPlans(plansResponse.data || []);
       
-      // Fetch all active subscription plans
-      const plansResponse = await subscriptionPlansApi.getAll({ status: 'active' });
-      setPlans(plansResponse.data);
-      
-      // Fetch user's current subscription if user is logged in
-      if (user && user._id) {
-        try {
-          const subscriptionsResponse = await userSubscriptionApi.getUserSubscriptions(user._id);
-          const activeSubscription = subscriptionsResponse.data.find(sub => sub.status === 'active');
-          setUserSubscription(activeSubscription || null);
-        } catch (subError) {
-          console.error('Error fetching user subscription:', subError);
-          // Don't set the main error state here, just log it
-        }
+      // Get user's current subscription if logged in
+      if (user?._id) {
+        const userSubscriptionResponse = await api.get(`/user-subscriptions/my-subscription`);
+        setUserSubscription(userSubscriptionResponse.data || null);
       }
-      
-      setError(null);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load subscription plans. Please try again later.');
+      console.error('Error fetching subscription data:', err);
+      setError(err.response?.data?.message || 'Failed to load subscription data. Please try again later.');
     } finally {
       setLoading(false);
     }
-  };
-  
-  // Open subscription modal
+  }, [user?._id]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Open subscription modal with the selected plan
   const handleSubscribe = (plan) => {
     setSelectedPlan(plan);
-    setIsModalOpen(true);
+    setShowSubscribeModal(true);
   };
-  
+
   // Handle subscription success
-  const handleSubscriptionSuccess = () => {
-    // Refetch user subscription data
+  const handleSubscriptionSuccess = (subscription) => {
+    setShowSubscribeModal(false);
+    setSuccess(`Successfully subscribed to ${subscription.plan?.name || 'the plan'}!`);
+    
+    // Refresh data to show updated subscription
     fetchData();
+    
+    // Clear success message after 5 seconds
+    setTimeout(() => {
+      setSuccess('');
+    }, 5000);
   };
-  
+
   // Format price with currency symbol
   const formatPrice = (price) => {
+    if (price === undefined || price === null) return 'N/A';
+    
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(price);
   };
-  
-  if (loading) {
-    return <div className="loading">Loading subscription plans...</div>;
-  }
-  
+
+  // Check if a plan is the user's current plan
+  const isCurrentPlan = (planId) => {
+    return userSubscription?.plan?._id === planId || userSubscription?.subscriptionPlan?._id === planId;
+  };
+
+  // Format date to a user-friendly string
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Get time remaining on current subscription
+  const getTimeRemaining = () => {
+    if (!userSubscription?.endDate) return null;
+    
+    const endDate = new Date(userSubscription.endDate);
+    const now = new Date();
+    
+    if (endDate <= now) return 'Expired';
+    
+    const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+    return `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`;
+  };
+
   return (
     <div className="customer-subscription-container">
-      <h2>Choose a Subscription Plan</h2>
+      <h2>Subscription Plans</h2>
       
-      {error && <div className="error-message">{error}</div>}
+      {/* Error Message */}
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={() => fetchData()}>Try Again</button>
+        </div>
+      )}
       
+      {/* Success Message */}
+      {success && (
+        <div className="success-message">
+          <p>{success}</p>
+          <button className="message-close" onClick={() => setSuccess('')} aria-label="Close">
+            &times;
+          </button>
+        </div>
+      )}
+      
+      {/* Current Subscription */}
       {userSubscription && (
         <div className="current-subscription">
           <h3>Your Current Subscription</h3>
-          <div className="subscription-card active">
-            <div className="plan-name">
-              {userSubscription.subscriptionPlan?.name || 'Active Plan'}
+          <div className="subscription-details">
+            <div className="subscription-item">
+              <span className="label">Plan:</span>
+              <span className="value">{userSubscription.plan?.name || userSubscription.subscriptionPlan?.name || 'Unknown Plan'}</span>
             </div>
-            <div className="plan-price">
-              {userSubscription.subscriptionPlan?.price 
-                ? formatPrice(userSubscription.subscriptionPlan.price)
-                : 'N/A'}
+            <div className="subscription-item">
+              <span className="label">Price:</span>
+              <span className="value">
+                {formatPrice(userSubscription.plan?.price || userSubscription.subscriptionPlan?.price)} / {userSubscription.plan?.duration?.toLowerCase() || userSubscription.subscriptionPlan?.duration?.toLowerCase() || 'month'}
+              </span>
             </div>
-            <div className="subscription-details">
-              <p><strong>Status:</strong> {userSubscription.status}</p>
-              <p><strong>Start Date:</strong> {new Date(userSubscription.startDate).toLocaleDateString()}</p>
-              <p><strong>End Date:</strong> {new Date(userSubscription.endDate).toLocaleDateString()}</p>
-              <p><strong>Auto Renew:</strong> {userSubscription.autoRenew ? 'Yes' : 'No'}</p>
+            <div className="subscription-item">
+              <span className="label">Start Date:</span>
+              <span className="value">{formatDate(userSubscription.startDate)}</span>
             </div>
-            <div className="subscription-actions">
-              <button className="btn manage-btn">Manage Subscription</button>
+            <div className="subscription-item">
+              <span className="label">End Date:</span>
+              <span className="value">{formatDate(userSubscription.endDate)}</span>
+            </div>
+            <div className="subscription-item highlight">
+              <span className="label">Time Remaining:</span>
+              <span className="value">{getTimeRemaining()}</span>
+            </div>
+            <div className="subscription-item">
+              <span className="label">Status:</span>
+              <span className={`value status-${userSubscription.status?.toLowerCase() || 'inactive'}`}>
+                {userSubscription.status ? (userSubscription.status.charAt(0).toUpperCase() + userSubscription.status.slice(1)) : 'Inactive'}
+              </span>
             </div>
           </div>
         </div>
       )}
       
+      {/* Available Plans */}
       <div className="available-plans">
-        <h3>{userSubscription ? 'Available Plans' : 'Select a Plan'}</h3>
-        
-        {plans.length === 0 ? (
-          <p className="no-plans">No subscription plans available at the moment.</p>
+        <h3>Available Plans</h3>
+        {loading ? (
+          <div className="loading-indicator">Loading subscription plans...</div>
+        ) : plans.length === 0 ? (
+          <div className="no-plans-message">No subscription plans are currently available.</div>
         ) : (
           <div className="plans-grid">
             {plans.map((plan) => (
-              <div key={plan._id} className="plan-card">
+              <div 
+                key={plan._id} 
+                className={`plan-card ${isCurrentPlan(plan._id) ? 'current-plan' : ''}`}
+              >
                 <div className="plan-header">
-                  <h4 className="plan-name">{plan.name}</h4>
-                  <div className="plan-price">
-                    <span className="amount">{formatPrice(plan.price)}</span>
-                    <span className="period">/{plan.duration.toLowerCase()}</span>
-                  </div>
+                  <h4>{plan.name}</h4>
+                  {isCurrentPlan(plan._id) && <span className="current-badge">Current Plan</span>}
                 </div>
-                
-                <div className="plan-description">{plan.description}</div>
-                
+                <div className="plan-price">
+                  <span className="amount">{formatPrice(plan.price)}</span>
+                  <span className="period">/ {plan.duration.toLowerCase()}</span>
+                </div>
+                <div className="plan-description">
+                  {plan.description || 'No description available.'}
+                </div>
                 {plan.features && plan.features.length > 0 && (
                   <ul className="plan-features">
                     {plan.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
+                      <li key={index}>✓ {feature}</li>
                     ))}
                   </ul>
                 )}
-                
                 <button 
-                  className="btn subscribe-btn"
+                  className="btn subscribe-btn" 
                   onClick={() => handleSubscribe(plan)}
-                  disabled={userSubscription && userSubscription.subscriptionPlan?._id === plan._id}
+                  disabled={isCurrentPlan(plan._id)}
                 >
-                  {userSubscription && userSubscription.subscriptionPlan?._id === plan._id
-                    ? 'Current Plan'
-                    : 'Select Plan'}
+                  {isCurrentPlan(plan._id) ? 'Current Plan' : 'Select Plan'}
                 </button>
               </div>
             ))}
@@ -150,13 +208,14 @@ const CustomerSubscriptionPlans = () => {
         )}
       </div>
       
-      {/* Subscription modal */}
-      <SubscribeModal 
-        plan={selectedPlan}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handleSubscriptionSuccess}
-      />
+      {/* Subscribe Modal */}
+      {showSubscribeModal && selectedPlan && (
+        <SubscribeModal 
+          plan={selectedPlan} 
+          onClose={() => setShowSubscribeModal(false)} 
+          onSuccess={handleSubscriptionSuccess}
+        />
+      )}
     </div>
   );
 };

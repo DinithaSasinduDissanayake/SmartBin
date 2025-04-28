@@ -53,4 +53,22 @@ complaintSchema.pre('save', function(next) {
 // Optional: Add index for sorting by date
 complaintSchema.index({ createdAt: -1 });
 
+// Compound index for combined filtering (common in admin dashboard queries)
+complaintSchema.index({ status: 1, createdAt: -1 });
+
+// Compound index for user filtering with date sorting (common in user dashboard)
+complaintSchema.index({ user: 1, createdAt: -1 });
+
+// Compound index for admin assignment queries
+complaintSchema.index({ assignedAdmin: 1, status: 1 });
+
+// Text index for search functionality
+complaintSchema.index({ subject: 'text', description: 'text' }, { 
+  weights: {
+    subject: 3,   // Give more weight to matches in subject
+    description: 1
+  },
+  name: "complaint_text_index"
+});
+
 module.exports = mongoose.model('Complaint', complaintSchema);

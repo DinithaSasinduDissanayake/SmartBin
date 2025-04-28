@@ -8,6 +8,17 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ApiError = require('../errors/ApiError');
 const paymentService = require('../services/paymentService');
+const cacheService = require('../services/cacheService');
+
+// Cache keys for financial dashboard data
+const CACHE_KEYS = {
+    DASHBOARD: 'financial_dashboard:range:',
+};
+
+// Cache TTL for financial data (in seconds)
+const CACHE_TTL = {
+    DASHBOARD: 1800, // 30 minutes for dashboard data
+};
 
 /**
  * @desc    Get aggregated financial data for the dashboard
@@ -20,6 +31,20 @@ const paymentService = require('../services/paymentService');
 exports.getDashboardData = async (req, res, next) => {
     try {
         const { range = 'month' } = req.query; // Default to 'month'
+        
+        // Define cache key based on date range
+        const cacheKey = `${CACHE_KEYS.DASHBOARD}${range}`;
+        
+        // Try to get data from cache first
+        const cachedData = await cacheService.getCache(cacheKey);
+        
+        if (cachedData) {
+            console.log(`Serving financial dashboard data from cache for range: ${range}`);
+            return res.status(200).json(cachedData);
+        }
+        
+        console.log(`Cache miss for financial dashboard data (${range}), fetching from database`);
+        
         let startDate, endDate = new Date();
         let groupBy, labelFormatter;
         // Determine date range and grouping
@@ -206,6 +231,9 @@ exports.getDashboardData = async (req, res, next) => {
             },
             subscriptionPlans // Added subscription plans list
         };
+
+        // Cache the dashboard data before responding
+        await cacheService.setCache(cacheKey, dashboardData, CACHE_TTL.DASHBOARD);
 
         res.status(200).json(dashboardData);
 
@@ -667,6 +695,7 @@ exports.updatePaymentStatus = async (req, res, next) => {
 };
 
 // ---- Helper functions for webhook handling -----
+
 
 /**
  * Handle successful payment from webhook

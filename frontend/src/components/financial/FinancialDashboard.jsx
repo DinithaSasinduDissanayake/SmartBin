@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import AuthContext from '../../contexts/AuthContext';
-import financialApi from '../../services/financialApi'; // Import specific financialApi
+import financialApi from '../../services/financialApi';
 // Replace Chart.js imports with Recharts
 import {
   ResponsiveContainer,
@@ -65,6 +65,7 @@ const FinancialDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [activePieIndex, setActivePieIndex] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
   const dropdownRef = useRef(null);
   const { user } = useContext(AuthContext);
 
@@ -82,37 +83,73 @@ const FinancialDashboard = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!user || (user.role !== 'financial_manager' && user.role !== 'admin')) {
-        setError('Access Denied');
-        setLoading(false);
-        return;
+  // Memoize fetchDashboardData to avoid unnecessary recreations
+  const fetchDashboardData = useCallback(async () => {
+    if (!user) {
+      setError('Authentication required: Please log in to view this dashboard');
+      setLoading(false);
+      return;
+    }
+      
+    // Check if user has required permissions
+    if (user.role !== 'financial_manager' && user.role !== 'admin') {
+      setError('Access Denied: You need financial manager or admin privileges to view this dashboard');
+      setLoading(false);
+      return;
+    }
+      
+    try {
+      setLoading(true);
+      setError(null);
+        
+      // Use financialApi consistently
+      const response = await financialApi.getDashboardData(dateRange);
+        
+      // Enhanced validation with more specific errors
+      if (!response || !response.data) {
+        throw new Error('No data received from server');
       }
-      try {
-        setLoading(true);
-        // Use financialApi consistently
-        const response = await financialApi.getDashboardData(dateRange);
-        setDashboardData(response.data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching financial dashboard data:", err);
-        setError(err.response?.data?.message || 'Failed to fetch dashboard data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
+        
+      // Ensure all data structures exist with defaults to prevent rendering errors
+      const data = {
+        summary: response.data.summary || { 
+          totalRevenue: 0, 
+          totalExpenses: 0, 
+          netProfit: 0, 
+          activeSubscriptions: 0,
+          newSubscriptions: 0 
+        },
+        revenueByPlan: response.data.revenueByPlan || [],
+        expensesByCategory: response.data.expensesByCategory || [],
+        trends: response.data.trends || { revenue: [], expenses: [] },
+        subscriptionPlans: response.data.subscriptionPlans || [],
+        recentTransactions: response.data.recentTransactions || { 
+          payments: [], 
+          expenses: [] 
+        }
+      };
+        
+      setDashboardData(data);
+    } catch (err) {
+      console.error("Error fetching financial dashboard data:", err);
+      setError(err.response?.data?.message || 'Failed to fetch dashboard data. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   }, [user, dateRange]); // Keep dependencies
 
-  const prepareChartData = () => {
-    if (!dashboardData || !dashboardData.summary) { // Check for summary object
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]); // Update to use memoized function
+
+  // Memoize the chart data preparation to avoid recalculations on each render
+  const prepareChartData = useMemo(() => {
+    if (!dashboardData || !dashboardData.summary) {
       return {
         revenueExpenseData: [],
         planRevenueData: [],
         expenseCategoryData: [],
-        planSubscriptionData: [], // Keep this if used elsewhere, otherwise remove
+        planSubscriptionData: [],
         hasData: false
       };
     }
@@ -123,12 +160,12 @@ const FinancialDashboard = () => {
     let expenseTrendMap = new Map();
 
     // Convert existing data to maps for easy lookup
-    (dashboardData.trends?.revenue || []).forEach(item => revenueTrendMap.set(item.month, item.total));
-    (dashboardData.trends?.expenses || []).forEach(item => expenseTrendMap.set(item.month, item.total));
+    (dashboardData.trends?.revenue || []).forEach(item => revenueTrendMap.set(item.month || item.date || item.day, item.total || item.amount || 0));
+    (dashboardData.trends?.expenses || []).forEach(item => expenseTrendMap.set(item.month || item.date || item.day, item.total || item.amount || 0));
 
     const today = new Date();
 
-    // Generate complete set of labels based on dateRange (month)
+    // Generate complete set of labels based on dateRange
     if (dateRange === 'month') {
       const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
       const currentDay = Math.min(today.getDate(), daysInMonth);
@@ -139,7 +176,6 @@ const FinancialDashboard = () => {
         if (!expenseTrendMap.has(dayStr)) expenseTrendMap.set(dayStr, 0);
       }
     } 
-    // Generate complete set of labels based on dateRange (last3months)
     else if (dateRange === 'last3months') {
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const currentMonth = today.getMonth();
@@ -157,7 +193,6 @@ const FinancialDashboard = () => {
         if (!expenseTrendMap.has(monthLabel)) expenseTrendMap.set(monthLabel, 0);
       }
     } 
-    // Generate complete set of labels based on dateRange (year)
     else { // year
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const year = today.getFullYear();
@@ -172,41 +207,41 @@ const FinancialDashboard = () => {
     // Prepare data for Recharts Line chart
     const revenueExpenseData = completeLabels.map(label => ({
       name: label,
-      revenue: revenueTrendMap.get(label) || 0, // Ensure 0 if undefined
-      expenses: expenseTrendMap.get(label) || 0 // Ensure 0 if undefined
+      revenue: revenueTrendMap.get(label) || 0,
+      expenses: expenseTrendMap.get(label) || 0
     }));
 
     const hasData = revenueExpenseData.some(item => item.revenue > 0 || item.expenses > 0);
 
-    // Prepare data for Revenue by Plan Pie chart
-    const planRevenueData = dashboardData.revenueByPlan?.map(item => ({
-      name: item.planName, // Use planName from backend
-      value: item.revenue   // Use revenue from backend
-    })) || [];
+    // Prepare data for Revenue by Plan Pie chart - ensure proper access to planName, revenue and count
+    const planRevenueData = (dashboardData.revenueByPlan || []).map(item => ({
+      name: item.planName || item.name || 'Unknown Plan',
+      value: Number(item.revenue || item.value || item.amount || 0) || 0
+    })).filter(item => item.value > 0); // Filter out zero values for cleaner charts
 
     // Prepare data for Expenses by Category Bar chart
-    const expenseCategoryData = dashboardData.expensesByCategory?.map(item => ({
-      name: item.category.charAt(0).toUpperCase() + item.category.slice(1), // Capitalize first letter
-      value: item.total     // Use total from backend
-    })) || [];
+    const expenseCategoryData = (dashboardData.expensesByCategory || []).map(item => ({
+      name: item.category ? (item.category.charAt(0).toUpperCase() + item.category.slice(1)) : 'Miscellaneous',
+      value: Number(item.total || item.value || item.amount || 0) || 0
+    })).filter(item => item.value > 0); // Filter out zero values for cleaner charts
 
-    // Prepare data for Subscriptions by Plan Pie chart (using revenueByPlan data)
-    const planSubscriptionData = dashboardData.revenueByPlan?.map(item => ({
-      name: item.planName, // Use planName from backend
-      value: item.count    // Use count from backend for subscription count by plan
-    })) || [];
-
+    // Prepare data for Subscriptions by Plan Pie chart - ensure we handle count properly
+    const planSubscriptionData = (dashboardData.revenueByPlan || []).map(item => ({
+      name: item.planName || item.name || 'Unknown Plan',
+      value: Number(item.count || item.subscribers || 0) || 0
+    })).filter(item => item.value > 0); // Filter out zero values for cleaner charts
 
     return {
       revenueExpenseData,
       planRevenueData,
       expenseCategoryData,
-      planSubscriptionData, // Now represents count by plan
+      planSubscriptionData,
       hasData
     };
-  };
+  }, [dashboardData, dateRange]);
 
-  const { revenueExpenseData, planRevenueData, expenseCategoryData, planSubscriptionData, hasData } = prepareChartData();
+  // Destructure the memoized chart data
+  const { revenueExpenseData, planRevenueData, expenseCategoryData, planSubscriptionData, hasData } = prepareChartData;
 
   // Custom colors for charts
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
@@ -278,49 +313,14 @@ const FinancialDashboard = () => {
     }
   };
 
-  // Check loading/error/nodata states using summary object
-  if (loading) {
-    return <div className="loading">Loading Financial Dashboard...</div>;
-  }
-
-  if (error) {
-    return <div className="error">Error: {error}</div>;
-  }
-
-  // Check if essential summary data is missing
-  if (!dashboardData || !dashboardData.summary) {
-    return <div className="loading">No data available.</div>;
-  }
-
-  // Check for genuinely empty data based on summary and arrays
-  const isEmptyData =
-    (dashboardData.summary.activeSubscriptions || 0) === 0 &&
-    (dashboardData.summary.totalRevenue || 0) === 0 &&
-    (dashboardData.summary.totalExpenses || 0) === 0 &&
-    // (dashboardData.summary.outstandingPayments || 0) === 0 && // Uncomment if outstandingPayments is added
-    Array.isArray(dashboardData.revenueByPlan) && dashboardData.revenueByPlan.length === 0 &&
-    Array.isArray(dashboardData.expensesByCategory) && dashboardData.expensesByCategory.length === 0;
-
-  if (isEmptyData && !hasData) { // Also check if trend data is empty
-    return (
-      <div className="empty-state">
-        <p>No financial data available for this period.</p>
-      </div>
-    );
-  }
-
-  const renderPeriodSubtitle = () => (
-    <span className="card-subtitle">
-      {dateRange === 'month' ? 'This Month' :
-        dateRange === 'last3months' ? 'Last 3 Months' :
-          'This Year'}
-    </span>
-  );
-
-  // Function to handle date range selection
+  // Function to handle date range selection with enhanced feedback
   const handleDateRangeChange = (value) => {
+    if (value === dateRange) return; // No change needed
+    
     setDateRange(value);
     setIsDropdownOpen(false);
+    // Reset active pie index when changing date range
+    setActivePieIndex(0);
   };
 
   // Get label for selected date range
@@ -333,6 +333,87 @@ const FinancialDashboard = () => {
     }
   };
 
+  // Function to handle report export with improved error handling
+  const handleExportReport = async () => {
+    try {
+      setExportLoading(true);
+      const response = await financialApi.exportReport(dateRange);
+      
+      // Ensure we have data in the response
+      if (!response || !response.data) {
+        throw new Error('No data received for report export');
+      }
+      
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      
+      // Create a link element and click it to trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `financial-report-${dateRange}-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Error exporting report:", err);
+      const errorMsg = err.response?.data?.message || 'Failed to export report. Please try again later.';
+      alert(`Export failed: ${errorMsg}`);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  // Refresh dashboard data
+  const handleRefreshData = () => {
+    fetchDashboardData();
+  };
+
+  // Check loading/error/nodata states
+  if (loading) {
+    return <div className="loading">Loading Financial Dashboard...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <div className="error-message">
+          <h3>Error Loading Dashboard</h3>
+          <p>{error}</p>
+          <button 
+            className="retry-button"
+            onClick={handleRefreshData}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if essential summary data is missing
+  if (!dashboardData || !dashboardData.summary) {
+    return <div className="loading">No data available. Please check API connection.</div>;
+  }
+
+  // Check for genuinely empty data based on summary and arrays
+  const isEmptyData =
+    (dashboardData.summary.activeSubscriptions || 0) === 0 &&
+    (dashboardData.summary.totalRevenue || 0) === 0 &&
+    (dashboardData.summary.totalExpenses || 0) === 0 &&
+    Array.isArray(dashboardData.revenueByPlan) && dashboardData.revenueByPlan.length === 0 &&
+    Array.isArray(dashboardData.expensesByCategory) && dashboardData.expensesByCategory.length === 0;
+
+  const renderPeriodSubtitle = () => (
+    <span className="card-subtitle">
+      {dateRange === 'month' ? 'This Month' :
+        dateRange === 'last3months' ? 'Last 3 Months' :
+          'This Year'}
+    </span>
+  );
+
   return (
     <div className="financial-dashboard">
       <div className="dashboard-header">
@@ -344,27 +425,33 @@ const FinancialDashboard = () => {
               <button 
                 className="dropdown-toggle" 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                aria-label="Select time period"
+                aria-expanded={isDropdownOpen}
+                disabled={loading}
               >
                 {getDateRangeLabel()}
                 <FontAwesomeIcon icon={faChevronDown} />
               </button>
               {isDropdownOpen && (
-                <div className="dropdown-menu">
+                <div className="dropdown-menu" role="menu">
                   <div 
                     className={`dropdown-item ${dateRange === 'month' ? 'active' : ''}`}
                     onClick={() => handleDateRangeChange('month')}
+                    role="menuitem"
                   >
                     This Month
                   </div>
                   <div 
                     className={`dropdown-item ${dateRange === 'last3months' ? 'active' : ''}`}
                     onClick={() => handleDateRangeChange('last3months')}
+                    role="menuitem"
                   >
                     Last 3 Months
                   </div>
                   <div 
                     className={`dropdown-item ${dateRange === 'year' ? 'active' : ''}`}
                     onClick={() => handleDateRangeChange('year')}
+                    role="menuitem"
                   >
                     This Year
                   </div>
@@ -373,34 +460,52 @@ const FinancialDashboard = () => {
             </div>
           </div>
           <button
-            className="export-btn"
-            onClick={() => alert('Export functionality to be implemented')}
+            className="btn refresh-btn"
+            onClick={handleRefreshData}
+            title="Refresh dashboard data"
+            disabled={loading}
           >
-            Export Report
+            ↻ Refresh
+          </button>
+          <button
+            className={`export-btn ${exportLoading ? 'loading' : ''}`}
+            onClick={handleExportReport}
+            aria-label="Export financial report"
+            disabled={exportLoading || loading || isEmptyData}
+          >
+            {exportLoading ? 'Exporting...' : 'Export Report'}
           </button>
         </div>
       </div>
 
-      <div className="dashboard-tabs">
+      <div className="dashboard-tabs" role="tablist">
         <button
+          role="tab"
+          aria-selected={activeTab === 'overview'}
           className={activeTab === 'overview' ? 'active' : ''}
           onClick={() => setActiveTab('overview')}
         >
           <FontAwesomeIcon icon={faChartPie} /> Overview
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === 'revenue'}
           className={activeTab === 'revenue' ? 'active' : ''}
           onClick={() => setActiveTab('revenue')}
         >
           <FontAwesomeIcon icon={faMoneyBillTrendUp} /> Revenue
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === 'expenses'}
           className={activeTab === 'expenses' ? 'active' : ''}
           onClick={() => setActiveTab('expenses')}
         >
           <FontAwesomeIcon icon={faArrowTrendDown} /> Expenses
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === 'subscriptions'}
           className={activeTab === 'subscriptions' ? 'active' : ''}
           onClick={() => setActiveTab('subscriptions')}
         >
@@ -408,358 +513,334 @@ const FinancialDashboard = () => {
         </button>
       </div>
 
-      {activeTab === 'overview' && (
-        <>
-          <div className="dashboard-grid">
-            <div className="dashboard-card highlight">
-              <h3>Total Revenue</h3>
-              {/* Access summary data correctly */}
-              <p>{formatCurrency(dashboardData.summary.totalRevenue || 0)}</p>
-              {renderPeriodSubtitle()}
-            </div>
-            <div className="dashboard-card highlight">
-              <h3>Total Expenses</h3>
-              {/* Access summary data correctly */}
-              <p>{formatCurrency(dashboardData.summary.totalExpenses || 0)}</p>
-              {renderPeriodSubtitle()}
-            </div>
-            <div className="dashboard-card highlight">
-              <h3>Net Profit</h3>
-              {/* Access summary data correctly */}
-              <p>{formatCurrency(dashboardData.summary.netProfit || 0)}</p>
-              {renderPeriodSubtitle()}
-            </div>
-            <div className="dashboard-card">
-              <h3>Active Subscriptions</h3>
-              {/* Access summary data correctly */}
-              <p>{dashboardData.summary.activeSubscriptions || 0}</p>
-              <span className="card-subtitle">Total Active</span>
-            </div>
-            {/* Remove Outstanding Payments card if not implemented in backend */}
-            {/* <div className="dashboard-card">
-              <h3>Outstanding Payments</h3>
-              <p>{formatCurrency(dashboardData.summary.outstandingPayments || 0)}</p>
-              <span className="card-subtitle">Pending Collection</span>
-            </div> */}
-            {/* Subscription Revenue card might need adjustment based on backend data */}
-            {/* <div className="dashboard-card">
-              <h3>Subscription Revenue</h3>
-              <p>{formatCurrency(dashboardData.totalRevenue?.subscriptions || 0)}</p>
-              {renderPeriodSubtitle()}
-            </div> */}
-          </div>
-
-          <div className="dashboard-charts">
-            <div className="chart-container">
-              {!hasData ? (
-                <div className="no-data-message">
-                  <p>No revenue or expense data available for {dateRange === 'month' ? 'this month' : dateRange === 'last3months' ? 'last 3 months' : 'this year'}.</p>
-                </div>
-              ) : (
-                <div className="chart-wrapper">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart
-                      data={revenueExpenseData} // Use correctly prepared data
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => formatCurrency(value)} />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="revenue"
-                        name="Revenue"
-                        stroke="#4caf50"
-                        strokeWidth={2}
-                        activeDot={{ r: 8 }}
-                        dot={{ strokeWidth: 2 }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="expenses"
-                        name="Expenses"
-                        stroke="#f44336"
-                        strokeWidth={2}
-                        dot={{ strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                  <div className="chart-title">{getChartTitle()}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'revenue' && (
-        <>
-          <div className="dashboard-grid">
-            <div className="dashboard-card highlight">
-              <h3>Total Revenue</h3>
-              {/* Access summary data correctly */}
-              <p>{formatCurrency(dashboardData.summary.totalRevenue || 0)}</p>
-              {renderPeriodSubtitle()}
-            </div>
-            {/* Remove Revenue Growth card if not implemented */}
-            {/* <div className="dashboard-card">
-              <h3>Revenue Growth</h3>
-              <p>{(dashboardData.revenueGrowthPercentage || 0).toFixed(1)}%</p>
-              <span className="card-subtitle">From Previous Period</span>
-            </div> */}
-            {/* Remove Average Revenue card if not implemented */}
-            {/* <div className="dashboard-card">
-              <h3>Average Revenue</h3>
-              <p>{formatCurrency(dashboardData.averageDailyRevenue || 0)}</p>
-              <span className="card-subtitle">Per Day (in Period)</span>
-            </div> */}
-          </div>
-
-          <div className="dashboard-charts">
-            <div className="chart-container">
-              <h3>Revenue by Subscription Plan</h3>
-              <div className="chart-wrapper">
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      activeIndex={activePieIndex}
-                      activeShape={renderActiveShape}
-                      data={planRevenueData} // Use correctly prepared data
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={70}
-                      outerRadius={90}
-                      paddingAngle={5}
-                      dataKey="value"
-                      onMouseEnter={onPieEnter}
-                    >
-                      {planRevenueData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                  </PieChart>
-                </ResponsiveContainer>
+      <div role="tabpanel" aria-labelledby="tab-overview" hidden={activeTab !== 'overview'}>
+        {activeTab === 'overview' && (
+          <>
+            <div className="dashboard-grid">
+              <div className="dashboard-card highlight">
+                <h3>Total Revenue</h3>
+                <p>{formatCurrency(dashboardData.summary.totalRevenue || 0)}</p>
+                {renderPeriodSubtitle()}
+              </div>
+              <div className="dashboard-card highlight">
+                <h3>Total Expenses</h3>
+                <p>{formatCurrency(dashboardData.summary.totalExpenses || 0)}</p>
+                {renderPeriodSubtitle()}
+              </div>
+              <div className="dashboard-card highlight">
+                <h3>Net Profit</h3>
+                <p>{formatCurrency(dashboardData.summary.netProfit || 0)}</p>
+                {renderPeriodSubtitle()}
+              </div>
+              <div className="dashboard-card">
+                <h3>Active Subscriptions</h3>
+                <p>{dashboardData.summary.activeSubscriptions || 0}</p>
+                <span className="card-subtitle">Total Active</span>
               </div>
             </div>
-          </div>
 
-          <div className="recent-transactions">
-            <h3>Recent Transactions</h3>
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Use recentTransactions.payments from backend */}
-                  {dashboardData.recentTransactions?.payments?.length > 0 ? (
-                    dashboardData.recentTransactions.payments.map((payment) => (
-                      <tr key={payment.id}>
-                        <td>{formatDate(payment.date)}</td>
-                        <td>{payment.customer || 'N/A'}</td>
-                        <td>{payment.description || 'N/A'}</td>
-                        <td>{formatCurrency(payment.amount)}</td>
-                        <td><span className={`status ${payment.status?.toLowerCase()}`}>{payment.status}</span></td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan="5">No recent payments found for this period.</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'expenses' && (
-        <>
-          <div className="dashboard-grid">
-            <div className="dashboard-card highlight">
-              <h3>Total Expenses</h3>
-              {/* Access summary data correctly */}
-              <p>{formatCurrency(dashboardData.summary.totalExpenses || 0)}</p>
-              {renderPeriodSubtitle()}
-            </div>
-            {/* Adjust Largest Category card if needed */}
-            <div className="dashboard-card">
-              <h3>Largest Category</h3>
-              <p>{dashboardData.expensesByCategory?.[0]?.category || 'N/A'}</p>
-              <span className="card-subtitle">{formatCurrency(dashboardData.expensesByCategory?.[0]?.total || 0)}</span>
-            </div>
-            {/* Remove Budget Status card if not implemented */}
-            {/* <div className="dashboard-card">
-              <h3>Budget Status</h3>
-              <p>N/A</p>
-              <span className="card-subtitle">Budget data needed</span>
-            </div> */}
-          </div>
-
-          <div className="dashboard-charts">
-            <div className="chart-container">
-              <h3>Expenses by Category</h3>
-              <div className="chart-wrapper">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={expenseCategoryData} // Use correctly prepared data
-                    margin={{ top: 20, right: 30, left: 20, bottom: 70 }} // Adjusted bottom margin
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="name"
-                      angle={-45}
-                      textAnchor="end"
-                      height={70} // Keep height for angled labels
-                      interval={0} // Show all labels
-                    />
-                    <YAxis />
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                    <Bar dataKey="value" name="Amount" radius={[5, 5, 0, 0]}>
-                      {expenseCategoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+            <div className="dashboard-charts">
+              <div className="chart-container">
+                {!hasData ? (
+                  <div className="no-data-message">
+                    <p>No revenue or expense data available for {dateRange === 'month' ? 'this month' : dateRange === 'last3months' ? 'last 3 months' : 'this year'}.</p>
+                  </div>
+                ) : (
+                  <div className="chart-wrapper">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart
+                        data={revenueExpenseData}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip formatter={(value) => formatCurrency(value)} />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="revenue"
+                          name="Revenue"
+                          stroke="#4caf50"
+                          strokeWidth={2}
+                          activeDot={{ r: 8 }}
+                          dot={{ strokeWidth: 2 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="expenses"
+                          name="Expenses"
+                          stroke="#f44336"
+                          strokeWidth={2}
+                          dot={{ strokeWidth: 2 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                    <div className="chart-title">{getChartTitle()}</div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          </>
+        )}
+      </div>
 
-          <div className="recent-transactions">
-            <h3>Recent Expenses</h3>
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Use recentTransactions.expenses from backend */}
-                  {dashboardData.recentTransactions?.expenses?.length > 0 ? (
-                    dashboardData.recentTransactions.expenses.map((expense) => (
-                      <tr key={expense.id}>
-                        <td>{formatDate(expense.date)}</td>
-                        {/* Capitalize first letter of category */}
-                        <td>{expense.category.charAt(0).toUpperCase() + expense.category.slice(1)}</td>
-                        <td>{expense.description || 'N/A'}</td>
-                        <td>{formatCurrency(expense.amount)}</td>
-                        <td><span className={`status ${expense.status?.toLowerCase()}`}>{expense.status}</span></td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan="5">No recent expenses found for this period.</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'subscriptions' && (
-        <>
-          <div className="dashboard-grid">
-            <div className="dashboard-card highlight">
-              <h3>Active Subscriptions</h3>
-              {/* Access summary data correctly */}
-              <p>{dashboardData.summary.activeSubscriptions || 0}</p>
-              <span className="card-subtitle">Total</span>
-            </div>
-            <div className="dashboard-card">
-              <h3>New Subscriptions</h3>
-              {/* Access summary data correctly */}
-              <p>{dashboardData.summary.newSubscriptions || 0}</p>
-              {renderPeriodSubtitle()}
-            </div>
-            {/* Remove Cancellations card if not implemented */}
-            {/* <div className="dashboard-card">
-              <h3>Cancellations</h3>
-              <p>{dashboardData.cancellations || 0}</p>
-              {renderPeriodSubtitle()}
-            </div> */}
-          </div>
-
-          <div className="dashboard-charts">
-            <div className="chart-container">
-              {/* Changed title to reflect data source */}
-              <h3>Subscriptions by Plan (Count)</h3>
-              <div className="chart-wrapper">
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={planSubscriptionData} // Use data prepared for subscription counts
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value" // 'value' now holds the count
-                      label={({ name, percent, value }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`} // Show count and percentage
-                    >
-                      {planSubscriptionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    {/* Tooltip formatter for count */}
-                    <Tooltip formatter={(value) => `${value} subscribers`} />
-                    <Legend layout="vertical" verticalAlign="middle" align="right" />
-                  </PieChart>
-                </ResponsiveContainer>
+      <div role="tabpanel" aria-labelledby="tab-revenue" hidden={activeTab !== 'revenue'}>
+        {activeTab === 'revenue' && (
+          <>
+            <div className="dashboard-grid">
+              <div className="dashboard-card highlight">
+                <h3>Total Revenue</h3>
+                <p>{formatCurrency(dashboardData.summary.totalRevenue || 0)}</p>
+                {renderPeriodSubtitle()}
               </div>
             </div>
-          </div>
 
-          <div className="subscription-plans">
-            <h3>Subscription Plans Overview</h3>
-            <div className="table-container">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Plan Name</th>
-                    <th>Price</th>
-                    <th>Billing</th>
-                    <th>Active Users</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Use subscriptionPlans from backend */}
-                  {dashboardData.subscriptionPlans?.length > 0 ? (
-                    dashboardData.subscriptionPlans.map((plan) => (
-                      // Use plan._id for key if available, otherwise plan.name
-                      <tr key={plan._id || plan.name}>
-                        <td>{plan.name}</td>
-                        <td>{formatCurrency(plan.price)}</td>
-                        <td>{plan.duration}</td>
-                        <td>{plan.subscriberCount}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan="4">No subscription plans found.</td></tr>
-                  )}
-                </tbody>
-              </table>
+            <div className="dashboard-charts">
+              <div className="chart-container">
+                <h3>Revenue by Subscription Plan</h3>
+                {planRevenueData.length === 0 ? (
+                  <div className="no-data-message">
+                    <p>No revenue data available by subscription plan.</p>
+                  </div>
+                ) : (
+                  <div className="chart-wrapper">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          activeIndex={activePieIndex}
+                          activeShape={renderActiveShape}
+                          data={planRevenueData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={70}
+                          outerRadius={90}
+                          paddingAngle={5}
+                          dataKey="value"
+                          onMouseEnter={onPieEnter}
+                        >
+                          {planRevenueData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => formatCurrency(value)} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="view-all">
-              {/* Link to manage plans */}
-              <Link to="/dashboard/subscription-plans" className="view-all-btn">Manage Subscription Plans</Link>
+
+            <div className="recent-transactions">
+              <h3>Recent Transactions</h3>
+              <div className="table-container">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Customer</th>
+                      <th>Description</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(dashboardData.recentTransactions?.payments?.length > 0) ? (
+                      dashboardData.recentTransactions.payments.map((payment) => (
+                        <tr key={payment.id || payment._id}>
+                          <td>{formatDate(payment.date)}</td>
+                          <td>{payment.customer || 'N/A'}</td>
+                          <td>{payment.description || 'N/A'}</td>
+                          <td>{formatCurrency(payment.amount)}</td>
+                          <td><span className={`status ${payment.status?.toLowerCase() || ''}`}>{payment.status || 'N/A'}</span></td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr><td colSpan="5">No recent payments found for this period.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
+
+      <div role="tabpanel" aria-labelledby="tab-expenses" hidden={activeTab !== 'expenses'}>
+        {activeTab === 'expenses' && (
+          <>
+            <div className="dashboard-grid">
+              <div className="dashboard-card highlight">
+                <h3>Total Expenses</h3>
+                <p>{formatCurrency(dashboardData.summary.totalExpenses || 0)}</p>
+                {renderPeriodSubtitle()}
+              </div>
+              <div className="dashboard-card">
+                <h3>Largest Category</h3>
+                <p>{dashboardData.expensesByCategory?.[0]?.category ? 
+                  (dashboardData.expensesByCategory[0].category.charAt(0).toUpperCase() + 
+                   dashboardData.expensesByCategory[0].category.slice(1)) : 
+                  'N/A'}</p>
+                <span className="card-subtitle">{formatCurrency(dashboardData.expensesByCategory?.[0]?.total || 0)}</span>
+              </div>
+            </div>
+
+            <div className="dashboard-charts">
+              <div className="chart-container">
+                <h3>Expenses by Category</h3>
+                {expenseCategoryData.length === 0 ? (
+                  <div className="no-data-message">
+                    <p>No expense data available by category.</p>
+                  </div>
+                ) : (
+                  <div className="chart-wrapper">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart
+                        data={expenseCategoryData}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="name"
+                          angle={-45}
+                          textAnchor="end"
+                          height={70}
+                          interval={0}
+                        />
+                        <YAxis />
+                        <Tooltip formatter={(value) => formatCurrency(value)} />
+                        <Bar dataKey="value" name="Amount" radius={[5, 5, 0, 0]}>
+                          {expenseCategoryData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="recent-transactions">
+              <h3>Recent Expenses</h3>
+              <div className="table-container">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Category</th>
+                      <th>Description</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(dashboardData.recentTransactions?.expenses?.length > 0) ? (
+                      dashboardData.recentTransactions.expenses.map((expense) => (
+                        <tr key={expense.id || expense._id}>
+                          <td>{formatDate(expense.date)}</td>
+                          <td>{expense.category ? (expense.category.charAt(0).toUpperCase() + expense.category.slice(1)) : 'N/A'}</td>
+                          <td>{expense.description || 'N/A'}</td>
+                          <td>{formatCurrency(expense.amount)}</td>
+                          <td><span className={`status ${expense.status?.toLowerCase() || ''}`}>{expense.status || 'N/A'}</span></td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr><td colSpan="5">No recent expenses found for this period.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div role="tabpanel" aria-labelledby="tab-subscriptions" hidden={activeTab !== 'subscriptions'}>
+        {activeTab === 'subscriptions' && (
+          <>
+            <div className="dashboard-grid">
+              <div className="dashboard-card highlight">
+                <h3>Active Subscriptions</h3>
+                <p>{dashboardData.summary.activeSubscriptions || 0}</p>
+                <span className="card-subtitle">Total</span>
+              </div>
+              <div className="dashboard-card">
+                <h3>New Subscriptions</h3>
+                <p>{dashboardData.summary.newSubscriptions || 0}</p>
+                {renderPeriodSubtitle()}
+              </div>
+            </div>
+
+            <div className="dashboard-charts">
+              <div className="chart-container">
+                <h3>Subscriptions by Plan (Count)</h3>
+                {planSubscriptionData.length === 0 ? (
+                  <div className="no-data-message">
+                    <p>No subscription data available by plan.</p>
+                  </div>
+                ) : (
+                  <div className="chart-wrapper">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={planSubscriptionData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent, value }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                        >
+                          {planSubscriptionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => `${value} subscribers`} />
+                        <Legend layout="vertical" verticalAlign="middle" align="right" />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="subscription-plans">
+              <h3>Subscription Plans Overview</h3>
+              <div className="table-container">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Plan Name</th>
+                      <th>Price</th>
+                      <th>Billing</th>
+                      <th>Active Users</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(dashboardData.subscriptionPlans?.length > 0) ? (
+                      dashboardData.subscriptionPlans.map((plan) => (
+                        <tr key={plan._id || plan.id || plan.name}>
+                          <td>{plan.name}</td>
+                          <td>{formatCurrency(plan.price)}</td>
+                          <td>{plan.duration}</td>
+                          <td>{plan.subscriberCount || 0}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr><td colSpan="4">No subscription plans found.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="view-all">
+                <Link to="/dashboard/subscription-plans" className="view-all-btn">Manage Subscription Plans</Link>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

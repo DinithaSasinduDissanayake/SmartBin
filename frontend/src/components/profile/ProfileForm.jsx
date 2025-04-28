@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import './ProfileForms.css';
+import { useAuth } from '../../contexts/AuthContext';
+import userApi from '../../services/userApi';
+import './ProfileComponents.css';
 
-const ProfileForm = ({ profileData, onSubmit, loading }) => {
+const ProfileForm = ({ initialData, onProfileUpdate }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -9,350 +12,432 @@ const ProfileForm = ({ profileData, onSubmit, loading }) => {
     address: {
       street: '',
       city: '',
-      postalCode: '',
-      country: 'Sri Lanka'
+      state: '',
+      zipCode: ''
     },
-    preferences: {
-      pickupNotes: ''
-    },
+    preferences: [],
     skills: [],
     availability: ''
   });
+  
   const [newSkill, setNewSkill] = useState('');
-  const [formError, setFormError] = useState('');
-  const [formSuccess, setFormSuccess] = useState('');
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Initialize form with profile data when it loads
+  const isStaff = user?.role === 'staff';
+  const isCustomer = user?.role === 'customer';
+
+  // Initialize form with user data when available
   useEffect(() => {
-    if (profileData) {
+    if (initialData) {
       setFormData({
-        name: profileData.name || '',
-        email: profileData.email || '',
-        phone: profileData.phone || '',
+        name: initialData.name || '',
+        email: initialData.email || '',
+        phone: initialData.phone || '',
         address: {
-          street: profileData.address?.street || '',
-          city: profileData.address?.city || '',
-          postalCode: profileData.address?.postalCode || '',
-          country: profileData.address?.country || 'Sri Lanka'
+          street: initialData.address?.street || '',
+          city: initialData.address?.city || '',
+          state: initialData.address?.state || '',
+          zipCode: initialData.address?.zipCode || ''
         },
-        preferences: {
-          pickupNotes: profileData.preferences?.pickupNotes || ''
-        },
-        skills: profileData.skills || [],
-        availability: profileData.availability || ''
+        preferences: initialData.preferences || [],
+        skills: initialData.skills || [],
+        availability: initialData.availability || ''
       });
     }
-  }, [profileData]);
+  }, [initialData]);
 
+  // Handle input change
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     
-    // Handle nested objects (address, preferences)
     if (name.includes('.')) {
+      // Handle nested fields (address)
       const [parent, child] = name.split('.');
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         [parent]: {
-          ...formData[parent],
+          ...prev[parent],
           [child]: value
         }
+      }));
+    } else if (type === 'checkbox') {
+      // Handle preferences checkboxes
+      setFormData(prev => {
+        const updatedPreferences = checked
+          ? [...prev.preferences, value]
+          : prev.preferences.filter(pref => pref !== value);
+        
+        return { ...prev, preferences: updatedPreferences };
       });
     } else {
-      setFormData({ ...formData, [name]: value });
+      // Handle normal fields
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
     
-    // Clear messages when form is being edited
-    setFormError('');
-    setFormSuccess('');
+    // Clear error for this field if it exists
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    
+    // Clear success message on any change
+    if (successMessage) {
+      setSuccessMessage('');
+    }
   };
 
-  // Handle skills (add/remove)
-  const handleAddSkill = () => {
+  // Add a new skill
+  const addSkill = () => {
     if (!newSkill.trim()) return;
     
-    // Don't add duplicate skills
+    // Don't add duplicates
     if (formData.skills.includes(newSkill.trim())) {
-      setFormError('This skill is already in your list');
+      setErrors(prev => ({ 
+        ...prev, 
+        skills: 'This skill has already been added.' 
+      }));
       return;
     }
     
-    setFormData({
-      ...formData,
-      skills: [...formData.skills, newSkill.trim()]
-    });
+    setFormData(prev => ({
+      ...prev,
+      skills: [...prev.skills, newSkill.trim()]
+    }));
     setNewSkill('');
-    setFormError('');
+    setErrors(prev => ({ ...prev, skills: '' }));
   };
 
-  const handleRemoveSkill = (skillToRemove) => {
-    setFormData({
-      ...formData,
-      skills: formData.skills.filter(skill => skill !== skillToRemove)
-    });
+  // Remove a skill
+  const removeSkill = (skillToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.filter(skill => skill !== skillToRemove)
+    }));
   };
 
-  const handleSkillKeyPress = (e) => {
-    // Add skill when Enter is pressed
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddSkill();
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setFormError('');
-    setFormSuccess('');
+  // Validate form before submission
+  const validateForm = () => {
+    const newErrors = {};
     
-    // Basic validation
     if (!formData.name.trim()) {
-      setFormError('Name is required');
-      return;
+      newErrors.name = 'Name is required';
     }
     
     if (!formData.email.trim()) {
-      setFormError('Email is required');
-      return;
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
     }
     
-    // Email validation
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    if (!emailRegex.test(formData.email)) {
-      setFormError('Please enter a valid email address');
-      return;
+    if (formData.phone && !/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/[-()\s]/g, ''))) {
+      newErrors.phone = 'Phone number format is invalid';
     }
     
-    // Phone validation (if provided)
-    if (formData.phone) {
-      const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-      if (!phoneRegex.test(formData.phone)) {
-        setFormError('Please enter a valid phone number');
-        return;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    setLoading(true);
+    try {
+      await userApi.updateProfile(formData);
+      setSuccessMessage('Profile updated successfully!');
+      
+      // Notify parent component
+      if (onProfileUpdate) {
+        onProfileUpdate(formData);
       }
-    }
-    
-    // Submit the form
-    const result = await onSubmit(formData);
-    
-    if (result.success) {
-      setFormSuccess(result.message);
-    } else {
-      setFormError(result.message);
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 5000);
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to update profile';
+      setErrors({ general: errorMessage });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Check if user is staff to show staff-specific fields
-  const isStaff = profileData?.role === 'staff';
-
   return (
-    <div className="profile-form-container">
-      <h3>Edit Profile Information</h3>
+    <form className="profile-form" onSubmit={handleSubmit}>
+      {errors.general && (
+        <div className="error-message">{errors.general}</div>
+      )}
       
-      {formError && <div className="form-error">{formError}</div>}
-      {formSuccess && <div className="form-success">{formSuccess}</div>}
+      {successMessage && (
+        <div className="success-message">{successMessage}</div>
+      )}
       
-      <form onSubmit={handleSubmit}>
+      <div className="form-section">
+        <h3>Personal Information</h3>
+        
         <div className="form-group">
-          <label htmlFor="name">Full Name</label>
-          <input 
-            type="text" 
-            id="name" 
-            name="name" 
-            value={formData.name} 
+          <label htmlFor="name">
+            Full Name <span className="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
+            required
             disabled={loading}
           />
+          {errors.name && <div className="error-message">{errors.name}</div>}
         </div>
         
         <div className="form-group">
-          <label htmlFor="email">Email Address</label>
-          <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            value={formData.email} 
+          <label htmlFor="email">
+            Email <span className="required">*</span>
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
+            required
             disabled={loading}
           />
+          {errors.email && <div className="error-message">{errors.email}</div>}
         </div>
         
         <div className="form-group">
           <label htmlFor="phone">Phone Number</label>
-          <input 
-            type="tel" 
-            id="phone" 
-            name="phone" 
-            value={formData.phone} 
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
             onChange={handleChange}
             disabled={loading}
-            placeholder="+94XXXXXXXXX"
+            placeholder="e.g. +1 (123) 456-7890"
           />
-          <small>Enter phone number with country code (e.g., +94XXXXXXXX)</small>
+          {errors.phone && <div className="error-message">{errors.phone}</div>}
         </div>
         
-        <h4>Address Information</h4>
-        
-        <div className="form-group">
-          <label htmlFor="address.street">Street Address</label>
-          <input 
-            type="text" 
-            id="address.street" 
-            name="address.street" 
-            value={formData.address.street} 
-            onChange={handleChange}
-            disabled={loading}
+        <div className="form-group readonly-field">
+          <label htmlFor="accountType">Account Type</label>
+          <input
+            type="text"
+            id="accountType"
+            value={user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''}
+            disabled
           />
         </div>
         
-        <div className="form-group">
-          <label htmlFor="address.city">City</label>
-          <input 
-            type="text" 
-            id="address.city" 
-            name="address.city" 
-            value={formData.address.city} 
-            onChange={handleChange}
-            disabled={loading}
+        <div className="form-group readonly-field">
+          <label htmlFor="memberSince">Member Since</label>
+          <input
+            type="text"
+            id="memberSince"
+            value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+            disabled
           />
         </div>
+      </div>
+      
+      <div className="form-section">
+        <h3>Address Information</h3>
         
-        <div className="form-group">
-          <label htmlFor="address.postalCode">Postal Code</label>
-          <input 
-            type="text" 
-            id="address.postalCode" 
-            name="address.postalCode" 
-            value={formData.address.postalCode} 
-            onChange={handleChange}
-            disabled={loading}
-          />
+        <div className="address-fields">
+          <div className="form-group">
+            <label htmlFor="address.street">Street Address</label>
+            <input
+              type="text"
+              id="address.street"
+              name="address.street"
+              value={formData.address.street}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="address.city">City</label>
+            <input
+              type="text"
+              id="address.city"
+              name="address.city"
+              value={formData.address.city}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="address.state">State/Province</label>
+            <input
+              type="text"
+              id="address.state"
+              name="address.state"
+              value={formData.address.state}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="address.zipCode">Zip/Postal Code</label>
+            <input
+              type="text"
+              id="address.zipCode"
+              name="address.zipCode"
+              value={formData.address.zipCode}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
         </div>
-        
-        <div className="form-group">
-          <label htmlFor="address.country">Country</label>
-          <input 
-            type="text" 
-            id="address.country" 
-            name="address.country" 
-            value={formData.address.country} 
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
-        
-        {/* Show preferences section for customers */}
-        {profileData?.role === 'customer' && (
-          <>
-            <h4>Preferences</h4>
-            
-            <div className="form-group">
-              <label htmlFor="preferences.pickupNotes">Pickup Notes</label>
-              <textarea 
-                id="preferences.pickupNotes" 
-                name="preferences.pickupNotes" 
-                value={formData.preferences.pickupNotes} 
-                onChange={handleChange}
+      </div>
+      
+      {/* Staff-specific fields */}
+      {isStaff && (
+        <div className="form-section">
+          <h3>Professional Information</h3>
+          
+          <div className="form-group">
+            <label htmlFor="skills">Skills</label>
+            <div className="skills-input-group">
+              <input
+                type="text"
+                id="skills"
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                placeholder="Add a skill (e.g. Waste Management, Driving)"
                 disabled={loading}
-                rows="3"
-                placeholder="Special instructions for waste pickup"
-              ></textarea>
-              <small>Special instructions or notes for waste collection (max 500 characters)</small>
-            </div>
-          </>
-        )}
-        
-        {/* Show skills and availability for staff */}
-        {isStaff && (
-          <>
-            <h4>Staff Information</h4>
-            
-            <div className="form-group">
-              <label htmlFor="skills">Skills</label>
-              <div className="skills-container">
-                <div className="skills-input">
-                  <input 
-                    type="text" 
-                    id="newSkill" 
-                    value={newSkill} 
-                    onChange={e => setNewSkill(e.target.value)}
-                    onKeyPress={handleSkillKeyPress}
-                    disabled={loading}
-                    placeholder="Add a skill"
-                  />
-                  <button 
-                    type="button" 
-                    onClick={handleAddSkill}
-                    disabled={loading || !newSkill.trim()}
-                  >
-                    Add
-                  </button>
-                </div>
-                
-                <div className="skills-list">
-                  {formData.skills.map((skill, index) => (
-                    <div key={index} className="skill-tag">
-                      {skill}
-                      <button 
-                        type="button" 
-                        onClick={() => handleRemoveSkill(skill)}
-                        disabled={loading}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="availability">Availability</label>
-              <input 
-                type="text" 
-                id="availability" 
-                name="availability" 
-                value={formData.availability} 
-                onChange={handleChange}
-                disabled={loading}
-                placeholder="E.g., Mon-Fri 9-5, Weekends Only"
               />
-              <small>Enter your general availability pattern (days/hours)</small>
+              <button
+                type="button"
+                className="btn-add-skill"
+                onClick={addSkill}
+                disabled={!newSkill.trim() || loading}
+              >
+                Add
+              </button>
             </div>
-          </>
-        )}
-        
-        <div className="form-group">
-          <label>Account Type</label>
-          <input 
-            type="text" 
-            value={profileData?.role ? profileData.role.charAt(0).toUpperCase() + profileData.role.slice(1) : 'User'} 
-            disabled 
-            className="read-only"
-          />
-          <small>Account type cannot be changed</small>
+            {errors.skills && <div className="error-message">{errors.skills}</div>}
+            
+            <div className="skills-list">
+              {formData.skills.map(skill => (
+                <span className="skill-tag" key={skill}>
+                  {skill}
+                  <button
+                    type="button"
+                    className="btn-remove-skill"
+                    onClick={() => removeSkill(skill)}
+                    disabled={loading}
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="availability">Availability</label>
+            <select
+              id="availability"
+              name="availability"
+              value={formData.availability}
+              onChange={handleChange}
+              disabled={loading}
+            >
+              <option value="">Select availability</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Weekends">Weekends only</option>
+              <option value="Flexible">Flexible</option>
+            </select>
+          </div>
         </div>
-        
-        <div className="form-group">
-          <label>Member Since</label>
-          <input 
-            type="text" 
-            value={profileData?.createdAt 
-              ? new Date(profileData.createdAt).toLocaleDateString() 
-              : 'N/A'} 
-            disabled 
-            className="read-only"
-          />
+      )}
+      
+      {/* Customer-specific fields */}
+      {isCustomer && (
+        <div className="form-section">
+          <h3>Preferences</h3>
+          
+          <div className="preference-checkboxes">
+            <div className="preference-item">
+              <input
+                type="checkbox"
+                id="pref-email-notifications"
+                name="preferences"
+                value="email-notifications"
+                checked={formData.preferences.includes('email-notifications')}
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <label htmlFor="pref-email-notifications">Email Notifications</label>
+            </div>
+            
+            <div className="preference-item">
+              <input
+                type="checkbox"
+                id="pref-sms-notifications"
+                name="preferences"
+                value="sms-notifications"
+                checked={formData.preferences.includes('sms-notifications')}
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <label htmlFor="pref-sms-notifications">SMS Notifications</label>
+            </div>
+            
+            <div className="preference-item">
+              <input
+                type="checkbox"
+                id="pref-weekly-reports"
+                name="preferences"
+                value="weekly-reports"
+                checked={formData.preferences.includes('weekly-reports')}
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <label htmlFor="pref-weekly-reports">Weekly Reports</label>
+            </div>
+            
+            <div className="preference-item">
+              <input
+                type="checkbox"
+                id="pref-auto-scheduling"
+                name="preferences"
+                value="auto-scheduling"
+                checked={formData.preferences.includes('auto-scheduling')}
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <label htmlFor="pref-auto-scheduling">Auto-Scheduling</label>
+            </div>
+          </div>
         </div>
-        
-        <button 
-          type="submit" 
-          className="profile-form-button"
+      )}
+      
+      <div className="form-actions">
+        <button
+          type="submit"
+          className="btn primary"
           disabled={loading}
         >
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 };
 
