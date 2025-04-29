@@ -8,7 +8,13 @@ const ApiError = require('../errors/ApiError');
 const NotFoundError = require('../errors/NotFoundError');
 const config = require('../config'); // Import the centralized config
 
-// Generate JWT token
+/**
+ * Generates a JSON Web Token (JWT) for a given user ID.
+ * Uses the secret and expiration defined in the application config.
+ *
+ * @param {string} id - The MongoDB ObjectId of the user.
+ * @returns {string} The generated JWT token.
+ */
 const generateToken = (id) => {
   // Use config values and ensure they are strings
   return jwt.sign({ id }, String(config.jwtSecret), {
@@ -17,11 +23,12 @@ const generateToken = (id) => {
 };
 
 /**
- * @desc    Register user
+ * @desc    Register a new user. Handles validation errors and checks for existing users.
+ *          Hashes the password before saving.
  * @route   POST /api/auth/register
  * @access  Public
- * @param   {object} req - Express request object
- * @param   {object} res - Express response object
+ * @param   {import('express').Request} req - Express request object, expects user details in body.
+ * @param   {import('express').Response} res - Express response object.
  * @param   {function} next - Express next middleware function
  */
 exports.registerUser = async (req, res, next) => {
@@ -77,11 +84,11 @@ exports.registerUser = async (req, res, next) => {
 };
 
 /**
- * @desc    Login user
+ * @desc    Authenticate a user and return a JWT token. Handles MFA checks.
  * @route   POST /api/auth/login
  * @access  Public
- * @param   {object} req - Express request object
- * @param   {object} res - Express response object
+ * @param   {import('express').Request} req - Express request object, expects email and password in body.
+ * @param   {import('express').Response} res - Express response object.
  * @param   {function} next - Express next middleware function
  */
 exports.loginUser = async (req, res, next) => {
@@ -134,10 +141,10 @@ exports.loginUser = async (req, res, next) => {
 };
 
 /**
- * @desc    Get current logged in user
+ * @desc    Get the profile details of the currently authenticated user.
  * @route   GET /api/auth/me
  * @access  Private
- * @param   {object} req - Express request object (user attached by protect middleware)
+ * @param   {import('express').Request} req - Express request object (user attached by protect middleware).
  * @param   {object} res - Express response object
  * @param   {function} next - Express next middleware function
  */

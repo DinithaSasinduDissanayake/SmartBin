@@ -5,13 +5,17 @@ const PayrollLog = require('../models/PayrollLog');
 const { BadRequestError } = require('../errors');
 
 /**
- * Calculates payroll details for a specific staff member for a given period.
+ * Calculates payroll details (earnings, deductions, net pay) for a specific staff member
+ * over a given period based on attendance, performance, and base salary.
  * This is a complex function and needs detailed business logic.
  *
- * @param {string} staffId - The ID of the staff member.
- * @param {Date} periodStart - The start date of the pay period.
- * @param {Date} periodEnd - The end date of the pay period.
- * @returns {Promise<object>} Object containing calculated payroll data (baseSalary, bonusAmount, deductions, netPay, etc.)
+ * @async
+ * @param {string | mongoose.Types.ObjectId} staffId - The MongoDB ObjectId of the staff member.
+ * @param {Date} periodStart - The start date of the pay period (inclusive).
+ * @param {Date} periodEnd - The end date of the pay period (inclusive).
+ * @returns {Promise<object>} An object containing calculated payroll figures:
+ *   { baseSalary, hoursWorked, overtimeHours, overtimeRate, bonusAmount, deductions, netPay, calculationNotes }
+ * @throws {BadRequestError} If the staff user is not found or not a staff member.
  */
 const calculatePayrollForStaff = async (staffId, periodStart, periodEnd) => {
     console.log(`Calculating payroll for staff ${staffId} from ${periodStart.toISOString()} to ${periodEnd.toISOString()}`);
@@ -101,12 +105,15 @@ const calculatePayrollForStaff = async (staffId, periodStart, periodEnd) => {
 };
 
 /**
- * Generates or retrieves a PayrollLog entry for a staff member and period.
+ * Checks if a payroll log exists for the given staff and period. If it exists and is calculated,
+ * returns it. Otherwise, triggers a new calculation and saves/updates the log entry.
  *
- * @param {string} staffId
- * @param {Date} periodStart
- * @param {Date} periodEnd
- * @returns {Promise<PayrollLog>}
+ * @async
+ * @param {string | mongoose.Types.ObjectId} staffId - The MongoDB ObjectId of the staff member.
+ * @param {Date} periodStart - The start date of the pay period.
+ * @param {Date} periodEnd - The end date of the pay period.
+ * @returns {Promise<PayrollLog>} The existing or newly created payroll log document.
+ * @throws {Error} If calculation fails or there are issues saving the log.
  */
 const generateOrGetPayrollLog = async (staffId, periodStart, periodEnd) => {
     // Check if a log already exists

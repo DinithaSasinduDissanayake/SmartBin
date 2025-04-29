@@ -9,6 +9,10 @@ import profileApi from '../../services/profileApi';
 import mfaApi from '../../services/mfaApi';
 import './ProfilePage.css';
 
+/**
+ * Renders the user profile page with multiple tabs for editing profile info,
+ * changing password, managing documents, and setting up MFA.
+ */
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [profileData, setProfileData] = useState(null);
@@ -29,6 +33,12 @@ const ProfilePage = () => {
     }
   }, [successMessage]);
 
+  /**
+   * Fetches the user's full profile data from the backend API.
+   * Updates the local state and potentially the auth context if user details differ.
+   * Uses useCallback to prevent unnecessary re-fetching.
+   * @async
+   */
   // Use useCallback to memoize fetchProfileData
   const fetchProfileData = useCallback(async () => {
     try {
@@ -66,6 +76,13 @@ const ProfilePage = () => {
     fetchProfileData();
   }, [fetchProfileData]);
 
+  /**
+   * Handles the submission of the profile information form.
+   * Sends updated data to the backend API.
+   * @async
+   * @param {object} updatedData - The updated profile data from the form.
+   * @returns {Promise<{success: boolean, message: string}>} Result object indicating success or failure.
+   */
   const handleProfileUpdate = async (updatedData) => {
     try {
       setOperationInProgress(true);
@@ -84,6 +101,13 @@ const ProfilePage = () => {
     }
   };
 
+  /**
+   * Handles the submission of the password change form.
+   * Sends the new password data to the backend API.
+   * @async
+   * @param {object} passwordData - Contains currentPassword, newPassword.
+   * @returns {Promise<{success: boolean, message: string}>} Result object indicating success or failure.
+   */
   const handlePasswordChange = async (passwordData) => {
     try {
       setOperationInProgress(true);
@@ -102,6 +126,10 @@ const ProfilePage = () => {
   };
 
   // MFA handlers
+  /**
+   * Object containing functions to interact with the MFA API for enabling MFA.
+   * Includes generating secrets and verifying tokens.
+   */
   const handleMFAOperations = {
     generateSecret: async () => {
       try {
@@ -141,6 +169,14 @@ const ProfilePage = () => {
     }
   };
 
+  /**
+   * Handles the request to disable MFA.
+   * Sends the user's current password for verification to the backend API.
+   * @async
+   * @param {object} data - Contains the user's password.
+   * @param {string} data.password - The user's current password.
+   * @returns {Promise<{success: boolean, message: string}>} Result object indicating success or failure.
+   */
   const handleDisableMFA = async ({ password }) => {
     try {
       setOperationInProgress(true);
@@ -159,6 +195,13 @@ const ProfilePage = () => {
     }
   };
 
+  /**
+   * Handles the submission of a new document upload.
+   * Sends the file data via FormData to the backend API.
+   * @async
+   * @param {FormData} formData - The FormData object containing the file and type.
+   * @returns {Promise<{success: boolean, message: string, documentId?: string}>} Result object.
+   */
   const handleDocumentUpload = async (formData) => {
     try {
       setOperationInProgress(true);
@@ -181,6 +224,13 @@ const ProfilePage = () => {
     }
   };
 
+  /**
+   * Handles the deletion of a specific document.
+   * Sends a request to the backend API to delete the document by ID.
+   * @async
+   * @param {string} docId - The ID of the document to delete.
+   * @returns {Promise<{success: boolean, message: string}>} Result object.
+   */
   // Function to handle document deletion and refresh
   const handleDocumentDelete = async (docId) => {
     try {
@@ -200,6 +250,11 @@ const ProfilePage = () => {
     }
   };
 
+  /**
+   * Handles the user's request to delete their own account.
+   * Shows a confirmation dialog before proceeding.
+   * @async
+   */
   const handleDeleteAccount = async () => {
     // Confirmation dialog
     const isConfirmed = window.confirm(

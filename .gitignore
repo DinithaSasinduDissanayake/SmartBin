@@ -64,11 +64,18 @@ coverage/
 # IDE settings (keep shared ones)
 .vscode/*
 !.vscode/extensions.json
+!.vscode/launch.json
 !.vscode/settings.json
-.idea/
+
+.idea/*
+!.idea/workspace.xml # Example: Keep workspace but ignore others if needed
+!.idea/misc.xml
+*.iml
 
 # OS generated files
 .DS_Store
+Thumbs.db
+._*
 
 # Environment Variables
 .env*
@@ -79,7 +86,13 @@ Financial\ Backup/ # Escaped space for clarity
 LLMPrompts.md
 LLM_Prompts.md
 CollectAllCode.ps1
+.github/copilot* # Ignore copilot specific files if not shared
 .github/copilot-instructions.md
+
+# Documentation Output (Optional - if you generate docs locally)
+# *.pdf
+# *.docx
+# *.pptx
 
 # Yarn v2+
 .yarn/cache

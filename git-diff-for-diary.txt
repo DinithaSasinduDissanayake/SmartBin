@@ -1,0 +1,402 @@
+diff --git a/.gitignore b/.gitignore
+index 0c1bb3f..31dd175 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -64,11 +64,18 @@ coverage/
+ # IDE settings (keep shared ones)
+ .vscode/*
+ !.vscode/extensions.json
++!.vscode/launch.json
+ !.vscode/settings.json
+-.idea/
++
++.idea/*
++!.idea/workspace.xml # Example: Keep workspace but ignore others if needed
++!.idea/misc.xml
++*.iml
+ 
+ # OS generated files
+ .DS_Store
++Thumbs.db
++._*
+ 
+ # Environment Variables
+ .env*
+@@ -79,8 +86,14 @@ Financial\ Backup/ # Escaped space for clarity
+ LLMPrompts.md
+ LLM_Prompts.md
+ CollectAllCode.ps1
++.github/copilot* # Ignore copilot specific files if not shared
+ .github/copilot-instructions.md
+ 
++# Documentation Output (Optional - if you generate docs locally)
++# *.pdf
++# *.docx
++# *.pptx
++
+ # Yarn v2+
+ .yarn/cache
+ .yarn/unplugged
+diff --git a/Diary by copilot.md b/Diary by copilot.md
+index 905bfd3..d138880 100644
+--- a/Diary by copilot.md	
++++ b/Diary by copilot.md	
+@@ -113,4 +113,48 @@ The user requested that diary entries should be based on the insertions and dele
+ 2. Improved script commenting to explain the purpose and functionality
+ 
+ ### Summary
+-The enhanced script now provides better support for maintaining detailed diary entries by automatically generating statistics and summaries of code changes. This will help ensure that the diary accurately reflects the evolution of the codebase and provides valuable context for understanding the history of changes.
+\ No newline at end of file
++The enhanced script now provides better support for maintaining detailed diary entries by automatically generating statistics and summaries of code changes. This will help ensure that the diary accurately reflects the evolution of the codebase and provides valuable context for understanding the history of changes.
++
++## Entry: April 29, 2025 7:48:22 AM
++
++### User Request
++The user asked me to follow the SmartBin project's Git workflow and Diary workflow processes.
++
++### Work Completed
++1. **Git Status Check**: Ran `git status` to identify modified and untracked files
++2. **Added Changes**: Used `git add .` to stage all modified files
++3. **Generated Summary**: Created commit-summary.txt with `git diff --cached`
++4. **Created Commit**: Made a comprehensive commit with descriptive message and detailed bullet points
++5. **Cleaned Up**: Removed the temporary commit summary file after committing
++6. **Generated Diff**: Created git-diff-for-diary.txt for diary analysis 
++
++### Assumptions Made
++1. All the modified files needed to be included in a single commit
++2. The changes were all related to a single feature implementation (reporting functionality)
++3. The changes should be documented following the project's diary workflow guidelines
++4. The file changes were intentional and correctly implemented
++
++### Purpose of Changes
++1. **Documentation**: Create a permanent record of the code changes in both git history and diary
++2. **Organization**: Follow project standards for version control
++3. **Communication**: Ensure changes are properly communicated to team members
++4. **Quality Assurance**: Apply proper workflow procedures for code management
++
++### Outcomes
++
++#### Functional Changes
++1. Added PDF export functionality for attendance reports with detailed formatting and calculations
++2. Added PDF export functionality for performance reports with rating visualizations
++3. Added PDF export functionality for financial reports with expense and revenue breakdowns
++4. Created two new frontend report pages with interactive filtering and visualizations:
++   - AttendanceReportsPage.jsx for attendance reporting
++   - PerformanceReportsPage.jsx for performance reporting
++5. Implemented detailed backend API endpoints for generating different report types
++
++#### Visual Changes
++1. Added two new report pages accessible from the dashboard sidebar
++2. Updated the sidebar navigation with new report links
++3. Implemented data visualization components in report pages (charts, tables)
++
++### Summary
++This commit represents a significant enhancement to the SmartBin platform's reporting capabilities. It adds comprehensive PDF export functionality across multiple modules (attendance, performance, and financial) along with interactive frontend pages for viewing reports. The changes include both backend API endpoints for generating report data and frontend components for displaying and interacting with that data. These improvements will allow administrators to more effectively analyze staff performance and attendance patterns.
+\ No newline at end of file
+diff --git a/README.md b/README.md
+index 2d9735f..85a4e2c 100644
+--- a/README.md
++++ b/README.md
+@@ -1,7 +1,22 @@
+ # SmartBin
++
++## Project Overview
++
++SmartBin is a full-stack application designed to provide a smart waste management solution. It includes features for user management (customers, staff, admin, financial managers), subscription handling, financial tracking (payments, expenses), payroll management, attendance tracking, performance monitoring, document uploads, and complaint handling.
++
++## Project Structure
++
++The project is divided into two main parts:
++
++*   **`/backend`**: Contains the Node.js/Express API server, connecting to MongoDB.
++*   **`/frontend`**: Contains the React application built with Vite for the user interface.
++*   **`/docs`**: (Optional) Intended location for detailed documentation like diagrams, requirements specifications, etc.
++
+ ```
+ SmartBin
+ ├─ backend
++│  ├─ .env.example          # Example environment variables
++│  ├─ jest.config.js        # Jest testing configuration
+ │  ├─ package-lock.json
+ │  ├─ package.json
+ │  ├─ src
+@@ -10,9 +25,11 @@ SmartBin
+ │  │  ├─ middleware
+ │  │  ├─ models
+ │  │  ├─ server.js
++│  │  ├─ routes
+ │  │  ├─ services
+ │  │  └─ utils
+ │  └─ tests
++│     ├─ setup.js            # Test setup for in-memory DB
+ │     ├─ integration
+ │     └─ unit
+ ├─ docs
+@@ -41,5 +58,31 @@ SmartBin
+ │  │  └─ utils
+ │  └─ vite.config.js
+ └─ README.md
++```
++
++## Getting Started
++
++### Prerequisites
++
++*   Node.js (v18 or later recommended)
++*   npm or yarn
++*   MongoDB (local instance or connection URI to a cloud instance like MongoDB Atlas)
++*   Git
++
++### Backend Setup
++
++1.  Navigate to the backend directory: `cd backend`
++2.  Install dependencies: `npm install` or `yarn install`
++3.  Create a `.env` file based on `.env.example`. Fill in necessary values, especially `MONGODB_URI` and `JWT_SECRET`. Add Stripe keys if using payment features.
++4.  Run the development server: `npm run dev` (uses nodemon for auto-restarts)
++5.  To start normally: `npm start`
++6.  (Optional) Seed initial test users: `node src/scripts/createTestUsers.js` or `node src/scripts/recreateUsers.js`
++7.  (Optional) Seed financial data: `node src/scripts/seedFinancialData.js`
++
++### Frontend Setup
+ 
+-```
+\ No newline at end of file
++1.  Navigate to the frontend directory: `cd frontend`
++2.  Install dependencies: `npm install` or `yarn install`
++3.  Create a `.env` file if needed (e.g., for `VITE_STRIPE_PUBLISHABLE_KEY`).
++4.  Run the development server: `npm run dev`
++5.  Access the application in your browser, usually at `http://localhost:5173` (check terminal output).
+\ No newline at end of file
+diff --git a/backend/src/controllers/authController.js b/backend/src/controllers/authController.js
+index 3457fac..08b9694 100644
+--- a/backend/src/controllers/authController.js
++++ b/backend/src/controllers/authController.js
+@@ -8,7 +8,13 @@ const ApiError = require('../errors/ApiError');
+ const NotFoundError = require('../errors/NotFoundError');
+ const config = require('../config'); // Import the centralized config
+ 
+-// Generate JWT token
++/**
++ * Generates a JSON Web Token (JWT) for a given user ID.
++ * Uses the secret and expiration defined in the application config.
++ *
++ * @param {string} id - The MongoDB ObjectId of the user.
++ * @returns {string} The generated JWT token.
++ */
+ const generateToken = (id) => {
+   // Use config values and ensure they are strings
+   return jwt.sign({ id }, String(config.jwtSecret), {
+@@ -17,11 +23,12 @@ const generateToken = (id) => {
+ };
+ 
+ /**
+- * @desc    Register user
++ * @desc    Register a new user. Handles validation errors and checks for existing users.
++ *          Hashes the password before saving.
+  * @route   POST /api/auth/register
+  * @access  Public
+- * @param   {object} req - Express request object
+- * @param   {object} res - Express response object
++ * @param   {import('express').Request} req - Express request object, expects user details in body.
++ * @param   {import('express').Response} res - Express response object.
+  * @param   {function} next - Express next middleware function
+  */
+ exports.registerUser = async (req, res, next) => {
+@@ -77,11 +84,11 @@ exports.registerUser = async (req, res, next) => {
+ };
+ 
+ /**
+- * @desc    Login user
++ * @desc    Authenticate a user and return a JWT token. Handles MFA checks.
+  * @route   POST /api/auth/login
+  * @access  Public
+- * @param   {object} req - Express request object
+- * @param   {object} res - Express response object
++ * @param   {import('express').Request} req - Express request object, expects email and password in body.
++ * @param   {import('express').Response} res - Express response object.
+  * @param   {function} next - Express next middleware function
+  */
+ exports.loginUser = async (req, res, next) => {
+@@ -134,10 +141,10 @@ exports.loginUser = async (req, res, next) => {
+ };
+ 
+ /**
+- * @desc    Get current logged in user
++ * @desc    Get the profile details of the currently authenticated user.
+  * @route   GET /api/auth/me
+  * @access  Private
+- * @param   {object} req - Express request object (user attached by protect middleware)
++ * @param   {import('express').Request} req - Express request object (user attached by protect middleware).
+  * @param   {object} res - Express response object
+  * @param   {function} next - Express next middleware function
+  */
+diff --git a/backend/src/services/payrollService.js b/backend/src/services/payrollService.js
+index d23baf4..fbba518 100644
+--- a/backend/src/services/payrollService.js
++++ b/backend/src/services/payrollService.js
+@@ -5,13 +5,17 @@ const PayrollLog = require('../models/PayrollLog');
+ const { BadRequestError } = require('../errors');
+ 
+ /**
+- * Calculates payroll details for a specific staff member for a given period.
++ * Calculates payroll details (earnings, deductions, net pay) for a specific staff member
++ * over a given period based on attendance, performance, and base salary.
+  * This is a complex function and needs detailed business logic.
+  *
+- * @param {string} staffId - The ID of the staff member.
+- * @param {Date} periodStart - The start date of the pay period.
+- * @param {Date} periodEnd - The end date of the pay period.
+- * @returns {Promise<object>} Object containing calculated payroll data (baseSalary, bonusAmount, deductions, netPay, etc.)
++ * @async
++ * @param {string | mongoose.Types.ObjectId} staffId - The MongoDB ObjectId of the staff member.
++ * @param {Date} periodStart - The start date of the pay period (inclusive).
++ * @param {Date} periodEnd - The end date of the pay period (inclusive).
++ * @returns {Promise<object>} An object containing calculated payroll figures:
++ *   { baseSalary, hoursWorked, overtimeHours, overtimeRate, bonusAmount, deductions, netPay, calculationNotes }
++ * @throws {BadRequestError} If the staff user is not found or not a staff member.
+  */
+ const calculatePayrollForStaff = async (staffId, periodStart, periodEnd) => {
+     console.log(`Calculating payroll for staff ${staffId} from ${periodStart.toISOString()} to ${periodEnd.toISOString()}`);
+@@ -101,12 +105,15 @@ const calculatePayrollForStaff = async (staffId, periodStart, periodEnd) => {
+ };
+ 
+ /**
+- * Generates or retrieves a PayrollLog entry for a staff member and period.
++ * Checks if a payroll log exists for the given staff and period. If it exists and is calculated,
++ * returns it. Otherwise, triggers a new calculation and saves/updates the log entry.
+  *
+- * @param {string} staffId
+- * @param {Date} periodStart
+- * @param {Date} periodEnd
+- * @returns {Promise<PayrollLog>}
++ * @async
++ * @param {string | mongoose.Types.ObjectId} staffId - The MongoDB ObjectId of the staff member.
++ * @param {Date} periodStart - The start date of the pay period.
++ * @param {Date} periodEnd - The end date of the pay period.
++ * @returns {Promise<PayrollLog>} The existing or newly created payroll log document.
++ * @throws {Error} If calculation fails or there are issues saving the log.
+  */
+ const generateOrGetPayrollLog = async (staffId, periodStart, periodEnd) => {
+     // Check if a log already exists
+diff --git a/frontend/src/pages/profile/ProfilePage.jsx b/frontend/src/pages/profile/ProfilePage.jsx
+index 04a7499..a5a9f51 100644
+--- a/frontend/src/pages/profile/ProfilePage.jsx
++++ b/frontend/src/pages/profile/ProfilePage.jsx
+@@ -9,6 +9,10 @@ import profileApi from '../../services/profileApi';
+ import mfaApi from '../../services/mfaApi';
+ import './ProfilePage.css';
+ 
++/**
++ * Renders the user profile page with multiple tabs for editing profile info,
++ * changing password, managing documents, and setting up MFA.
++ */
+ const ProfilePage = () => {
+   const [activeTab, setActiveTab] = useState('profile');
+   const [profileData, setProfileData] = useState(null);
+@@ -29,6 +33,12 @@ const ProfilePage = () => {
+     }
+   }, [successMessage]);
+ 
++  /**
++   * Fetches the user's full profile data from the backend API.
++   * Updates the local state and potentially the auth context if user details differ.
++   * Uses useCallback to prevent unnecessary re-fetching.
++   * @async
++   */
+   // Use useCallback to memoize fetchProfileData
+   const fetchProfileData = useCallback(async () => {
+     try {
+@@ -66,6 +76,13 @@ const ProfilePage = () => {
+     fetchProfileData();
+   }, [fetchProfileData]);
+ 
++  /**
++   * Handles the submission of the profile information form.
++   * Sends updated data to the backend API.
++   * @async
++   * @param {object} updatedData - The updated profile data from the form.
++   * @returns {Promise<{success: boolean, message: string}>} Result object indicating success or failure.
++   */
+   const handleProfileUpdate = async (updatedData) => {
+     try {
+       setOperationInProgress(true);
+@@ -84,6 +101,13 @@ const ProfilePage = () => {
+     }
+   };
+ 
++  /**
++   * Handles the submission of the password change form.
++   * Sends the new password data to the backend API.
++   * @async
++   * @param {object} passwordData - Contains currentPassword, newPassword.
++   * @returns {Promise<{success: boolean, message: string}>} Result object indicating success or failure.
++   */
+   const handlePasswordChange = async (passwordData) => {
+     try {
+       setOperationInProgress(true);
+@@ -102,6 +126,10 @@ const ProfilePage = () => {
+   };
+ 
+   // MFA handlers
++  /**
++   * Object containing functions to interact with the MFA API for enabling MFA.
++   * Includes generating secrets and verifying tokens.
++   */
+   const handleMFAOperations = {
+     generateSecret: async () => {
+       try {
+@@ -141,6 +169,14 @@ const ProfilePage = () => {
+     }
+   };
+ 
++  /**
++   * Handles the request to disable MFA.
++   * Sends the user's current password for verification to the backend API.
++   * @async
++   * @param {object} data - Contains the user's password.
++   * @param {string} data.password - The user's current password.
++   * @returns {Promise<{success: boolean, message: string}>} Result object indicating success or failure.
++   */
+   const handleDisableMFA = async ({ password }) => {
+     try {
+       setOperationInProgress(true);
+@@ -159,6 +195,13 @@ const ProfilePage = () => {
+     }
+   };
+ 
++  /**
++   * Handles the submission of a new document upload.
++   * Sends the file data via FormData to the backend API.
++   * @async
++   * @param {FormData} formData - The FormData object containing the file and type.
++   * @returns {Promise<{success: boolean, message: string, documentId?: string}>} Result object.
++   */
+   const handleDocumentUpload = async (formData) => {
+     try {
+       setOperationInProgress(true);
+@@ -181,6 +224,13 @@ const ProfilePage = () => {
+     }
+   };
+ 
++  /**
++   * Handles the deletion of a specific document.
++   * Sends a request to the backend API to delete the document by ID.
++   * @async
++   * @param {string} docId - The ID of the document to delete.
++   * @returns {Promise<{success: boolean, message: string}>} Result object.
++   */
+   // Function to handle document deletion and refresh
+   const handleDocumentDelete = async (docId) => {
+     try {
+@@ -200,6 +250,11 @@ const ProfilePage = () => {
+     }
+   };
+ 
++  /**
++   * Handles the user's request to delete their own account.
++   * Shows a confirmation dialog before proceeding.
++   * @async
++   */
+   const handleDeleteAccount = async () => {
+     // Confirmation dialog
+     const isConfirmed = window.confirm(
