@@ -34,6 +34,29 @@ const attendanceApi = {
       url += `?month=${month}&year=${year}`;
     }
     return api.get(url);
+  },
+  
+  exportAttendanceReport: (month, year) => {
+    let url = '/attendance/reports/export';
+    if (month && year) {
+      url += `?month=${month}&year=${year}`;
+    }
+    return api.get(url, { responseType: 'blob' }); // Important to set responseType to blob for PDF
+  },
+  
+  getDetailedAttendanceReport: (startDate, endDate, staffId) => {
+    let url = '/attendance/reports/detailed';
+    const queryParams = [];
+    
+    if (startDate) queryParams.push(`startDate=${startDate}`);
+    if (endDate) queryParams.push(`endDate=${endDate}`);
+    if (staffId) queryParams.push(`staffId=${staffId}`);
+    
+    if (queryParams.length > 0) {
+      url += `?${queryParams.join('&')}`;
+    }
+    
+    return api.get(url);
   }
 };
 

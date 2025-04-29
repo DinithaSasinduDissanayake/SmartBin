@@ -23,6 +23,8 @@ import UserDocumentsPage from '../../pages/documents/UserDocumentsPage';
 import FinancialDashboard from '../../components/financial/FinancialDashboard';
 import SubscriptionPlans from '../../components/financial/SubscriptionPlans';
 import FinancialReportsPage from '../../pages/reports/FinancialReportsPage';
+import AttendanceReportsPage from '../../pages/reports/AttendanceReportsPage';
+import PerformanceReportsPage from '../../pages/reports/PerformanceReportsPage';
 
 import './DashboardLayout.css';
 
@@ -72,6 +74,8 @@ function DashboardLayout() {
                 <Route path="/financial-overview" element={<FinancialDashboard />} />
                 <Route path="/subscription-plans" element={<SubscriptionPlans />} />
                 <Route path="/financial-reports" element={<FinancialReportsPage />} />
+                <Route path="/attendance-reports" element={<AttendanceReportsPage />} />
+                <Route path="/performance-reports" element={<PerformanceReportsPage />} />
               </>
             )}
 

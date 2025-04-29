@@ -18,6 +18,41 @@ router.get(
     financialController.getDashboardData
 );
 
+// Report routes
+// ------------
+
+// Export financial report as PDF
+router.get(
+    '/reports/export',
+    protect,
+    authorize('financial_manager', 'admin'),
+    financialController.exportReport
+);
+
+// Get profit and loss report
+router.get(
+    '/reports/profit-loss',
+    protect,
+    authorize('financial_manager', 'admin'),
+    financialController.getProfitLossReport
+);
+
+// Get revenue by customer report
+router.get(
+    '/reports/revenue-by-customer',
+    protect,
+    authorize('financial_manager', 'admin'),
+    financialController.getRevenueByCustomerReport
+);
+
+// Get expense details report
+router.get(
+    '/reports/expense-details',
+    protect,
+    authorize('financial_manager', 'admin'),
+    financialController.getExpenseDetailsReport
+);
+
 // Payment routes
 // --------------
 

@@ -6,7 +6,9 @@ const {
   getMyAttendance, 
   getAllAttendance, 
   updateAttendance,
-  getAttendanceSummary
+  getAttendanceSummary,
+  exportAttendanceReport,
+  getDetailedAttendanceReport
 } = require('../controllers/attendanceController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { body } = require('express-validator'); // Import body
@@ -37,5 +39,9 @@ router.put('/:id',
   updateAttendance
 );
 router.get('/summary', authorize('admin'), getAttendanceSummary);
+
+// Report routes - only for admin
+router.get('/reports/export', authorize('admin'), exportAttendanceReport);
+router.get('/reports/detailed', authorize('admin'), getDetailedAttendanceReport);
 
 module.exports = router;

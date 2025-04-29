@@ -75,3 +75,42 @@ Improved formatting and clarity of instructions at the end of the file related t
 
 ### Summary
 The updated guidelines will help the team maintain high-quality standards for documentation, code review, and deployment processes, leading to a more maintainable and robust codebase.
+
+## Entry: April 29, 2025 12:10:20 AM
+
+### User Request
+The user requested that diary entries should be based on the insertions and deletions made since the last commit.
+
+### Work Completed
+1. Enhanced the CollectAllCode.ps1 script to generate a diff summary file (diff_summary.txt) that tracks changes between commits
+2. Added git diff commands to capture both statistical and numerical changes since the last commit
+3. Configured the script to include the last commit message and author information
+4. Updated file filtering to exclude the newly created diff summary file
+
+### Assumptions Made
+1. The PowerShell script was intended to help document code changes for review purposes
+2. Including git diff information would help with creating more accurate diary entries
+3. The script should exclude its own generated files from being included in the code collection
+4. CSS files should be treated as binary/asset files rather than text files for code collection purposes
+
+### Purpose of Changes
+1. **Improved Documentation**: Create more detailed and accurate diary entries based on actual code changes
+2. **Enhanced Workflow**: Automate part of the diary entry process by generating change statistics
+3. **Better Tracking**: Provide a clear view of what changed in each commit to better document the development process
+
+### Outcomes
+
+#### Functional Changes
+1. The script now creates a diff_summary.txt file containing:
+   - Statistical summary of changes (files changed, insertions, deletions)
+   - Numerical data for each changed file (number of lines added/removed)
+   - Last commit information including hash, message, time, and author
+2. Added user-friendly console messages with color-coding for better visibility
+3. Enhanced file filtering to exclude generated summary files
+
+#### Visual Changes
+1. Added a yellow reminder message to review the diff summary when creating diary entries
+2. Improved script commenting to explain the purpose and functionality
+
+### Summary
+The enhanced script now provides better support for maintaining detailed diary entries by automatically generating statistics and summaries of code changes. This will help ensure that the diary accurately reflects the evolution of the codebase and provides valuable context for understanding the history of changes.

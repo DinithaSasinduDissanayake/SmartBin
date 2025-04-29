@@ -116,6 +116,8 @@ function Sidebar() {
           { path: '/dashboard/users', label: 'User Management', icon: faUsers },
           { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
           { path: '/dashboard/complaints', label: 'Manage Complaints', icon: faFileSignature },
+          { path: '/dashboard/attendance-reports', label: 'Attendance Reports', icon: faClipboardList },
+          { path: '/dashboard/performance-reports', label: 'Performance Reports', icon: faTrophy },
           { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
         ]},
         { section: 'FINANCE', items: [

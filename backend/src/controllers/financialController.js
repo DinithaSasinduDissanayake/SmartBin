@@ -851,3 +851,721 @@ const addMonths = (date, months) => {
     }
     return result;
 };
+
+/**
+ * @desc    Export financial report as PDF
+ * @route   GET /api/financials/reports/export
+ * @access  Private (financial_manager, admin)
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.exportReport = async (req, res, next) => {
+    try {
+        const { range = 'month', startDate, endDate } = req.query;
+        const PDFDocument = require('pdfkit');
+        
+        // Create a PDF document
+        const doc = new PDFDocument({
+            margin: 50,
+            size: 'A4'
+        });
+        
+        // Set response headers for PDF download
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=financial-report-${range}-${new Date().toISOString().split('T')[0]}.pdf`);
+        
+        // Pipe the PDF to the response
+        doc.pipe(res);
+        
+        // Calculate date range based on the provided range parameter or specific dates
+        let reportStartDate, reportEndDate = new Date();
+        reportEndDate.setHours(23, 59, 59, 999);
+        
+        if (startDate && endDate) {
+            reportStartDate = new Date(startDate);
+            reportEndDate = new Date(endDate);
+            reportEndDate.setHours(23, 59, 59, 999);
+        } else {
+            // Use the range parameter if specific dates not provided
+            switch(range) {
+                case 'last3months':
+                    reportStartDate = new Date();
+                    reportStartDate.setMonth(reportStartDate.getMonth() - 3);
+                    reportStartDate.setDate(1);
+                    reportStartDate.setHours(0, 0, 0, 0);
+                    break;
+                case 'year':
+                    reportStartDate = new Date(reportEndDate.getFullYear(), 0, 1);
+                    reportStartDate.setHours(0, 0, 0, 0);
+                    break;
+                case 'month':
+                default:
+                    reportStartDate = new Date(reportEndDate.getFullYear(), reportEndDate.getMonth(), 1);
+                    reportStartDate.setHours(0, 0, 0, 0);
+                    break;
+            }
+        }
+        
+        if (isNaN(reportStartDate.getTime()) || isNaN(reportEndDate.getTime())) {
+            throw new BadRequestError('Invalid date format');
+        }
+        
+        // Fetch data necessary for the report
+        
+        // 1. Total Revenue 
+        const revenueData = await Payment.aggregate([
+            { $match: { paymentDate: { $gte: reportStartDate, $lte: reportEndDate }, status: 'completed' } },
+            { $group: { _id: null, totalRevenue: { $sum: '$amount' } } }
+        ]);
+        const totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+
+        // 2. Total Expenses
+        const expenseData = await Expense.aggregate([
+            { $match: { date: { $gte: reportStartDate, $lte: reportEndDate } } },
+            { $group: { _id: null, totalExpenses: { $sum: '$amount' } } }
+        ]);
+        const totalExpenses = expenseData.length > 0 ? expenseData[0].totalExpenses : 0;
+
+        // 3. Net Profit
+        const netProfit = totalRevenue - totalExpenses;
+        
+        // 4. Expenses by Category
+        const expensesByCategory = await Expense.aggregate([
+            { $match: { date: { $gte: reportStartDate, $lte: reportEndDate } } },
+            { $group: {
+                _id: '$category',
+                total: { $sum: '$amount' }
+            }},
+            { $project: {
+                _id: 0,
+                category: '$_id',
+                total: 1
+            }},
+            { $sort: { total: -1 } }
+        ]);
+        
+        // 5. Revenue by Plan
+        const revenueByPlan = await Payment.aggregate([
+            { $match: { paymentDate: { $gte: reportStartDate, $lte: reportEndDate }, status: 'completed', subscriptionPlan: { $exists: true } } },
+            { $lookup: {
+                from: 'subscriptionplans',
+                localField: 'subscriptionPlan',
+                foreignField: '_id',
+                as: 'planDetails'
+            }},
+            { $unwind: '$planDetails' },
+            { $group: {
+                _id: '$planDetails.name',
+                totalAmount: { $sum: '$amount' },
+                count: { $sum: 1 }
+            }},
+            { $project: {
+                _id: 0,
+                planName: '$_id',
+                revenue: '$totalAmount',
+                count: 1
+            }},
+            { $sort: { revenue: -1 } }
+        ]);
+        
+        // 6. Recent Transactions
+        const recentPayments = await Payment.find({ paymentDate: { $gte: reportStartDate, $lte: reportEndDate } })
+            .populate('user', 'name email')
+            .sort({ paymentDate: -1 })
+            .limit(10)
+            .select('paymentDate user description amount status');
+        
+        const recentExpenses = await Expense.find({ date: { $gte: reportStartDate, $lte: reportEndDate } })
+            .sort({ date: -1 })
+            .limit(10)
+            .select('date category description amount');
+        
+        // Format dates for display
+        const formatDate = (date) => {
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        };
+        
+        // Format currency values
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        };
+        
+        // PDF Generation - Header
+        doc.font('Helvetica-Bold').fontSize(18).text('SmartBin Financial Report', { align: 'center' });
+        doc.moveDown();
+        
+        const reportRangeText = startDate && endDate 
+            ? `${formatDate(reportStartDate)} to ${formatDate(reportEndDate)}`
+            : range === 'month' ? 'Current Month'
+            : range === 'last3months' ? 'Last 3 Months'
+            : 'Current Year';
+            
+        doc.fontSize(12).text(`Report Period: ${reportRangeText}`, { align: 'center' });
+        doc.moveDown();
+        doc.text(`Generated on: ${formatDate(new Date())}`, { align: 'center' });
+        doc.moveDown(2);
+        
+        // Financial Summary Section
+        doc.font('Helvetica-Bold').fontSize(14).text('Financial Summary');
+        doc.moveDown();
+        
+        // Draw summary box
+        doc.font('Helvetica').fontSize(11);
+        const summaryData = [
+            ['Total Revenue', formatCurrency(totalRevenue)],
+            ['Total Expenses', formatCurrency(totalExpenses)],
+            ['Net Profit', formatCurrency(netProfit)],
+            ['Profit Margin', totalRevenue > 0 ? `${((netProfit / totalRevenue) * 100).toFixed(2)}%` : '0.00%']
+        ];
+        
+        // Draw summary table
+        const summaryTableTop = doc.y;
+        doc.moveDown(0.5);
+        let summaryTableY = doc.y;
+        
+        summaryData.forEach((row, i) => {
+            doc.font(i === 2 ? 'Helvetica-Bold' : 'Helvetica');
+            doc.text(row[0], 100, summaryTableY, { width: 150 });
+            doc.text(row[1], 250, summaryTableY, { width: 150, align: 'right' });
+            summaryTableY += 25;
+        });
+        
+        doc.rect(90, summaryTableTop, 320, summaryTableY - summaryTableTop).stroke();
+        doc.moveDown(2);
+        
+        // Expenses by Category Section
+        if (expensesByCategory.length > 0) {
+            doc.font('Helvetica-Bold').fontSize(14).text('Expenses by Category');
+            doc.moveDown();
+            
+            // Draw expenses table
+            const expenseTableTop = doc.y;
+            
+            // Table header
+            doc.font('Helvetica-Bold').fontSize(10);
+            doc.text('Category', 100, doc.y, { width: 150 });
+            doc.text('Amount', 250, doc.y, { width: 150, align: 'right' });
+            doc.moveDown();
+            
+            let expenseTableY = doc.y;
+            
+            // Table rows
+            doc.font('Helvetica').fontSize(10);
+            expensesByCategory.forEach((expense, i) => {
+                const category = expense.category.charAt(0).toUpperCase() + expense.category.slice(1);
+                doc.text(category, 100, expenseTableY, { width: 150 });
+                doc.text(formatCurrency(expense.total), 250, expenseTableY, { width: 150, align: 'right' });
+                expenseTableY += 20;
+                
+                if (expenseTableY > 700) { // Check if we need a new page
+                    doc.addPage();
+                    expenseTableY = 50;
+                    doc.font('Helvetica-Bold').fontSize(14).text('Expenses by Category (Continued)');
+                    doc.moveDown();
+                    doc.font('Helvetica').fontSize(10);
+                }
+            });
+            
+            doc.rect(90, expenseTableTop, 320, expenseTableY - expenseTableTop).stroke();
+            doc.moveDown(2);
+        }
+        
+        // Revenue by Plan Section
+        if (revenueByPlan.length > 0) {
+            // Check if we need a new page
+            if (doc.y > 650) {
+                doc.addPage();
+            }
+            
+            doc.font('Helvetica-Bold').fontSize(14).text('Revenue by Subscription Plan');
+            doc.moveDown();
+            
+            // Draw revenue table
+            const revenueTableTop = doc.y;
+            
+            // Table header
+            doc.font('Helvetica-Bold').fontSize(10);
+            doc.text('Plan Name', 100, doc.y, { width: 150 });
+            doc.text('Revenue', 250, doc.y, { width: 100, align: 'right' });
+            doc.text('Subscribers', 350, doc.y, { width: 80, align: 'right' });
+            doc.moveDown();
+            
+            let revenueTableY = doc.y;
+            
+            // Table rows
+            doc.font('Helvetica').fontSize(10);
+            revenueByPlan.forEach((plan) => {
+                doc.text(plan.planName, 100, revenueTableY, { width: 150 });
+                doc.text(formatCurrency(plan.revenue), 250, revenueTableY, { width: 100, align: 'right' });
+                doc.text(plan.count.toString(), 350, revenueTableY, { width: 80, align: 'right' });
+                revenueTableY += 20;
+                
+                if (revenueTableY > 700) { // Check if we need a new page
+                    doc.addPage();
+                    revenueTableY = 50;
+                    doc.font('Helvetica-Bold').fontSize(14).text('Revenue by Subscription Plan (Continued)');
+                    doc.moveDown();
+                    doc.font('Helvetica').fontSize(10);
+                }
+            });
+            
+            doc.rect(90, revenueTableTop, 340, revenueTableY - revenueTableTop).stroke();
+            doc.moveDown(2);
+        }
+        
+        // Recent Transactions Section
+        if (recentPayments.length > 0 || recentExpenses.length > 0) {
+            // Check if we need a new page
+            if (doc.y > 600) {
+                doc.addPage();
+            }
+            
+            doc.font('Helvetica-Bold').fontSize(14).text('Recent Transactions');
+            doc.moveDown();
+            
+            // Recent Payments
+            if (recentPayments.length > 0) {
+                doc.font('Helvetica-Bold').fontSize(12).text('Recent Payments');
+                doc.moveDown();
+                
+                // Table header
+                doc.font('Helvetica-Bold').fontSize(10);
+                doc.text('Date', 50, doc.y, { width: 90 });
+                doc.text('Customer', 140, doc.y, { width: 100 });
+                doc.text('Description', 240, doc.y, { width: 150 });
+                doc.text('Amount', 390, doc.y, { width: 80, align: 'right' });
+                doc.moveDown();
+                
+                let paymentsTableY = doc.y;
+                
+                // Table rows
+                doc.font('Helvetica').fontSize(9);
+                recentPayments.forEach((payment) => {
+                    doc.text(formatDate(payment.paymentDate), 50, paymentsTableY, { width: 90 });
+                    doc.text(payment.user?.name || 'N/A', 140, paymentsTableY, { width: 100 });
+                    doc.text(payment.description || 'N/A', 240, paymentsTableY, { width: 150 });
+                    doc.text(formatCurrency(payment.amount), 390, paymentsTableY, { width: 80, align: 'right' });
+                    paymentsTableY += 20;
+                    
+                    if (paymentsTableY > 700) { // Check if we need a new page
+                        doc.addPage();
+                        paymentsTableY = 50;
+                        doc.font('Helvetica-Bold').fontSize(12).text('Recent Payments (Continued)');
+                        doc.moveDown();
+                        doc.font('Helvetica').fontSize(9);
+                    }
+                });
+                
+                doc.moveDown(2);
+            }
+            
+            // Recent Expenses
+            if (recentExpenses.length > 0) {
+                // Check if we need a new page
+                if (doc.y > 600) {
+                    doc.addPage();
+                }
+                
+                doc.font('Helvetica-Bold').fontSize(12).text('Recent Expenses');
+                doc.moveDown();
+                
+                // Table header
+                doc.font('Helvetica-Bold').fontSize(10);
+                doc.text('Date', 50, doc.y, { width: 90 });
+                doc.text('Category', 140, doc.y, { width: 100 });
+                doc.text('Description', 240, doc.y, { width: 150 });
+                doc.text('Amount', 390, doc.y, { width: 80, align: 'right' });
+                doc.moveDown();
+                
+                let expensesTableY = doc.y;
+                
+                // Table rows
+                doc.font('Helvetica').fontSize(9);
+                recentExpenses.forEach((expense) => {
+                    doc.text(formatDate(expense.date), 50, expensesTableY, { width: 90 });
+                    const category = expense.category.charAt(0).toUpperCase() + expense.category.slice(1);
+                    doc.text(category, 140, expensesTableY, { width: 100 });
+                    doc.text(expense.description || 'N/A', 240, expensesTableY, { width: 150 });
+                    doc.text(formatCurrency(expense.amount), 390, expensesTableY, { width: 80, align: 'right' });
+                    expensesTableY += 20;
+                    
+                    if (expensesTableY > 700) { // Check if we need a new page
+                        doc.addPage();
+                        expensesTableY = 50;
+                        doc.font('Helvetica-Bold').fontSize(12).text('Recent Expenses (Continued)');
+                        doc.moveDown();
+                        doc.font('Helvetica').fontSize(9);
+                    }
+                });
+            }
+        }
+        
+        // Footer with page numbers
+        const pageCount = doc.bufferedPageRange().count;
+        for (let i = 0; i < pageCount; i++) {
+            doc.switchToPage(i);
+            doc.fontSize(8).text(
+                `Page ${i + 1} of ${pageCount}`,
+                50,
+                doc.page.height - 50,
+                { align: 'center' }
+            );
+        }
+        
+        // Finalize the PDF
+        doc.end();
+        
+    } catch (error) {
+        console.error('Error generating financial report:', error);
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get profit and loss report data
+ * @route   GET /api/financials/reports/profit-loss
+ * @access  Private (financial_manager, admin)
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.getProfitLossReport = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query;
+        
+        if (!startDate || !endDate) {
+            throw new BadRequestError('Start and end dates are required');
+        }
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Include all of end date
+        
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            throw new BadRequestError('Invalid date format');
+        }
+        
+        // Calculate total revenue
+        const revenueData = await Payment.aggregate([
+            { $match: { paymentDate: { $gte: start, $lte: end }, status: 'completed' } },
+            { $group: { _id: null, totalRevenue: { $sum: '$amount' } } }
+        ]);
+        const totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
+        
+        // Calculate total expenses
+        const expenseData = await Expense.aggregate([
+            { $match: { date: { $gte: start, $lte: end } } },
+            { $group: { _id: null, totalExpenses: { $sum: '$amount' } } }
+        ]);
+        const totalExpenses = expenseData.length > 0 ? expenseData[0].totalExpenses : 0;
+        
+        // Calculate net profit
+        const netProfit = totalRevenue - totalExpenses;
+        
+        // Get monthly trends for the period
+        // First, we need to find all the months within the date range
+        const months = [];
+        const currentDate = new Date(start);
+        while (currentDate <= end) {
+            months.push({
+                year: currentDate.getFullYear(),
+                month: currentDate.getMonth()
+            });
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+        
+        // Get monthly revenue
+        const monthlyRevenue = await Payment.aggregate([
+            { 
+                $match: { 
+                    paymentDate: { $gte: start, $lte: end },
+                    status: 'completed'
+                } 
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$paymentDate" },
+                        month: { $month: "$paymentDate" }
+                    },
+                    revenue: { $sum: "$amount" }
+                }
+            }
+        ]);
+        
+        // Get monthly expenses
+        const monthlyExpenses = await Expense.aggregate([
+            { 
+                $match: { 
+                    date: { $gte: start, $lte: end }
+                } 
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$date" },
+                        month: { $month: "$date" }
+                    },
+                    expenses: { $sum: "$amount" }
+                }
+            }
+        ]);
+        
+        // Create a map of monthly data
+        const monthlyMap = new Map();
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        months.forEach(m => {
+            const monthKey = `${m.year}-${m.month}`;
+            monthlyMap.set(monthKey, {
+                month: `${monthNames[m.month]} ${m.year}`,
+                revenue: 0,
+                expenses: 0,
+                profit: 0
+            });
+        });
+        
+        monthlyRevenue.forEach(m => {
+            const monthKey = `${m._id.year}-${m._id.month - 1}`; // MongoDB months are 1-12, JS are 0-11
+            if (monthlyMap.has(monthKey)) {
+                const data = monthlyMap.get(monthKey);
+                data.revenue = m.revenue;
+                data.profit = data.revenue - data.expenses;
+                monthlyMap.set(monthKey, data);
+            }
+        });
+        
+        monthlyExpenses.forEach(m => {
+            const monthKey = `${m._id.year}-${m._id.month - 1}`; // MongoDB months are 1-12, JS are 0-11
+            if (monthlyMap.has(monthKey)) {
+                const data = monthlyMap.get(monthKey);
+                data.expenses = m.expenses;
+                data.profit = data.revenue - data.expenses;
+                monthlyMap.set(monthKey, data);
+            }
+        });
+        
+        // Convert map to array and sort by date
+        const monthlyData = Array.from(monthlyMap.values());
+        
+        res.status(200).json({
+            summary: {
+                totalRevenue,
+                totalExpenses,
+                netProfit,
+                profitMargin: totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0
+            },
+            monthlyData
+        });
+        
+    } catch (error) {
+        console.error('Error generating profit/loss report:', error);
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get revenue by customer report
+ * @route   GET /api/financials/reports/revenue-by-customer
+ * @access  Private (financial_manager, admin)
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.getRevenueByCustomerReport = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query;
+        
+        if (!startDate || !endDate) {
+            throw new BadRequestError('Start and end dates are required');
+        }
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Include all of end date
+        
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            throw new BadRequestError('Invalid date format');
+        }
+        
+        // Get customers with payments
+        const customerRevenue = await Payment.aggregate([
+            { 
+                $match: { 
+                    paymentDate: { $gte: start, $lte: end },
+                    status: 'completed'
+                } 
+            },
+            { 
+                $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            {
+                $unwind: '$userDetails'
+            },
+            {
+                $group: {
+                    _id: '$user',
+                    name: { $first: '$userDetails.name' },
+                    email: { $first: '$userDetails.email' },
+                    revenue: { $sum: '$amount' },
+                    orders: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    name: 1,
+                    email: 1,
+                    revenue: 1,
+                    orders: 1,
+                    averageOrder: { $divide: ['$revenue', '$orders'] }
+                }
+            },
+            {
+                $sort: { revenue: -1 }
+            }
+        ]);
+        
+        // Calculate summary statistics
+        const totalRevenue = customerRevenue.reduce((sum, customer) => sum + customer.revenue, 0);
+        const totalCustomers = customerRevenue.length;
+        const averageRevenue = totalCustomers > 0 ? totalRevenue / totalCustomers : 0;
+        
+        res.status(200).json({
+            totalRevenue,
+            totalCustomers,
+            averageRevenue,
+            customers: customerRevenue
+        });
+        
+    } catch (error) {
+        console.error('Error generating revenue by customer report:', error);
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get expense details report
+ * @route   GET /api/financials/reports/expense-details
+ * @access  Private (financial_manager, admin)
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.getExpenseDetailsReport = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query;
+        
+        if (!startDate || !endDate) {
+            throw new BadRequestError('Start and end dates are required');
+        }
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Include all of end date
+        
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            throw new BadRequestError('Invalid date format');
+        }
+        
+        // Get total expenses
+        const totalExpensesResult = await Expense.aggregate([
+            { $match: { date: { $gte: start, $lte: end } } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+        const totalExpenses = totalExpensesResult.length > 0 ? totalExpensesResult[0].total : 0;
+        
+        // Get expenses by category
+        const expensesByCategory = await Expense.aggregate([
+            { $match: { date: { $gte: start, $lte: end } } },
+            { 
+                $group: {
+                    _id: '$category',
+                    amount: { $sum: '$amount' },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    category: '$_id',
+                    amount: 1,
+                    count: 1,
+                    percentage: { 
+                        $multiply: [
+                            { $divide: ['$amount', totalExpenses] }, 
+                            100
+                        ]
+                    }
+                }
+            },
+            { $sort: { amount: -1 } }
+        ]);
+        
+        // Get monthly expense trend
+        const monthlyExpenses = await Expense.aggregate([
+            { $match: { date: { $gte: start, $lte: end } } },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$date" },
+                        month: { $month: "$date" }
+                    },
+                    amount: { $sum: "$amount" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    year: '$_id.year',
+                    month: '$_id.month',
+                    amount: 1
+                }
+            },
+            { $sort: { year: 1, month: 1 } }
+        ]);
+        
+        // Format month names
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const formattedMonthlyExpenses = monthlyExpenses.map(item => ({
+            month: `${monthNames[item.month - 1]} ${item.year}`,
+            amount: item.amount
+        }));
+        
+        // Get expense details
+        const expenses = await Expense.find({ date: { $gte: start, $lte: end } })
+            .sort({ date: -1 })
+            .limit(100); // Limit to prevent too large responses
+        
+        res.status(200).json({
+            totalExpenses,
+            expensesByCategory,
+            monthlyExpenses: formattedMonthlyExpenses,
+            expenses: expenses.map(e => ({
+                id: e._id,
+                date: e.date,
+                category: e.category,
+                description: e.description,
+                amount: e.amount
+            }))
+        });
+        
+    } catch (error) {
+        console.error('Error generating expense details report:', error);
+        next(error);
+    }
+};
