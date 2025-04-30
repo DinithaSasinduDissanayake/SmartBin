@@ -1,0 +1,11 @@
+{
+    "name": "smartbin",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "cd backend && npm start",
+        "dev": "cd frontend && npm run dev"
+    },
+    "dependencies": {
+        "@react-google-maps/api": "^2.20.6"
+    }
+}
