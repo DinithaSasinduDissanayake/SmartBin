@@ -1,0 +1,27 @@
+.footer {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background-color: #78cf98;
+    border-top: 1px solid #ccc;
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Padding එක width එකට බලපාන්නේ නැහැ */
+}
+
+.footer-section {
+    text-align: left;
+}
+
+.footer-section h4 {
+    margin-bottom: 10px;
+}
+
+.footer-section p {
+    margin: 5px 0;
+}
+
+.social-icons a {
+    margin: 0 5px;
+    color: #333;
+    text-decoration: none;
+}

@@ -1,0 +1,27 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #78cf98;
+    border-bottom: 1px solid #ccc;
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Padding එක width එකට බලපාන්නේ නැහැ */
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #333;
+}
+
+.nav .login {
+    border: 1px solid #333;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
