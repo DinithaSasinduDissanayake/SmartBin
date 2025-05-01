@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { jsPDF } from 'jspdf';
 import '../styles/custom.css';
 
 const ResourcesDisplay: React.FC = () => {
@@ -91,9 +92,87 @@ const ResourcesDisplay: React.FC = () => {
     setFilteredTools(filtered);
   };
 
+  const downloadResourcesReport = () => {
+    const doc = new jsPDF();
+    let y = 10;
+
+    // Add title
+    doc.setFontSize(16);
+    doc.text('Resources Report', 10, y);
+    y += 20;
+
+    // Trucks Section
+    doc.setFontSize(14);
+    doc.text('Trucks', 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    filteredTrucks.forEach((truck, index) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(`Truck ${index + 1}:`, 10, y);
+      doc.text(`ID: ${truck.truckId}`, 20, y + 5);
+      doc.text(`Status: ${truck.status}`, 20, y + 10);
+      doc.text(`Tank Capacity: ${truck.tankCapacity}`, 20, y + 15);
+      doc.text(`Availability: ${truck.availability}`, 20, y + 20);
+      doc.text(`Fuel: ${truck.fuel}`, 20, y + 25);
+      doc.text(`Condition: ${truck.condition}`, 20, y + 30);
+      doc.text(`Description: ${truck.description}`, 20, y + 35);
+      doc.text(`Location: Lat ${truck.location.lat}, Lng ${truck.location.lng}`, 20, y + 40);
+      y += 50;
+    });
+
+    // Equipment Section
+    y += 10;
+    doc.setFontSize(14);
+    doc.text('Equipment', 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    filteredEquipments.forEach((equipment, index) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(`Equipment ${index + 1}:`, 10, y);
+      doc.text(`ID: ${equipment.equipmentId}`, 20, y + 5);
+      doc.text(`Type: ${equipment.type}`, 20, y + 10);
+      doc.text(`Status: ${equipment.status}`, 20, y + 15);
+      doc.text(`Description: ${equipment.description}`, 20, y + 20);
+      doc.text(`Location: Lat ${equipment.location.lat}, Lng ${equipment.location.lng}`, 20, y + 25);
+      y += 35;
+    });
+
+    // Tools Section
+    y += 10;
+    doc.setFontSize(14);
+    doc.text('Tools', 10, y);
+    y += 10;
+    doc.setFontSize(10);
+    filteredTools.forEach((tool, index) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(`Tool ${index + 1}:`, 10, y);
+      doc.text(`ID: ${tool.toolId}`, 20, y + 5);
+      doc.text(`Name: ${tool.name}`, 20, y + 10);
+      doc.text(`Status: ${tool.status}`, 20, y + 15);
+      doc.text(`Description: ${tool.description}`, 20, y + 20);
+      y += 30;
+    });
+
+    doc.save('resources-report.pdf');
+  };
+
   return (
     <div>
-      <h2>Resources Display</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>Resources Display</h2>
+        <button onClick={downloadResourcesReport} className="card-button">
+          Download Resources Report
+        </button>
+      </div>
 
       {/* Trucks Section */}
       <h3>Trucks</h3>
