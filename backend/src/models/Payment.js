@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
+const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
 const paymentSchema = new mongoose.Schema({
   user: {
@@ -52,8 +54,12 @@ const paymentSchema = new mongoose.Schema({
 
 // Add indexes for faster querying
 paymentSchema.index({ paymentDate: -1 });
-paymentSchema.index({ status: 1 });
+// paymentSchema.index({ status: 1 }); // Commented out to address duplicate index warning
 paymentSchema.index({ user: 1 });
 paymentSchema.index({ userSubscription: 1 }); // Index for filtering by user subscription
+
+// Add pagination plugins
+paymentSchema.plugin(mongoosePaginate);
+paymentSchema.plugin(aggregatePaginate); // Add the aggregate pagination plugin
 
 module.exports = mongoose.model('Payment', paymentSchema);

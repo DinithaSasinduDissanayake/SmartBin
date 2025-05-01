@@ -28,6 +28,7 @@ import {
   faChevronDown
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { LinearProgress } from '@mui/material'; // Add LinearProgress import
 import './FinancialDashboard.css';
 
 // Keep your currency formatter
@@ -155,62 +156,85 @@ const FinancialDashboard = () => {
     }
 
     // Generate complete set of labels based on date range
-    let completeLabels = [];
+    let completeLabelsData = []; // Changed to store objects { fullDate, label }
     let revenueTrendMap = new Map();
     let expenseTrendMap = new Map();
 
-    // Convert existing data to maps for easy lookup
-    (dashboardData.trends?.revenue || []).forEach(item => revenueTrendMap.set(item.month || item.date || item.day, item.total || item.amount || 0));
-    (dashboardData.trends?.expenses || []).forEach(item => expenseTrendMap.set(item.month || item.date || item.day, item.total || item.amount || 0));
+    // Convert existing data to maps for easy lookup - Use the correct key based on range
+    const trendKey = dateRange === 'month' ? 'day' : 'month'; // Backend uses 'day' for daily, 'month' for monthly
+    (dashboardData.trends?.revenue || []).forEach(item => revenueTrendMap.set(item[trendKey], item.total || item.amount || 0));
+    (dashboardData.trends?.expenses || []).forEach(item => expenseTrendMap.set(item[trendKey], item.total || item.amount || 0));
 
     const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
 
     // Generate complete set of labels based on dateRange
     if (dateRange === 'month') {
-      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-      const currentDay = Math.min(today.getDate(), daysInMonth);
-      for (let i = 1; i <= currentDay; i++) {
-        const dayStr = i.toString();
-        completeLabels.push(dayStr);
-        if (!revenueTrendMap.has(dayStr)) revenueTrendMap.set(dayStr, 0);
-        if (!expenseTrendMap.has(dayStr)) expenseTrendMap.set(dayStr, 0);
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      // Use the actual end date from the response if available, otherwise today's date within the month
+      const responseEndDate = dashboardData.dateRange?.endDate ? new Date(dashboardData.dateRange.endDate + 'T00:00:00') : today;
+      const endDayOfMonth = (responseEndDate.getFullYear() === currentYear && responseEndDate.getMonth() === currentMonth) 
+                            ? responseEndDate.getDate() 
+                            : (currentMonth === today.getMonth() ? today.getDate() : daysInMonth);
+
+      for (let i = 1; i <= endDayOfMonth; i++) {
+        const date = new Date(currentYear, currentMonth, i);
+        // Format date as YYYY-MM-DD to match backend key for 'month' range
+        const yearStr = date.getFullYear();
+        const monthStr = (date.getMonth() + 1).toString().padStart(2, '0');
+        const dayStr = date.getDate().toString().padStart(2, '0');
+        const fullDateKey = `${yearStr}-${monthStr}-${dayStr}`;
+        
+        completeLabelsData.push({ fullDate: fullDateKey, label: i.toString() }); // Store full date and day number label
+        
+        // Use fullDateKey for map operations
+        if (!revenueTrendMap.has(fullDateKey)) revenueTrendMap.set(fullDateKey, 0);
+        if (!expenseTrendMap.has(fullDateKey)) expenseTrendMap.set(fullDateKey, 0);
       }
     } 
     else if (dateRange === 'last3months') {
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const currentMonth = today.getMonth();
-      const currentYear = today.getFullYear();
-      for (let i = 0; i < 3; i++) {
-        let monthIndex = currentMonth - 2 + i;
+      for (let i = 2; i >= 0; i--) { // Iterate backwards from current month
+        let monthIndex = currentMonth - i;
         let year = currentYear;
         if (monthIndex < 0) {
           monthIndex += 12;
           year -= 1;
         }
         const monthLabel = `${monthNames[monthIndex]}-${year}`;
-        completeLabels.push(monthLabel);
-        if (!revenueTrendMap.has(monthLabel)) revenueTrendMap.set(monthLabel, 0);
-        if (!expenseTrendMap.has(monthLabel)) expenseTrendMap.set(monthLabel, 0);
+        const monthKey = `${year}-${(monthIndex + 1).toString().padStart(2, '0')}`; // YYYY-MM format for map key
+        
+        completeLabelsData.push({ fullDate: monthKey, label: monthLabel }); // Store YYYY-MM and display label
+        
+        if (!revenueTrendMap.has(monthKey)) revenueTrendMap.set(monthKey, 0);
+        if (!expenseTrendMap.has(monthKey)) expenseTrendMap.set(monthKey, 0);
       }
     } 
     else { // year
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const year = today.getFullYear();
-      for (let i = 0; i <= today.getMonth(); i++) {
-        const monthLabel = `${monthNames[i]}-${year}`;
-        completeLabels.push(monthLabel);
-        if (!revenueTrendMap.has(monthLabel)) revenueTrendMap.set(monthLabel, 0);
-        if (!expenseTrendMap.has(monthLabel)) expenseTrendMap.set(monthLabel, 0);
+      const responseEndDate = dashboardData.dateRange?.endDate ? new Date(dashboardData.dateRange.endDate + 'T00:00:00') : today;
+      const endMonthOfYear = (responseEndDate.getFullYear() === currentYear) ? responseEndDate.getMonth() : (currentYear === today.getFullYear() ? today.getMonth() : 11);
+
+      for (let i = 0; i <= endMonthOfYear; i++) {
+        const monthLabel = `${monthNames[i]}-${currentYear}`;
+        const monthKey = `${currentYear}-${(i + 1).toString().padStart(2, '0')}`; // YYYY-MM format for map key
+        
+        completeLabelsData.push({ fullDate: monthKey, label: monthLabel }); // Store YYYY-MM and display label
+        
+        if (!revenueTrendMap.has(monthKey)) revenueTrendMap.set(monthKey, 0);
+        if (!expenseTrendMap.has(monthKey)) expenseTrendMap.set(monthKey, 0);
       }
     }
 
-    // Prepare data for Recharts Line chart
-    const revenueExpenseData = completeLabels.map(label => ({
-      name: label,
-      revenue: revenueTrendMap.get(label) || 0,
-      expenses: expenseTrendMap.get(label) || 0
+    // Prepare data for Recharts Line chart using the correct keys
+    const revenueExpenseData = completeLabelsData.map(item => ({
+      name: item.label, // Use the display label (day number or Month-Year)
+      revenue: revenueTrendMap.get(item.fullDate) || 0, // Use the full date key (YYYY-MM-DD or YYYY-MM)
+      expenses: expenseTrendMap.get(item.fullDate) || 0 // Use the full date key (YYYY-MM-DD or YYYY-MM)
     }));
 
+    // hasData should now be calculated correctly based on actual data
     const hasData = revenueExpenseData.some(item => item.revenue > 0 || item.expenses > 0);
 
     // Prepare data for Revenue by Plan Pie chart - ensure proper access to planName, revenue and count
@@ -225,17 +249,17 @@ const FinancialDashboard = () => {
       value: Number(item.total || item.value || item.amount || 0) || 0
     })).filter(item => item.value > 0); // Filter out zero values for cleaner charts
 
-    // Prepare data for Subscriptions by Plan Pie chart - ensure we handle count properly
-    const planSubscriptionData = (dashboardData.revenueByPlan || []).map(item => ({
-      name: item.planName || item.name || 'Unknown Plan',
-      value: Number(item.count || item.subscribers || 0) || 0
-    })).filter(item => item.value > 0); // Filter out zero values for cleaner charts
+    // Prepare data for Subscriptions by Plan Pie chart - Use subscriptionPlans data
+    const planSubscriptionData = (dashboardData.subscriptionPlans || []).map(item => ({ // Changed source to subscriptionPlans
+      name: item.name || 'Unknown Plan', // Use plan name
+      value: Number(item.subscriberCount || 0) || 0 // Use subscriberCount
+    })).filter(item => item.value > 0); // Filter out plans with zero subscribers
 
     return {
       revenueExpenseData,
       planRevenueData,
       expenseCategoryData,
-      planSubscriptionData,
+      planSubscriptionData, // Corrected data source
       hasData
     };
   }, [dashboardData, dateRange]);
@@ -467,14 +491,17 @@ const FinancialDashboard = () => {
           >
             ↻ Refresh
           </button>
-          <button
-            className={`export-btn ${exportLoading ? 'loading' : ''}`}
-            onClick={handleExportReport}
-            aria-label="Export financial report"
-            disabled={exportLoading || loading || isEmptyData}
-          >
-            {exportLoading ? 'Exporting...' : 'Export Report'}
-          </button>
+          <div className="export-section"> {/* Wrap button and progress bar */}
+            <button
+              className={`export-btn ${exportLoading ? 'loading' : ''}`}
+              onClick={handleExportReport}
+              aria-label="Export financial report"
+              disabled={exportLoading || loading || isEmptyData}
+            >
+              {exportLoading ? 'Exporting...' : 'Export Report'}
+            </button>
+            {exportLoading && <LinearProgress style={{ marginTop: '8px' }} />} {/* Add progress bar */}
+          </div>
         </div>
       </div>
 

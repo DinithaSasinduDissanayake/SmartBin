@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../../contexts/AuthContext';
 import FinancialDashboard from '../../components/financial/FinancialDashboard';
+import FinancialManagerDashboard from '../../components/financial/manager/FinancialManagerDashboard';
 import './DashboardHome.css';
 
 // Placeholder service calls for summary data
@@ -49,6 +51,7 @@ const DashboardHome = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { role } = useAuth()?.user || user || {};
+  const navigate = useNavigate(); // Initialize useNavigate
   
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -67,7 +70,7 @@ const DashboardHome = ({ user }) => {
             data = await fetchAdminDashboardData();
             break;
           case 'financial_manager':
-            // Financial managers see the FinancialDashboard component 
+            // Financial managers see their dedicated dashboard
             // No need to fetch data here
             setLoading(false);
             return;
@@ -95,8 +98,7 @@ const DashboardHome = ({ user }) => {
   if (role === 'financial_manager') {
     return (
       <div className="dashboard-content">
-        <h2>Financial Manager Dashboard</h2>
-        <FinancialDashboard />
+        <FinancialManagerDashboard />
       </div>
     );
   }
@@ -179,20 +181,9 @@ const DashboardHome = ({ user }) => {
           <p><strong>Recent Signups:</strong> {dashboardData.recentSignups} in the last 30 days</p>
         </div>
         <div className="dashboard-card">
-          <h3>System Status</h3>
-          <p><strong>Health:</strong> <span className="status good">{dashboardData.systemHealth}</span></p>
-          <button className="btn secondary">View Logs</button>
-        </div>
-        <div className="dashboard-card">
           <h3>Support</h3>
           <p><strong>Open Complaints:</strong> {dashboardData.openComplaints}</p>
           <button className="btn secondary">Manage Complaints</button>
-        </div>
-        <div className="dashboard-card">
-          <h3>Finance</h3>
-          <p><strong>Monthly Revenue:</strong> {dashboardData.monthlyRevenue}</p>
-          <p><strong>Pending Payrolls:</strong> {dashboardData.pendingPayrolls}</p>
-          <button className="btn secondary">Financial Overview</button>
         </div>
       </div>
     </>

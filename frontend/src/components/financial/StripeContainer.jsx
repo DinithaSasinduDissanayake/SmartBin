@@ -5,7 +5,7 @@ import PaymentForm from './PaymentForm';
 
 // Load the Stripe.js library with your publishable key
 // In production, this should be loaded from environment variables
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_TEST_PUBLISHABLE_KEY || import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 /**
  * Wrapper component that provides Stripe context to the payment form

@@ -151,6 +151,11 @@
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
+  position: absolute;  /* Add absolute positioning */
+  top: -5px;          /* Position at the top-right corner */
+  right: -5px;
+  z-index: 2;         /* Ensure it appears above the icon */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .notification-badge.pulse {

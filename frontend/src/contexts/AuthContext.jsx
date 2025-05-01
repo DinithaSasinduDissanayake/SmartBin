@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { setAuthToken, getAuthToken } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -25,7 +26,7 @@ export function AuthProvider({ children }) {
     // Check if user is logged in on page load
     const checkUserLoggedIn = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = getAuthToken(); // Use consistent token retrieval
         if (token) {
           // Set auth header
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -40,7 +41,7 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         console.error('Authentication error:', error);
-        localStorage.removeItem('token');
+        setAuthToken(null); // Use consistent token removal
         setAuthState({
           isAuthenticated: false,
           token: null,
@@ -60,7 +61,7 @@ export function AuthProvider({ children }) {
       const response = await axios.post('http://localhost:5000/api/auth/register', userData);
       
       // Save token and update state
-      localStorage.setItem('token', response.data.token);
+      setAuthToken(response.data.token); // Use consistent token storage
       setAuthState({
         isAuthenticated: true,
         token: response.data.token,
@@ -94,7 +95,7 @@ export function AuthProvider({ children }) {
       }
       
       // Regular login (no MFA)
-      localStorage.setItem('token', response.data.token);
+      setAuthToken(response.data.token); // Use consistent token storage
       setAuthState({
         isAuthenticated: true,
         token: response.data.token,
@@ -115,7 +116,7 @@ export function AuthProvider({ children }) {
 
   // Logout user
   const logout = () => {
-    localStorage.removeItem('token');
+    setAuthToken(null); // Use consistent token removal
     setAuthState({
       isAuthenticated: false,
       token: null,
@@ -124,6 +125,20 @@ export function AuthProvider({ children }) {
     // Clear authorization header
     delete axios.defaults.headers.common['Authorization'];
   };
+
+  // Update user data in context
+  const updateUser = (newUserData) => {
+    setAuthState(prevState => ({
+      ...prevState,
+      user: {
+        ...prevState.user, // Keep existing user data
+        ...newUserData     // Overwrite with new data
+      }
+    }));
+    // Optionally, update localStorage user data if you store it there
+    // setUser(authState.user); // Assuming setUser exists in authService.js
+  };
+
 
   // Get user data from token
   const user = authState.user;
@@ -137,6 +152,7 @@ export function AuthProvider({ children }) {
       register, 
       login, 
       logout,
+      updateUser, // Add updateUser to the context value
       setAuthState // Expose for MFA flow
     }}>
       {children}

@@ -11,6 +11,9 @@ import Register from './pages/auth/Register';
 import DashboardLayout from './components/layouts/DashboardLayout';
 import ProfilePage from './pages/profile/ProfilePage';
 import SubscriptionPlansPage from './pages/subscription/SubscriptionPlansPage';
+import PaymentDemonstrationPage from './components/financial/PaymentDemonstrationPage';
+import ShadcnExperimentPage from './pages/experimental/ShadcnExperimentPage';
+import AceternityExperimentPage from './pages/experimental/AceternityExperimentPage';
 import './App.css';
 
 // Loading Indicator component
@@ -77,6 +80,13 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        
+        {/* Experimental UI pages - public for easy access */}
+        <Route path="/shadcn-experiment" element={<ShadcnExperimentPage />} />
+        <Route path="/aceternity-experiment" element={<AceternityExperimentPage />} />
+        
+        {/* Payment demonstration - made public for easy testing */}
+        <Route path="/payment-demo" element={<PaymentDemonstrationPage />} />
         
         {/* Subscription route */}
         <Route path="/subscription-plans" element={

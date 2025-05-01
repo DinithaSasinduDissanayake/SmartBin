@@ -13,14 +13,17 @@
 
 const mongoose = require('mongoose');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
+const config = require('../../config'); // Fixed import path to config
 
 // Import models
-const User = require('../models/User');
-const SubscriptionPlan = require('../models/SubscriptionPlan');
-const UserSubscription = require('../models/UserSubscription');
-const Payment = require('../models/Payment');
-const Expense = require('../models/Expense');
+const User = require('../../models/User');
+const SubscriptionPlan = require('../../models/SubscriptionPlan');
+const UserSubscription = require('../../models/UserSubscription');
+const Payment = require('../../models/Payment');
+const Expense = require('../../models/Expense');
+const Complaint = require('../../models/Complaint');
+const Budget = require('../../models/Budget');
 
 // Utility function to generate a random date between two dates
 const randomDate = (start, end) => {
@@ -57,7 +60,7 @@ const seedFinancialData = async () => {
     // Connect to MongoDB
     console.log('Connecting to MongoDB...');
     // const MONGODB_URI = process.env.MONGODB_URI; // Replaced with config
-    const MONGODB_URI = config.mongodbUri;
+    const MONGODB_URI = config.mongodbUri; // Now config is defined
     if (!MONGODB_URI) {
       throw new Error("MONGODB_URI not configured in config/index.js or .env file. Please check your .env file.");
     }
@@ -71,6 +74,10 @@ const seedFinancialData = async () => {
       console.log('No financial manager found. Please run createTestUsers.js first.');
       return;
     }
+    // Get admin user (needed for assigning complaints)
+    const adminUser = await User.findOne({ role: 'admin' });
+    // Get staff users (needed for assigning complaints)
+    const staffUsers = await User.find({ role: 'staff' });
 
     // Get all users (residents/customers)
     const users = await User.find({ role: { $ne: 'admin', $ne: 'financial_manager', $ne: 'staff' } });
@@ -144,9 +151,8 @@ const seedFinancialData = async () => {
       }
     }
     
-    // Get all plans after creation
-    const allPlans = await SubscriptionPlan.find({});
-    
+    const allPlans = await SubscriptionPlan.find({}); // Ensure plans are fetched after creation/check
+
     // 2. Create user subscriptions
     console.log('Creating user subscriptions...');
     
@@ -280,7 +286,7 @@ const seedFinancialData = async () => {
           
           const newUserSub = new UserSubscription({
             user: user._id,
-            plan: currentMonthPlan._id,
+            subscriptionPlan: currentMonthPlan._id,
             startDate: newSubStartDate,
             endDate: newSubEndDate,
             status: 'active',
@@ -381,6 +387,194 @@ const seedFinancialData = async () => {
       }
     }
 
+    // --- Generate Budget Allocations ---
+    console.log('\nGenerating budget allocations...');
+    
+    // Clear existing budgets
+    await Budget.deleteMany({});
+    
+    // Define budget notes for different categories
+    const budgetNotes = {
+      fuel: ['Allocated for fleet operations', 'Vehicle fuel budgeting', 'Transportation cost allocation'],
+      maintenance: ['Equipment upkeep and repairs', 'Preventive maintenance allocation', 'Repair service budget'],
+      salaries: ['Staff compensation planning', 'Employee salary allocation', 'Payroll budget planning'],
+      utilities: ['Facility operational costs', 'Utilities expense planning', 'Service infrastructure budget'],
+      equipment: ['New equipment acquisition', 'Equipment upgrade planning', 'Technology investment'],
+      office: ['Office operational expenses', 'Administrative supply budget', 'Workplace essentials'],
+      rent: ['Facility leasing costs', 'Space rental allocation', 'Property usage budget'],
+      marketing: ['Promotional campaign funding', 'Marketing initiative budget', 'Brand development allocation'],
+      insurance: ['Risk management allocation', 'Insurance policy budget', 'Coverage planning'],
+      taxes: ['Regulatory fee allocation', 'Tax obligation planning', 'Compliance cost budget']
+    };
+    
+    // Define monthly average budget target for different categories based on expense ranges
+    // slightly higher than the average expense to account for planning and contingencies
+    const monthlyTargetsByCategory = {
+      fuel: 600,
+      maintenance: 800,
+      salaries: 4000,
+      utilities: 600, 
+      equipment: 1500,
+      office: 200,
+      rent: 2500,
+      marketing: 1000,
+      insurance: 1500,
+      taxes: 3000
+    };
+    
+    // Generate Monthly budgets for the current year (Jan-Dec 2025)
+    console.log('Creating monthly budgets for 2025...');
+    
+    // Create monthly budgets starting from January through December 2025
+    const monthlyPeriodTypes = ['Monthly'];
+    const startMonth = 0; // January
+    const endMonth = 11; // December
+    
+    for (let monthIdx = startMonth; monthIdx <= endMonth; monthIdx++) {
+      // Create a monthly budget for each category
+      for (const expenseCat of expenseCategories) {
+        const category = expenseCat.category;
+        const monthStartDate = new Date(currentDate.getFullYear(), monthIdx, 1); // 1st day of month
+        const monthEndDate = new Date(currentDate.getFullYear(), monthIdx + 1, 0); // Last day of month
+        
+        // Skip if the month is in the past compared to the current date
+        if (monthEndDate < currentMonthStart) continue;
+        
+        // Add some variability to the budget (±10% of target)
+        const variabilityFactor = 0.9 + Math.random() * 0.2; // 0.9 to 1.1
+        const baseAmount = monthlyTargetsByCategory[category] || 1000; // Default to 1000 if category not defined
+        const allocatedAmount = Math.round(baseAmount * variabilityFactor);
+        
+        const budget = new Budget({
+          category: category,
+          periodType: 'Monthly',
+          periodStartDate: monthStartDate,
+          periodEndDate: monthEndDate,
+          allocatedAmount: allocatedAmount,
+          notes: randomElement(budgetNotes[category] || [`Budget for ${category}`]),
+          createdBy: financialManager._id
+        });
+        
+        await budget.save();
+      }
+      console.log(`Created monthly budgets for ${new Date(currentDate.getFullYear(), monthIdx, 1).toLocaleString('default', { month: 'long', year: 'numeric' })}`);
+    }
+    
+    // Generate Quarterly budgets for the current year (Q1-Q4 2025)
+    console.log('\nCreating quarterly budgets for 2025...');
+    
+    const quarters = [
+      {name: 'Q1', startMonth: 0, endMonth: 2},
+      {name: 'Q2', startMonth: 3, endMonth: 5},
+      {name: 'Q3', startMonth: 6, endMonth: 8},
+      {name: 'Q4', startMonth: 9, endMonth: 11}
+    ];
+    
+    for (const quarter of quarters) {
+      const quarterStartDate = new Date(currentDate.getFullYear(), quarter.startMonth, 1);
+      const quarterEndDate = new Date(currentDate.getFullYear(), quarter.endMonth + 1, 0);
+      
+      // Skip if the quarter is completely in the past
+      if (quarterEndDate < currentMonthStart) continue;
+      
+      // Create quarterly budget for each expense category
+      for (const expenseCat of expenseCategories) {
+        const category = expenseCat.category;
+        
+        // Calculate quarterly budget (3x monthly with some economies of scale)
+        const monthlyBase = monthlyTargetsByCategory[category] || 1000;
+        const quarterlyBase = monthlyBase * 3 * 0.95; // 5% savings for quarterly planning
+        // Add variability (±8%)
+        const variabilityFactor = 0.92 + Math.random() * 0.16; // 0.92 to 1.08
+        const allocatedAmount = Math.round(quarterlyBase * variabilityFactor);
+        
+        const budget = new Budget({
+          category: category,
+          periodType: 'Quarterly',
+          periodStartDate: quarterStartDate,
+          periodEndDate: quarterEndDate,
+          allocatedAmount: allocatedAmount,
+          notes: `${quarter.name} ${currentDate.getFullYear()} planning for ${category} expenses`,
+          createdBy: financialManager._id
+        });
+        
+        await budget.save();
+      }
+      console.log(`Created quarterly budgets for ${quarter.name} ${currentDate.getFullYear()}`);
+    }
+    
+    // Generate Yearly budgets for the current year (2025)
+    console.log('\nCreating yearly budgets for 2025...');
+    
+    const yearStartDate = new Date(currentDate.getFullYear(), 0, 1);
+    const yearEndDate = new Date(currentDate.getFullYear(), 11, 31);
+    
+    // Create yearly budget for each expense category
+    for (const expenseCat of expenseCategories) {
+      const category = expenseCat.category;
+      
+      // Calculate yearly budget (12x monthly with more significant economies of scale)
+      const monthlyBase = monthlyTargetsByCategory[category] || 1000;
+      const yearlyBase = monthlyBase * 12 * 0.9; // 10% savings for yearly planning
+      // Add variability (±5%)
+      const variabilityFactor = 0.95 + Math.random() * 0.1; // 0.95 to 1.05
+      const allocatedAmount = Math.round(yearlyBase * variabilityFactor);
+      
+      const budget = new Budget({
+        category: category,
+        periodType: 'Yearly',
+        periodStartDate: yearStartDate,
+        periodEndDate: yearEndDate,
+        allocatedAmount: allocatedAmount,
+        notes: `Annual budget planning for ${category} - ${currentDate.getFullYear()}`,
+        createdBy: financialManager._id
+      });
+      
+      await budget.save();
+    }
+    console.log(`Created yearly budgets for ${currentDate.getFullYear()}`);
+    
+    // Create some budgets for next year (2026) for planning purposes
+    console.log('\nCreating some budgets for next year (2026) for planning purposes...');
+    
+    const nextYearStartDate = new Date(currentDate.getFullYear() + 1, 0, 1);
+    const nextYearEndDate = new Date(currentDate.getFullYear() + 1, 11, 31);
+    
+    // Just create a few quarterly budgets for Q1 and Q2 of next year
+    const nextYearQuarters = [
+      {name: 'Q1', startMonth: 0, endMonth: 2},
+      {name: 'Q2', startMonth: 3, endMonth: 5}
+    ];
+    
+    for (const quarter of nextYearQuarters) {
+      const quarterStartDate = new Date(currentDate.getFullYear() + 1, quarter.startMonth, 1);
+      const quarterEndDate = new Date(currentDate.getFullYear() + 1, quarter.endMonth + 1, 0);
+      
+      // Only create for a subset of categories for next year (preliminary planning)
+      const planningCategories = ['fuel', 'salaries', 'rent', 'utilities'];
+      
+      for (const category of planningCategories) {
+        const monthlyBase = monthlyTargetsByCategory[category] || 1000;
+        // Add some inflation for next year (3-7%)
+        const inflationFactor = 1.03 + Math.random() * 0.04; 
+        const quarterlyBase = monthlyBase * 3 * inflationFactor;
+        const allocatedAmount = Math.round(quarterlyBase);
+        
+        const budget = new Budget({
+          category: category,
+          periodType: 'Quarterly',
+          periodStartDate: quarterStartDate,
+          periodEndDate: quarterEndDate,
+          allocatedAmount: allocatedAmount,
+          notes: `Preliminary ${quarter.name} ${currentDate.getFullYear() + 1} planning for ${category}`,
+          createdBy: financialManager._id
+        });
+        
+        await budget.save();
+      }
+      console.log(`Created preliminary quarterly budgets for ${quarter.name} ${currentDate.getFullYear() + 1}`);
+    }
+    
     // Generate monthly payments for each plan for the past 12 months up to the current month
     // Ensure we cover the start of the current year and the last few months explicitly
     const firstPaymentMonth = new Date(currentDate.getFullYear(), 0, 1); // Start from Jan of the current year
@@ -397,8 +591,8 @@ const seedFinancialData = async () => {
 
       // For each subscription plan
       for (const plan of subscriptionPlans) {
-        // Find active subscriptions for this plan
-        const activeSubs = await UserSubscription.find({ plan: plan._id, status: 'active' });
+        // Find active subscriptions for this plan (FIX: use 'subscriptionPlan' field)
+        const activeSubs = await UserSubscription.find({ subscriptionPlan: plan._id, status: 'active' });
         
         // Create payments for a subset of active subscribers each month
         const numPayments = Math.min(activeSubs.length, randomNumber(5, 15)); // Simulate payments from 5-15 active users
@@ -418,8 +612,10 @@ const seedFinancialData = async () => {
             userSubscription: sub._id,
             amount: plan.price,
             paymentDate: paymentDate,
-            status: randomElement(['completed', 'pending', 'failed']), // Random status
-            paymentMethod: randomElement(['credit_card', 'paypal', 'bank_transfer'])
+            // Increase probability of 'completed' status for revenue calculations
+            status: Math.random() < 0.8 ? 'completed' : randomElement(['pending', 'failed']), // 80% chance completed
+            paymentMethod: randomElement(['credit_card', 'paypal', 'bank_transfer']),
+            description: `Payment for ${plan.name} subscription` // Always provide a description
           });
           await payment.save();
         }
@@ -445,7 +641,7 @@ const seedFinancialData = async () => {
     const activeSubsCurrent = await UserSubscription.find({ status: 'active' }).limit(3);
     for (let i = 0; i < Math.min(3, activeSubsCurrent.length); i++) {
       const sub = activeSubsCurrent[i];
-      const plan = await SubscriptionPlan.findById(sub.plan);
+      const plan = await SubscriptionPlan.findById(sub.subscriptionPlan); // FIX: use 'subscriptionPlan' field
       if (!plan) continue;
       const payment = new Payment({
         user: sub.user,
@@ -453,10 +649,115 @@ const seedFinancialData = async () => {
         amount: plan.price,
         paymentDate: addDays(currentMonthStart, randomNumber(0, currentDate.getDate() - 1)), // Random day within current month up to today
         status: 'completed',
-        paymentMethod: randomElement(['credit_card', 'paypal', 'bank_transfer'])
+        paymentMethod: randomElement(['credit_card', 'paypal', 'bank_transfer']),
+        description: `Payment for ${plan.name} subscription` // Always provide a description
       });
       await payment.save();
     }
+
+    // --- Guarantee some subscriptions are ENDING SOON ---
+    console.log('\nEnsuring some subscriptions are ending soon...');
+    const soonEndingSubs = await UserSubscription.find({ status: 'active' }).limit(3);
+    for (const sub of soonEndingSubs) {
+      const newEndDate = addDays(currentDate, randomNumber(3, 14)); // Ending in 3-14 days from 'today'
+      sub.endDate = newEndDate;
+      sub.nextBillingDate = newEndDate; // Adjust next billing too
+      await sub.save();
+      console.log(`Adjusted subscription ${sub._id} for user ${sub.user} to end on ${newEndDate.toLocaleDateString()}`);
+    }
+
+
+    // --- Guarantee specific data points for Dashboard ---
+    console.log(`\nEnsuring specific data points exist for the current date (${currentDate.toLocaleDateString()})...`);
+
+    // 1. Guarantee PENDING Expenses
+    const pendingExpenseCategories = expenseCategories.map(ec => ec.category);
+    for (let i = 0; i < 2; i++) {
+      const expense = new Expense({
+        category: randomElement(pendingExpenseCategories),
+        amount: randomNumber(50, 500),
+        description: `Guaranteed PENDING expense (${i + 1})`,
+        date: addDays(currentDate, randomNumber(-5, 0)), // Created recently
+        createdBy: financialManager._id,
+        status: 'pending', // Explicitly set to pending
+        paymentMethod: randomElement(['company_account', 'credit_card', 'bank_transfer'])
+      });
+      await expense.save();
+      console.log(`Created PENDING expense: ${expense.description}`);
+    }
+
+    // 2. Guarantee PENDING Payments (e.g., upcoming scheduled payments)
+    const customersForPending = await User.find({ role: 'customer' }).limit(2);
+    for (let i = 0; i < customersForPending.length; i++) {
+        const user = customersForPending[i];
+        const dueDate = addDays(currentDate, randomNumber(1, 7)); // Due in 1-7 days
+        const payment = new Payment({
+            user: user._id,
+            amount: randomNumber(50, 200),
+            paymentDate: null, // Not paid yet
+            dueDate: dueDate, // Set a due date
+            status: 'pending', // Explicitly set to pending
+            paymentMethod: randomElement(['credit_card', 'paypal']),
+            description: `Guaranteed PENDING payment for ${user.name} (${i + 1})`
+        });
+        await payment.save();
+        console.log(`Created PENDING payment for ${user.name} due ${dueDate.toLocaleDateString()}`);
+    }
+
+    // 3. Guarantee Payments made TODAY
+    const customersForTodayPayment = await User.find({ role: 'customer' }).limit(2);
+    for (let i = 0; i < customersForTodayPayment.length; i++) {
+        const user = customersForTodayPayment[i];
+        const plan = randomElement(allPlans); // Use a random plan
+        // Find the user's active subscription for this plan
+        const userSub = await UserSubscription.findOne({ user: user._id, subscriptionPlan: plan._id, status: 'active' });
+        if (!userSub) {
+            console.warn(`No active subscription found for user ${user.name} and plan ${plan.name}. Skipping payment.`);
+            continue;
+        }
+        const payment = new Payment({
+            user: user._id,
+            userSubscription: userSub._id, // Link payment to the subscription
+            amount: plan.price,
+            paymentDate: currentDate, // Set payment date to 'today'
+            status: 'completed',
+            paymentMethod: randomElement(['credit_card', 'paypal']),
+            description: `Guaranteed TODAY's payment for ${plan.name} (${i + 1})`
+        });
+        await payment.save();
+        console.log(`Created TODAY's payment for ${user.name}`);
+    }
+
+    // 4. Guarantee Financial-related Complaints
+    console.log('\nGenerating financial-related complaints...');
+    await Complaint.deleteMany({ subject: /Billing Issue|Payment Problem|Subscription Query/ }); // Clear previous seeded financial complaints
+    const complaintSubjects = [
+        'Billing Issue: Incorrect charge on invoice',
+        'Payment Problem: Payment failed to process',
+        'Subscription Query: How to upgrade plan?',
+        'Billing Issue: Double charged for service',
+        'Payment Problem: Cannot update payment method'
+    ];
+    const customersForComplaints = await User.find({ role: 'customer' }).limit(complaintSubjects.length);
+    const staffOrAdmin = [...staffUsers, adminUser].filter(Boolean); // Combine staff and admin
+
+    for (let i = 0; i < complaintSubjects.length; i++) {
+        if (customersForComplaints.length === 0) break; // No customers to assign complaints to
+        const user = customersForComplaints[i % customersForComplaints.length]; // Cycle through customers
+        const assignedTo = staffOrAdmin.length > 0 ? randomElement(staffOrAdmin)._id : null; // Assign randomly if staff/admin exist
+
+        const complaint = new Complaint({
+            user: user._id,
+            subject: complaintSubjects[i],
+            description: `This is a seeded complaint about: ${complaintSubjects[i]}. User ${user.name} needs assistance. Please investigate.`,
+            status: randomElement(['Open', 'In Progress']), // Mostly open or in progress
+            createdAt: addDays(currentDate, randomNumber(-14, 0)), // Created within the last 2 weeks
+            assignedAdmin: assignedTo
+        });
+        await complaint.save();
+        console.log(`Created complaint: "${complaint.subject}" for user ${user.name}`);
+    }
+
 
     // Calculate and log summary statistics
     const totalPayments = await Payment.countDocuments();

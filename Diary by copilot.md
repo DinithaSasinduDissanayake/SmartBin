@@ -158,3 +158,39 @@ The user asked me to follow the SmartBin project's Git workflow and Diary workfl
 
 ### Summary
 This commit represents a significant enhancement to the SmartBin platform's reporting capabilities. It adds comprehensive PDF export functionality across multiple modules (attendance, performance, and financial) along with interactive frontend pages for viewing reports. The changes include both backend API endpoints for generating report data and frontend components for displaying and interacting with that data. These improvements will allow administrators to more effectively analyze staff performance and attendance patterns.
+
+## Entry: April 29, 2025
+
+### User Request
+The user asked if there was an easy way to run both the backend and frontend with the same command.
+
+### Work Completed
+1. **Installed Concurrently**: Added the `concurrently` npm package to the root package.json as a development dependency
+2. **Added Scripts**: Updated the root package.json file with new scripts to run both frontend and backend simultaneously:
+   - `dev` script for running both in development mode
+   - `start` script for a production-like setup 
+   - `install-all` script for installing dependencies across all parts of the project
+3. **Tested Functionality**: Confirmed the setup works by running `npm run dev` command that successfully started both servers
+
+### Assumptions Made
+1. The project follows a decoupled architecture with separate frontend and backend applications
+2. Both frontend and backend have their own package.json files with `dev` scripts
+3. The user wants to simplify the development workflow by starting both servers with one command
+
+### Purpose of Changes
+1. **Development Efficiency**: Streamline the development workflow by reducing command repetition
+2. **Simplified Setup**: Make it easier to start the entire application stack with a single command
+3. **Consistency**: Ensure both frontend and backend are running together for testing
+
+### Outcomes
+
+#### Functional Changes
+1. Added a new `dev` script that runs both backend and frontend concurrently
+2. Added a `start` script for production-like execution
+3. Added an `install-all` script to simplify dependency installation
+
+#### Visual Changes
+No direct visual changes to the application UI, but the terminal now displays logs from both frontend and backend servers simultaneously in a split view.
+
+### Summary
+This implementation significantly improves the development workflow by allowing both the frontend and backend servers to be started with a single command (`npm run dev`). The updated package.json now includes three new scripts: `dev` for development, `start` for production-like execution, and `install-all` for dependency installation across all parts of the project. The setup has been tested and confirmed to work correctly, with both servers starting up and displaying logs in the terminal.

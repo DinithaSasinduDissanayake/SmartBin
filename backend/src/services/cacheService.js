@@ -5,8 +5,15 @@
  * It handles common caching operations with error handling and fallbacks.
  */
 
-const Redis = require('ioredis');
+let Redis;
 let redisClient = null;
+
+// Try to require ioredis, but make it optional
+try {
+  Redis = require('ioredis');
+} catch (err) {
+  console.warn('ioredis module not found. Caching will be disabled.');
+}
 
 // Default TTL (time to live) values in seconds
 const DEFAULT_TTL = {
@@ -23,6 +30,12 @@ const DEFAULT_TTL = {
  */
 const initialize = () => {
   try {
+    // Skip initialization if Redis module is not available
+    if (!Redis) {
+      console.log('Redis module not available. Caching will be disabled.');
+      return false;
+    }
+
     // Check if Redis URL is provided
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
@@ -278,8 +291,10 @@ const clearAllCache = async () => {
   }
 };
 
-// Initialize Redis when this module is imported
-initialize();
+// Initialize Redis when this module is imported, but only if available
+if (Redis) {
+  initialize();
+}
 
 module.exports = {
   initialize,

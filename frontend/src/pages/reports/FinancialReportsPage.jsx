@@ -14,6 +14,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { LinearProgress } from '@mui/material'; // Assuming Material UI is used, adjust if needed
 import financialApi from '../../services/financialApi';
 import './FinancialReportsPage.css'; 
 
@@ -24,6 +25,7 @@ const FinancialReportsPage = () => {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [exportLoading, setExportLoading] = useState(false);
 
   const handleGenerateReport = async () => {
     // Basic validation
@@ -67,6 +69,50 @@ const FinancialReportsPage = () => {
       setError(err.response?.data?.message || `Failed to generate ${reportType} report.`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to handle PDF export
+  const handleExportReport = async () => {
+    if (!startDate || !endDate) {
+      setError('Please select both start and end dates.');
+      return;
+    }
+    
+    setExportLoading(true);
+    setError('');
+    
+    try {
+      // Create date range parameter for the API call
+      const params = { startDate, endDate, type: reportType };
+      
+      // Call the export API function with proper parameters
+      const response = await financialApi.exportReport(params);
+      
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link element to trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${reportType}-report-${startDate}-to-${endDate}.pdf`);
+      
+      // Append link to body, click it to start download, then clean up
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up by removing the link and revoking the URL
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+    } catch (err) {
+      console.error('Report export error:', err);
+      setError('Failed to export report as PDF. Please try again later.');
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -367,6 +413,18 @@ const FinancialReportsPage = () => {
         >
           {loading ? 'Generating...' : 'Generate Report'}
         </button>
+        {reportData && (
+          <div className="export-section"> {/* Wrap button and progress bar */}
+            <button
+              className="btn secondary"
+              onClick={handleExportReport}
+              disabled={exportLoading || !startDate || !endDate}
+            >
+              {exportLoading ? 'Exporting...' : 'Export PDF Report'}
+            </button>
+            {exportLoading && <LinearProgress style={{ marginTop: '8px' }} />} {/* Add progress bar */}
+          </div>
+        )}
       </div>
 
       {error && <div className="error-message">{error}</div>}

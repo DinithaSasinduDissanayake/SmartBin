@@ -1,5 +1,5 @@
 // frontend/src/components/dashboard/Sidebar.jsx
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -29,7 +29,10 @@ import {
   faListCheck,
   faTrophy,
   faBars,
-  faBell
+  faBell,
+  faSignOutAlt,
+  faBuilding,
+  faServer // Add an icon for system logs
 } from "@fortawesome/free-solid-svg-icons";
 import { NotificationBadge } from '../ui/AnimatedComponents';
 
@@ -55,13 +58,16 @@ library.add(
   faListCheck,
   faTrophy,
   faBars,
-  faBell
+  faBell,
+  faSignOutAlt,
+  faBuilding,
+  faServer
 );
 
 import './Sidebar.css';
 
 function Sidebar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   
@@ -69,6 +75,29 @@ function Sidebar() {
   const getInitials = (name) => {
     return name ? name.charAt(0).toUpperCase() : 'U';
   };
+  
+  // Format role name for display (e.g., "financial_manager" -> "Financial Manager")
+  const formatRoleName = (role) => {
+    if (!role) return 'User';
+    return role
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Improved active path checking to handle nested routes
+  const isActivePath = useCallback((path) => {
+    // Exact match
+    if (location.pathname === path) return true;
+    
+    // Special case for dashboard home
+    if (path === '/dashboard' && location.pathname !== '/dashboard') {
+      return false;
+    }
+    
+    // Check if current path starts with the navigation item path (for nested routes)
+    return path !== '/dashboard' && location.pathname.startsWith(path);
+  }, [location.pathname]);
   
   // Define navigation items by role
   const getNavItems = () => {
@@ -120,12 +149,6 @@ function Sidebar() {
           { path: '/dashboard/performance-reports', label: 'Performance Reports', icon: faTrophy },
           { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
         ]},
-        { section: 'FINANCE', items: [
-          { path: '/dashboard/financial-overview', label: 'Financial Dashboard', icon: faChartLine },
-          { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
-          { path: '/dashboard/payroll', label: 'Payroll Management', icon: faMoneyBill },
-          { path: '/dashboard/financial-reports', label: 'Financial Reports', icon: faScroll },
-        ]},
       ],
       staff: [
         { section: 'MAIN', items: [
@@ -148,20 +171,30 @@ function Sidebar() {
     return roleSpecificItems[user?.role || 'financial_manager'] || roleSpecificItems.financial_manager;
   };
 
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+    }
+  };
+
   const navItems = getNavItems();
 
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
         {!collapsed && (
-          <div className="brand">
-            <FontAwesomeIcon icon={faRecycle} className="brand-icon" />
-            <span className="brand-name">SmartBin</span>
-          </div>
+          <Link to="/" className="brand-link"> {/* Changed Link destination to / */}
+            <div className="brand">
+              <FontAwesomeIcon icon={faRecycle} className="brand-icon" />
+              <span className="brand-name">SmartBin</span>
+            </div>
+          </Link>
         )}
         <button 
           className="toggle-button" 
           onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
@@ -169,13 +202,13 @@ function Sidebar() {
       
       {user && (
         <div className="user-profile">
-          <div className="avatar">
+          <div className="avatar" title={user?.name || 'User'}>
             {getInitials(user?.name)}
           </div>
           {!collapsed && (
             <div className="user-info">
-              <h3 className="name">{user?.name || 'Financial Manager'}</h3>
-              <p className="role">{(user?.role || 'financial_manager').replace('_', ' ')}</p>
+              <h3 className="name">{user?.name || 'User'}</h3>
+              <p className="role">{formatRoleName(user?.role)}</p>
             </div>
           )}
         </div>
@@ -190,7 +223,8 @@ function Sidebar() {
                 <li key={item.path} className="nav-item">
                   <Link 
                     to={item.path}
-                    className={location.pathname === item.path ? 'active' : ''}
+                    className={isActivePath(item.path) ? 'active' : ''}
+                    title={collapsed ? item.label : undefined}
                   >
                     <FontAwesomeIcon icon={item.icon} />
                     {!collapsed && <span>{item.label}</span>}
@@ -203,12 +237,16 @@ function Sidebar() {
       </nav>
       
       <div className="sidebar-footer">
-        {/* Notification icon moved to header, so remove from sidebar */}
+        <button className="logout-button" onClick={handleLogout} title="Logout">
+          <FontAwesomeIcon icon={faSignOutAlt} />
+          {!collapsed && <span>Logout</span>}
+        </button>
+        
         {!collapsed && (
           <div className="social-links">
-            <a href="#"><FontAwesomeIcon icon={faFacebook} /></a>
-            <a href="#"><FontAwesomeIcon icon={faInstagram} /></a>
-            <a href="#"><FontAwesomeIcon icon={faTwitter} /></a>
+            <a href="#" aria-label="Facebook" title="Facebook"><FontAwesomeIcon icon={faFacebook} /></a>
+            <a href="#" aria-label="Instagram" title="Instagram"><FontAwesomeIcon icon={faInstagram} /></a>
+            <a href="#" aria-label="Twitter" title="Twitter"><FontAwesomeIcon icon={faTwitter} /></a>
           </div>
         )}
       </div>

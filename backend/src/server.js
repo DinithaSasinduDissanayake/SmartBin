@@ -6,6 +6,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression'); // Import compression
 const rateLimit = require('express-rate-limit'); // Import rate-limit
+const mongoSanitize = require('express-mongo-sanitize'); // Import mongo-sanitize
+const xss = require('xss-clean'); // Import xss-clean
+const hpp = require('hpp'); // Import hpp
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
@@ -15,12 +18,19 @@ const { UnauthorizedError, ForbiddenError, BadRequestError, NotFoundError } = re
 const multer = require('multer');
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 const { preserveRawBody } = require('./middleware/webhookMiddleware'); // Import webhook middleware
+const net = require('net'); // Import net module for port checking
+const adminRoutes = require('./routes/adminRoutes'); // Import admin routes
+const globalErrorHandler = require('./controllers/errorController'); // Assuming error handler path
+const AppError = require('./utils/appError'); // Assuming AppError path
 
 // Global handlers for uncaught exceptions and unhandled rejections
 process.on('uncaughtException', (error) => {
   console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.error(error.name, error.message, error.stack);
-  process.exit(1); // Mandatory shutdown for uncaught exceptions
+  // Don't exit for EADDRINUSE errors - they will be handled by port checking
+  if (error.code !== 'EADDRINUSE') {
+    process.exit(1); // Mandatory shutdown for other uncaught exceptions
+  }
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -39,7 +49,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const app = express();
 
-// Middleware
+// --- Global Middleware ---
 
 // Webhook middleware - must be before body parsing middleware
 app.use(preserveRawBody);
@@ -49,22 +59,33 @@ app.use(helmet());
 
 // Enable CORS
 app.use(cors());
+app.options('*', cors()); // Enable CORS pre-flight
 
 // Response Compression
 app.use(compression()); // Add compression middleware
 
 // Rate Limiting (apply before routes)
 const limiter = rateLimit({
-  windowMs: config.rateLimitWindowMs, // Use config value
-  max: config.rateLimitMax,         // Use config value
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: 'Too many requests from this IP, please try again after 15 minutes'
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  windowMs: 60 * 60 * 1000, // 1 hour
+  message: 'Too many requests from this IP, please try again in an hour!'
 });
-app.use(limiter); // Apply the rate limiting middleware to all requests
+app.use('/api', limiter);
 
 // Body Parsing - must be after preserveRawBody to not interfere with webhook processing
-app.use(express.json());
+app.use(express.json({ limit: '10kb' })); // Body parser, reading data from body into req.body
+app.use(express.urlencoded({ extended: true, limit: '10kb' })); // Parse URL-encoded bodies
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Prevent parameter pollution - specify allowed parameters for HPP whitelist if needed
+app.use(hpp({
+  // whitelist: [ 'duration', 'ratingsQuantity', 'ratingsAverage', 'maxGroupSize', 'difficulty', 'price' ]
+}));
 
 // Logging
 app.use(morgan('dev'));
@@ -72,28 +93,42 @@ app.use(morgan('dev'));
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const subscriptionPlanRoutes = require('./routes/subscriptionPlanRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
-const performanceRoutes = require('./routes/performanceRoutes');
-const financialRoutes = require('./routes/financialRoutes');
+const subscriptionPlanRoutes = require('./routes/subscriptionPlanRoutes');
 const userSubscriptionRoutes = require('./routes/userSubscriptionRoutes');
-const mfaRoutes = require('./routes/mfaRoutes'); // Import MFA routes
-const complaintRoutes = require('./routes/complaintRoutes'); // Import complaint routes
-const payrollRoutes = require('./routes/payrollRoutes'); // Import payroll routes
+const complaintRoutes = require('./routes/complaintRoutes');
+const performanceRoutes = require('./routes/performanceRoutes');
+const payrollRoutes = require('./routes/payrollRoutes');
+const financialRoutes = require('./routes/financialRoutes'); // Import financial routes
+const mfaRoutes = require('./routes/mfaRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes'); // Import dashboard routes
+const budgetRoutes = require('./routes/budgetRoutes'); // Import budget routes
+const statisticsRoutes = require('./routes/statisticsRoutes'); // Import statistics routes
+const settingsRoutes = require('./routes/settingsRoutes'); // Import settings routes
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/subscription-plans', subscriptionPlanRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api/performance', performanceRoutes);
-app.use('/api/financials', financialRoutes);
+app.use('/api/subscription-plans', subscriptionPlanRoutes);
 app.use('/api/user-subscriptions', userSubscriptionRoutes);
-app.use('/api/mfa', mfaRoutes); // Mount MFA routes
-app.use('/api/complaints', complaintRoutes); // Mount complaint routes
-app.use('/api/payroll', payrollRoutes); // Mount payroll routes
+app.use('/api/complaints', complaintRoutes);
+app.use('/api/performance', performanceRoutes);
+app.use('/api/payroll', payrollRoutes);
+app.use('/api/financials', financialRoutes); // Mount financial routes
+app.use('/api/mfa', mfaRoutes);
+app.use('/api/dashboard', dashboardRoutes); // Mount dashboard routes
+app.use('/api/budgets', budgetRoutes); // Mount budget routes
+app.use('/api/admin', adminRoutes); // Mount admin routes
+app.use('/api/statistics', statisticsRoutes); // Mount statistics routes
+app.use('/api/settings', settingsRoutes); // Mount settings routes
+
+// Handle undefined routes
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
 
 // Basic route for testing
 app.get('/', (req, res) => {
@@ -124,12 +159,56 @@ const connectDB = async () => {
 // --- Server Start/Stop ---
 let server; // Define server variable outside
 
-const startServer = () => {
-  if (!server) { // Prevent multiple starts
-     // Use config value
-     server = app.listen(config.port, () => console.log(`Server running on port ${config.port}`));
+// Function to check if a port is in use
+const isPortAvailable = (port) => {
+  return new Promise((resolve) => {
+    const tester = net.createServer()
+      .once('error', () => resolve(false))
+      .once('listening', () => {
+        tester.close();
+        resolve(true);
+      })
+      .listen(port);
+  });
+};
+
+// Find an available port starting from the specified one
+const findAvailablePort = async (startPort) => {
+  let port = startPort;
+  const maxAttempts = 10; // Try up to 10 ports
+  
+  for (let i = 0; i < maxAttempts; i++) {
+    if (await isPortAvailable(port)) {
+      return port;
+    }
+    port++;
   }
-  return server;
+  
+  throw new Error(`Could not find an available port after ${maxAttempts} attempts`);
+};
+
+const startServer = async () => {
+  if (server) {
+    // If server already exists, don't try to start again
+    return server;
+  }
+  
+  try {
+    // Find an available port, starting from the configured one
+    const port = await findAvailablePort(config.port);
+    
+    // Log if we're using a different port than configured
+    if (port !== config.port) {
+      console.log(`Port ${config.port} is in use, using port ${port} instead`);
+    }
+    
+    // Start the server on the available port
+    server = app.listen(port, () => console.log(`Server running on port ${port}`));
+    return server;
+  } catch (err) {
+    console.error('Failed to start server:', err.message);
+    throw err;
+  }
 };
 
 const closeServer = (callback) => {
@@ -146,105 +225,19 @@ const closeServer = (callback) => {
 
 
 // --- Global Error Handler --- (Keep this after routes and before starting server)
-app.use((err, req, res, next) => {
-  // Log the error with enhanced context
-  const timestamp = new Date().toISOString();
-  console.error(`[${timestamp}] ${req.method} ${req.originalUrl} - ERROR: ${err.name || 'Unknown'} - ${err.message}`);
-  if (err.code) {
-    console.error(`Error code: ${err.code}`);
-  }
-  
-  if (!(err instanceof ApiError)) {
-     console.error(err.stack); // Always log stack trace server-side for non-API errors
-  }
-
-  // Standard response structure
-  let responseError = {
-    message: 'An error occurred',
-    timestamp: timestamp
-  };
-
-  // Handle custom ApiErrors with instanceof check
-  if (err instanceof ApiError) {
-    responseError.message = err.message;
-    
-    // Add specific error details for certain error types
-    if (err instanceof BadRequestError && err.errors) {
-      responseError.errors = err.errors;
-    }
-    
-    return res.status(err.statusCode).json(responseError);
-  }
-
-  // Handle Mongoose validation errors
-  if (err.name === 'ValidationError') {
-    const messages = Object.values(err.errors).map(val => val.message);
-    responseError = {
-      message: 'Validation Error',
-      errors: messages,
-      timestamp: timestamp
-    };
-    return res.status(400).json(responseError);
-  }
-  
-  // Handle Mongoose duplicate key errors
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    const value = err.keyValue[field];
-    responseError.message = `Duplicate value for ${field}: "${value}". Please use another value.`;
-    return res.status(400).json(responseError);
-  }
-  
-  // Handle Mongoose cast errors (e.g., invalid ObjectId)
-  if (err.name === 'CastError') {
-    responseError.message = `Invalid ${err.path}: "${err.value}"`;
-    return res.status(400).json(responseError);
-  }
-
-  // Handle Multer errors (e.g., file size limit)
-  if (err instanceof multer.MulterError) {
-    responseError.message = `File upload error: ${err.message}`;
-    return res.status(400).json(responseError);
-  }
-  
-  // Handle custom file type errors from multer filter
-  if (err.message && err.message.startsWith('Invalid file type')) {
-    responseError.message = err.message;
-    return res.status(400).json(responseError);
-  }
-
-  // Handle JWT errors with explicit checks
-  if (err instanceof JsonWebTokenError) {
-    responseError.message = 'Invalid authentication token';
-    return res.status(401).json(responseError);
-  }
-
-  if (err instanceof TokenExpiredError) {
-    responseError.message = 'Authentication token has expired';
-    return res.status(401).json(responseError);
-  }
-
-  // Default 500 handler for other unhandled errors
-  if (!res.headersSent) {
-    // Set production-safe default message
-    responseError.message = 'Internal Server Error';
-    
-    // Only add technical details in development
-    if (config.nodeEnv !== 'production') {
-      responseError.details = err.message;
-      // Don't expose stack traces to the client even in development
-    }
-    
-    res.status(500).json(responseError);
-  }
-});
-
+app.use(globalErrorHandler);
 
 // --- Main Execution Block ---
 // Connect to DB and start server only if this file is run directly
 if (require.main === module) {
   connectDB().then(() => {
-    startServer();
+    startServer().catch(err => {
+      console.error('Failed to start server:', err.message);
+      // Don't exit for port issues - let nodemon handle restart
+      if (err.code !== 'EADDRINUSE') {
+        process.exit(1);
+      }
+    });
   });
 
   // Graceful shutdown handler

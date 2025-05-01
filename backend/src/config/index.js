@@ -1,5 +1,6 @@
 // backend/src/config/index.js
-require('dotenv').config(); // Load .env file contents into process.env
+const path = require('path'); // Add path module
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') }); // Specify .env path
 
 // Define application configuration
 const config = {
@@ -37,7 +38,7 @@ const config = {
   
   // Payment gateway configuration (Stripe)
   stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-  stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  stripeSecretKey: process.env.STRIPE_TEST_SECRET_KEY || process.env.STRIPE_SECRET_KEY,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   
   // Geolocation API configuration (for future use)

@@ -12,6 +12,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { LinearProgress } from '@mui/material'; // Assuming Material UI is used, adjust if needed
 import attendanceApi from '../../services/attendanceApi';
 import './FinancialReportsPage.css'; // Reuse same styling
 
@@ -121,6 +122,7 @@ const AttendanceReportsPage = () => {
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                          'July', 'August', 'September', 'October', 'November', 'December'];
                          
+
       a.href = url;
       a.download = `attendance-report-${monthNames[month-1]}-${year}.pdf`;
       document.body.appendChild(a);
@@ -473,13 +475,16 @@ const AttendanceReportsPage = () => {
           {loading ? 'Generating...' : 'Generate Report'}
         </button>
         
-        <button 
-          className="btn secondary" 
-          onClick={handleExportReport} 
-          disabled={exportLoading || (reportType === 'monthly' ? (!month || !year) : (!startDate || !endDate))}
-        >
-          {exportLoading ? 'Exporting...' : 'Export PDF Report'}
-        </button>
+        <div className="export-section"> {/* Wrap button and progress bar */}
+          <button 
+            className="btn secondary" 
+            onClick={handleExportReport} 
+            disabled={exportLoading || (reportType === 'monthly' ? (!month || !year) : (!startDate || !endDate))}
+          >
+            {exportLoading ? 'Exporting...' : 'Export PDF Report'}
+          </button>
+          {exportLoading && <LinearProgress style={{ marginTop: '8px' }} />} {/* Add progress bar */}
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}

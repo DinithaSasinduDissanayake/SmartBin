@@ -6,9 +6,10 @@ const path = require('path');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const ApiError = require('../errors/ApiError');
+const BadRequestError = require('../errors/BadRequestError'); // Added for adminCreateUser
 
 /**
- * @desc    Get all users
+ * @desc    Get all users (with pagination)
  * @route   GET /api/users
  * @access  Private/Admin
  * @param   {object} req - Express request object
@@ -17,8 +18,29 @@ const ApiError = require('../errors/ApiError');
  */
 exports.getUsers = async (req, res, next) => {
   try {
-    const users = await User.find();
-    res.json(users);
+    // Basic Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10; // Default limit to 10
+    const skip = (page - 1) * limit;
+
+    // TODO: Add filtering (e.g., by role) and search (e.g., by name/email) later
+    const query = {}; 
+
+    const users = await User.find(query)
+      .select('-password') // Exclude password
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // Sort by creation date
+
+    const totalUsers = await User.countDocuments(query);
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    res.json({
+      users,
+      currentPage: page,
+      totalPages,
+      totalUsers,
+    });
   } catch (error) {
     console.error('Error fetching users:', error);
     next(new ApiError(500, 'Failed to fetch users')); // Pass error to global handler
@@ -225,6 +247,10 @@ exports.adminUpdateUser = async (req, res, next) => {
     
     // Admin can reset password if needed
     if (req.body.password) {
+      // Ensure password meets minimum length if provided
+      if (req.body.password.length < 8) {
+        return next(new BadRequestError('Password must be at least 8 characters long'));
+      }
       user.password = req.body.password; // Will be hashed by pre-save hook
     }
     
@@ -246,6 +272,63 @@ exports.adminUpdateUser = async (req, res, next) => {
   } catch (error) {
     console.error(`Error updating user ${req.params.id}:`, error);
     next(error);
+  }
+};
+
+/**
+ * @desc    Admin create a new user
+ * @route   POST /api/users
+ * @access  Private/Admin
+ * @param   {object} req - Express request object
+ * @param   {object} res - Express response object
+ * @param   {function} next - Express next middleware function
+ */
+exports.adminCreateUser = async (req, res, next) => {
+  // Validation handled by express-validator
+  const { name, email, password, role, phone, address, skills, availability, baseSalary, hourlyRate } = req.body;
+
+  try {
+    // Check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      throw new BadRequestError('User already exists with this email');
+    }
+
+    // Prepare user data
+    const userData = {
+      name,
+      email,
+      password, // Will be hashed by pre-save hook
+      role: role || 'customer', // Default to customer if not provided
+      phone,
+      address,
+    };
+
+    // Add role-specific fields
+    if (userData.role === 'staff') {
+      userData.skills = skills || [];
+      userData.availability = availability || '';
+      userData.baseSalary = baseSalary;
+      userData.hourlyRate = hourlyRate;
+    } else if (userData.role === 'customer' && req.body.preferences) {
+       userData.preferences = {
+         pickupNotes: req.body.preferences.pickupNotes || ''
+       };
+    }
+    // Add other role-specific initializations if needed
+
+    // Create user
+    const user = await User.create(userData);
+
+    // Don't send password back
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.status(201).json(userResponse);
+
+  } catch (error) {
+    console.error('Admin Create User error:', error);
+    next(error); // Pass BadRequestError or others
   }
 };
 

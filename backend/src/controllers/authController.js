@@ -94,6 +94,7 @@ exports.registerUser = async (req, res, next) => {
 exports.loginUser = async (req, res, next) => {
   // Validation is handled by express-validator middleware
   const { email, password } = req.body;
+  console.log(`[Login Attempt] Email: ${email}, Password Received: ${password ? 'Yes' : 'No'}`); // Log received data
 
   try {
     // Find user by email (case-insensitive) and select password and MFA fields
@@ -102,11 +103,14 @@ exports.loginUser = async (req, res, next) => {
     }).select('+password +mfaSecret');
     
     if (!user) {
+      console.log(`[Login Attempt] User not found for email: ${email}`); // Log user not found
       throw new UnauthorizedError('Invalid credentials'); // Use specific error
     }
+    console.log(`[Login Attempt] User found: ${user.email}, ID: ${user._id}`); // Log user found
     
     // Check if password matches using the model method
     const isMatch = await user.matchPassword(password);
+    console.log(`[Login Attempt] Password match result for ${user.email}: ${isMatch}`); // Log password match result
     
     if (!isMatch) {
       throw new UnauthorizedError('Invalid credentials'); // Use specific error

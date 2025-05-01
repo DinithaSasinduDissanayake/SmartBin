@@ -1,247 +1,277 @@
+const mongoose = require('mongoose'); // Import mongoose
 const Expense = require('../models/Expense');
 const Payment = require('../models/Payment');
-const UserSubscription = require('../models/UserSubscription');
-const SubscriptionPlan = require('../models/SubscriptionPlan');
-const User = require('../models/User');
-const mongoose = require('mongoose');
-const NotFoundError = require('../errors/NotFoundError');
-const BadRequestError = require('../errors/BadRequestError');
+const UserSubscription = require('../models/UserSubscription'); // Added
+const SubscriptionPlan = require('../models/SubscriptionPlan'); // Added
+const User = require('../models/User'); // Ensure User model is imported
 const ApiError = require('../errors/ApiError');
-const paymentService = require('../services/paymentService');
-const cacheService = require('../services/cacheService');
+const BadRequestError = require('../errors/BadRequestError'); // Added for date validation
 
-// Cache keys for financial dashboard data
-const CACHE_KEYS = {
-    DASHBOARD: 'financial_dashboard:range:',
-};
+// Helper function to determine date range based on 'range' parameter
+const getReportDateRange = (range, queryStartDate, queryEndDate) => {
+    let startDate, endDate = new Date(); // Default end date to now
 
-// Cache TTL for financial data (in seconds)
-const CACHE_TTL = {
-    DASHBOARD: 1800, // 30 minutes for dashboard data
-};
-
-/**
- * @desc    Get aggregated financial data for the dashboard
- * @route   GET /api/financials/dashboard
- * @access  Private (financial_manager, admin)
- * @param   {object} req - Express request object
- * @param   {object} res - Express response object
- * @param   {function} next - Express next middleware function
- */
-exports.getDashboardData = async (req, res, next) => {
-    try {
-        const { range = 'month' } = req.query; // Default to 'month'
-        
-        // Define cache key based on date range
-        const cacheKey = `${CACHE_KEYS.DASHBOARD}${range}`;
-        
-        // Try to get data from cache first
-        const cachedData = await cacheService.getCache(cacheKey);
-        
-        if (cachedData) {
-            console.log(`Serving financial dashboard data from cache for range: ${range}`);
-            return res.status(200).json(cachedData);
-        }
-        
-        console.log(`Cache miss for financial dashboard data (${range}), fetching from database`);
-        
-        let startDate, endDate = new Date();
-        let groupBy, labelFormatter;
-        // Determine date range and grouping
-        switch (range) {
+    if (queryStartDate && queryEndDate) {
+        startDate = new Date(queryStartDate);
+        endDate = new Date(queryEndDate);
+        endDate.setHours(23, 59, 59, 999); // Include the whole end day
+    } else {
+        endDate.setHours(23, 59, 59, 999); // Set end time for today
+        switch(range) {
             case 'last3months':
                 startDate = new Date();
+                // Go back 3 months from the *current* month's start date
                 startDate.setMonth(startDate.getMonth() - 3);
-                startDate.setDate(1);
-                startDate.setHours(0, 0, 0, 0);
-                groupBy = { year: { $year: "$paymentDate" }, month: { $month: "$paymentDate" } };
-                labelFormatter = (g) => {
-                  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                  return `${monthNames[g.month - 1]}-${g.year}`;
-                };
+                startDate.setDate(1); // Set to the 1st day of that month
+                startDate.setHours(0, 0, 0, 0); // Set to the beginning of the day
                 break;
             case 'year':
-                startDate = new Date(endDate.getFullYear(), 0, 1);
+                startDate = new Date(endDate.getFullYear(), 0, 1); // Start from Jan 1st of the current year
                 startDate.setHours(0, 0, 0, 0);
-                groupBy = { year: { $year: "$paymentDate" }, month: { $month: "$paymentDate" } };
-                labelFormatter = (g) => {
-                  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                  return `${monthNames[g.month - 1]}-${g.year}`;
-                };
                 break;
             case 'month':
-            default:
-                startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+            default: // Default to 'month'
+                startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1); // Start from the 1st of the current month
                 startDate.setHours(0, 0, 0, 0);
-                groupBy = { day: { $dayOfMonth: "$paymentDate" } };
-                labelFormatter = (g) => g.day.toString();
                 break;
         }
-        endDate.setHours(23, 59, 59, 999);
+    }
 
-        // --- Aggregations ---
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        throw new BadRequestError('Invalid date format provided');
+    }
+    
+    // Ensure start date is not after end date
+    if (startDate > endDate) {
+        throw new BadRequestError('Start date cannot be after end date');
+    }
 
-        // 1. Total Revenue (from Payments)
-        const revenueData = await Payment.aggregate([
+    return { startDate, endDate };
+};
+
+
+exports.getDashboardData = async (req, res, next) => {
+  try {
+    const { range = 'month', startDate: queryStartDate, endDate: queryEndDate } = req.query; // Get range or specific dates
+
+    // Determine the date range for the report
+    const { startDate, endDate } = getReportDateRange(range, queryStartDate, queryEndDate);
+
+    // --- Aggregate Financial Summary ---
+    // 1. Total Revenue (Completed Payments)
+    const incomeResult = await Payment.aggregate([
+      { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed' } },
+      { $group: { _id: null, totalIncome: { $sum: '$amount' } } }
+    ]);
+    const totalRevenue = incomeResult.length > 0 ? incomeResult[0].totalIncome : 0;
+
+    // 2. Total Expenses
+    const expenseResult = await Expense.aggregate([
+      { $match: { date: { $gte: startDate, $lte: endDate } } }, // Assuming 'date' field for expenses
+      { $group: { _id: null, totalExpenses: { $sum: '$amount' } } }
+    ]);
+    const totalExpenses = expenseResult.length > 0 ? expenseResult[0].totalExpenses : 0;
+
+    // 3. Net Profit
+    const netProfit = totalRevenue - totalExpenses;
+
+    // --- Aggregate Subscription Data ---
+    // 4. Active Subscriptions Count (using UserSubscription model)
+    const activeSubscriptions = await UserSubscription.countDocuments({ 
+        status: 'active', 
+        // Optional: Add date range filter if activation/expiry dates are relevant
+        // startDate: { $lte: endDate }, 
+        // $or: [{ endDate: { $gte: startDate } }, { endDate: null }] 
+    });
+
+    // 5. New Subscriptions in the period (based on UserSubscription start date)
+    const newSubscriptions = await UserSubscription.countDocuments({
+        startDate: { $gte: startDate, $lte: endDate } // Use startDate field
+    });
+
+    // --- Aggregate Revenue/Expense Breakdowns ---
+    // 6. Revenue by Subscription Plan
+    const revenueByPlan = await Payment.aggregate([
+        { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed', userSubscription: { $exists: true } } },
+        { $lookup: { // Join with UserSubscription to get plan details
+            from: 'usersubscriptions', // collection name
+            localField: 'userSubscription',
+            foreignField: '_id',
+            as: 'subDetails'
+        }},
+        { $unwind: '$subDetails' }, // Deconstruct the subDetails array
+        { $lookup: { // Join with SubscriptionPlan to get plan name
+            from: 'subscriptionplans', // collection name
+            localField: 'subDetails.subscriptionPlan',
+            foreignField: '_id',
+            as: 'planDetails'
+        }},
+        { $unwind: '$planDetails' }, // Deconstruct the planDetails array
+        { $group: {
+            _id: '$planDetails._id', // Group by plan ID
+            planName: { $first: '$planDetails.name' }, // Get the plan name
+            revenue: { $sum: '$amount' }, // Sum revenue per plan
+            count: { $sum: 1 } // Count payments per plan (might differ from subscriber count)
+        }},
+        { $project: { // Reshape the output
+            _id: 0, // Exclude default _id
+            planName: 1,
+            revenue: 1,
+            count: 1 // This is payment count, not subscriber count for the plan
+        }},
+        { $sort: { revenue: -1 } } // Sort by revenue descending
+    ]);
+
+    // 7. Expenses by Category
+    const expensesByCategory = await Expense.aggregate([
+        { $match: { date: { $gte: startDate, $lte: endDate } } },
+        { $group: {
+            _id: '$category', // Group by category field
+            total: { $sum: '$amount' } // Sum expenses per category
+        }},
+        { $project: { // Reshape the output
+            _id: 0, // Exclude default _id
+            category: '$_id', // Rename _id to category
+            total: 1
+        }},
+        { $sort: { total: -1 } } // Sort by total descending
+    ]);
+
+    // --- Fetch Recent Transactions ---
+    // 8. Recent Payments (limit 5-10)
+    const recentPayments = await Payment.find({ paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed' })
+        .populate('user', 'name') // Populate user name
+        .sort({ paymentDate: -1 })
+        .limit(5) // Limit the results
+        .select('paymentDate user description amount status'); // Select specific fields
+
+    // 9. Recent Expenses (limit 5-10)
+    const recentExpenses = await Expense.find({ date: { $gte: startDate, $lte: endDate } })
+        .sort({ date: -1 })
+        .limit(5)
+        .select('date category description amount status'); // Select specific fields
+
+    // --- Fetch Subscription Plan Overview ---
+    // 10. Fetch all Subscription Plans details for the subscription tab
+    const subscriptionPlans = await SubscriptionPlan.find({})
+        .select('name price duration _id') // Select necessary fields
+        .lean(); // Use lean for plain JS objects
+
+    // Add subscriber count to each plan (requires another query)
+    for (const plan of subscriptionPlans) {
+        // FIX: Use the correct field 'subscriptionPlan' instead of 'plan'
+        plan.subscriberCount = await UserSubscription.countDocuments({ subscriptionPlan: plan._id, status: 'active' });
+    }
+    
+    // --- Prepare Trend Data (Example: Monthly Revenue/Expenses for 'year' range) ---
+    let revenueTrend = [];
+    let expenseTrend = [];
+
+    // This is a simplified example for monthly trends if range is 'year' or 'last3months'
+    // For 'month' range, you might want daily trends.
+    // This requires more complex aggregation based on the specific 'range'.
+    if (range === 'year' || range === 'last3months') {
+        const monthFormat = '%Y-%m'; // Group by year-month
+        revenueTrend = await Payment.aggregate([
             { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed' } },
-            { $group: { _id: null, totalRevenue: { $sum: '$amount' } } }
-        ]);
-        const totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
-
-        // 2. Total Expenses
-        const expenseData = await Expense.aggregate([
-            { $match: { date: { $gte: startDate, $lte: endDate } } },
-            { $group: { _id: null, totalExpenses: { $sum: '$amount' } } }
-        ]);
-        const totalExpenses = expenseData.length > 0 ? expenseData[0].totalExpenses : 0;
-
-        // 3. Net Profit
-        const netProfit = totalRevenue - totalExpenses;
-
-        // 4. New Subscriptions Count
-        const newSubscriptions = await UserSubscription.countDocuments({
-            startDate: { $gte: startDate, $lte: endDate }
-        });
-
-        // 5. Active Subscriptions Count
-        const activeSubscriptions = await UserSubscription.countDocuments({
-            status: 'active',
-            endDate: { $gte: new Date() } // Active if end date is in the future
-        });
-
-        // Revenue trend
-        const revenueTrendRaw = await Payment.aggregate([
-            { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed' } },
-            { $group: { _id: groupBy, total: { $sum: '$amount' } } },
-            { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
-        ]);
-        // Expense trend
-        let expenseGroupBy;
-        switch (range) {
-            case 'last3months':
-            case 'year':
-                expenseGroupBy = { year: { $year: "$date" }, month: { $month: "$date" } };
-                break;
-            case 'month':
-            default:
-                expenseGroupBy = { day: { $dayOfMonth: "$date" } };
-                break;
-        }
-        const expenseTrendRaw = await Expense.aggregate([
-            { $match: { date: { $gte: startDate, $lte: endDate } } },
-            { $group: { _id: expenseGroupBy, total: { $sum: '$amount' } } },
-            { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
-        ]);
-        // Format trend data for frontend
-        const revenueTrend = revenueTrendRaw.map(g => ({ month: labelFormatter(g._id), total: g.total }));
-        const expenseTrend = expenseTrendRaw.map(g => ({ month: labelFormatter(g._id), total: g.total }));
-
-        // 6. Revenue Breakdown by Plan
-        const revenueByPlan = await Payment.aggregate([
-            { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed', subscriptionPlan: { $exists: true } } }, // Ensure subscriptionPlan field exists
-            { $lookup: { // Join with SubscriptionPlan
-                from: 'subscriptionplans',
-                localField: 'subscriptionPlan', // Use the direct field from Payment model
-                foreignField: '_id',
-                as: 'planDetails'
-            }},
-            { $unwind: '$planDetails' },
             { $group: {
-                _id: '$planDetails.name',
-                totalAmount: { $sum: '$amount' },
-                count: { $sum: 1 }
-            }},
-            { $project: {
-                _id: 0,
-                planName: '$_id', // Keep planName for consistency if frontend expects it
-                revenue: '$totalAmount', // Rename totalAmount to revenue
-                count: 1
-            }},
-            { $sort: { revenue: -1 } } // Sort by revenue
-        ]);
-
-        // 7. Expenses Breakdown by Category
-        const expensesByCategory = await Expense.aggregate([
-            { $match: { date: { $gte: startDate, $lte: endDate } } },
-            { $group: {
-                _id: '$category',
+                _id: { $dateToString: { format: monthFormat, date: '$paymentDate' } },
                 total: { $sum: '$amount' }
             }},
-            { $project: {
-                _id: 0,
-                category: '$_id',
-                total: 1
-            }},
-            { $sort: { total: -1 } }
+            { $sort: { _id: 1 } }, // Sort by month
+            { $project: { _id: 0, month: '$_id', total: 1 } }
         ]);
-
-        // 8. Recent Payments (limit 5)
-        const recentPayments = await Payment.find({ paymentDate: { $gte: startDate, $lte: endDate } })
-            .populate('user', 'name email')
-            .sort({ paymentDate: -1 })
-            .limit(5)
-            .select('paymentDate user description amount status'); // Select specific fields
-
-        // 9. Recent Expenses (limit 5)
-        const recentExpenses = await Expense.find({ date: { $gte: startDate, $lte: endDate } })
-            .sort({ date: -1 })
-            .limit(5)
-            .select('date category description amount status'); // Select specific fields
-
-        // 10. Fetch all Subscription Plans details for the subscription tab
-        const subscriptionPlans = await SubscriptionPlan.find({})
-            .select('name price duration subscriberCount _id') // Select necessary fields
-            .lean(); // Use lean for plain JS objects
-
-        // --- Assemble Dashboard Data ---
-        const dashboardData = {
-            summary: {
-                totalRevenue,
-                totalExpenses,
-                netProfit,
-                newSubscriptions,
-                activeSubscriptions,
-                // Add other summary fields if needed, e.g., outstanding payments
-                // outstandingPayments: await Payment.aggregate([...]) // Example
-                dateRange: { start: startDate.toISOString(), end: endDate.toISOString(), label: range }
-            },
-            revenueByPlan, // Now uses 'revenue' field
-            expensesByCategory, // Added expenses by category
-            recentTransactions: { // Group recent items
-                payments: recentPayments.map(p => ({ // Map to consistent structure if needed
-                    id: p._id,
-                    date: p.paymentDate,
-                    customer: p.user?.name, // Handle potential null user
-                    description: p.description,
-                    amount: p.amount,
-                    status: p.status
-                })),
-                expenses: recentExpenses.map(e => ({ // Map to consistent structure
-                    id: e._id,
-                    date: e.date,
-                    category: e.category,
-                    description: e.description,
-                    amount: e.amount,
-                    status: e.status
-                }))
-            },
-            trends: {
-                revenue: revenueTrend,
-                expenses: expenseTrend
-            },
-            subscriptionPlans // Added subscription plans list
-        };
-
-        // Cache the dashboard data before responding
-        await cacheService.setCache(cacheKey, dashboardData, CACHE_TTL.DASHBOARD);
-
-        res.status(200).json(dashboardData);
-
-    } catch (error) {
-        console.error('Error fetching financial dashboard data:', error);
-        // Simply pass the error to the global handler
-        next(error);
+        expenseTrend = await Expense.aggregate([
+            { $match: { date: { $gte: startDate, $lte: endDate } } },
+            { $group: {
+                _id: { $dateToString: { format: monthFormat, date: '$date' } },
+                total: { $sum: '$amount' }
+            }},
+            { $sort: { _id: 1 } }, // Sort by month
+            { $project: { _id: 0, month: '$_id', total: 1 } }
+        ]);
+    } else if (range === 'month') {
+        // Example for daily trend within the month
+        const dayFormat = '%Y-%m-%d'; // Group by year-month-day
+         revenueTrend = await Payment.aggregate([
+            { $match: { paymentDate: { $gte: startDate, $lte: endDate }, status: 'completed' } },
+            { $group: {
+                _id: { $dateToString: { format: dayFormat, date: '$paymentDate' } },
+                total: { $sum: '$amount' }
+            }},
+            { $sort: { _id: 1 } }, // Sort by day
+            { $project: { _id: 0, day: '$_id', total: 1 } } // Use 'day' or similar key
+        ]);
+        expenseTrend = await Expense.aggregate([
+            { $match: { date: { $gte: startDate, $lte: endDate } } },
+            { $group: {
+                _id: { $dateToString: { format: dayFormat, date: '$date' } },
+                total: { $sum: '$amount' }
+            }},
+            { $sort: { _id: 1 } }, // Sort by day
+            { $project: { _id: 0, day: '$_id', total: 1 } } // Use 'day' or similar key
+        ]);
     }
+
+
+    // --- Assemble Dashboard Data ---
+    // Structure the response exactly as the frontend expects
+    
+    // Helper to format date as YYYY-MM-DD in the server's local timezone
+    const formatDateForResponse = (date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // JS months are 0-indexed
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const dashboardData = {
+        summary: {
+            totalRevenue,
+            totalExpenses,
+            netProfit,
+            activeSubscriptions,
+            newSubscriptions
+        },
+        revenueByPlan, // Already fetched
+        expensesByCategory, // Already fetched
+        trends: {
+            revenue: revenueTrend,
+            expenses: expenseTrend
+        },
+        subscriptionPlans, // Fetched and enriched with subscriber counts
+        recentTransactions: {
+            payments: recentPayments.map(p => ({ // Format to match frontend if needed
+                id: p._id,
+                date: p.paymentDate,
+                customer: p.user?.name || 'N/A', // Handle potential missing user
+                description: p.description,
+                amount: p.amount,
+                status: p.status
+            })),
+            expenses: recentExpenses.map(e => ({ // Format to match frontend if needed
+                id: e._id,
+                date: e.date,
+                category: e.category,
+                description: e.description,
+                amount: e.amount,
+                status: e.status // Assuming Expense model has status
+            }))
+        },
+        // Include the date range used for clarity - Use local timezone formatting
+        dateRange: { 
+            startDate: formatDateForResponse(startDate), 
+            endDate: formatDateForResponse(endDate) 
+        }
+    };
+
+    res.status(200).json(dashboardData); // Send the structured data directly
+
+  } catch (error) {
+    console.error('Error fetching financial dashboard data:', error);
+    // Pass error to the centralized error handler
+    next(error); 
+  }
 };
 
 /**
@@ -254,43 +284,158 @@ exports.getDashboardData = async (req, res, next) => {
  */
 exports.getAllPayments = async (req, res, next) => {
     try {
-        const { page = 1, limit = 10, status, userId, planId, startDate, endDate } = req.query;
+        // Destructure new filters from query
+        const { page = 1, limit = 10, status, userId, planId, startDate, endDate, customerName, paymentMethod } = req.query;
         const query = {};
 
         if (status) query.status = status;
         if (userId) {
             if (!mongoose.Types.ObjectId.isValid(userId)) throw new BadRequestError('Invalid userId format');
-            query.user = userId;
+            query.user = new mongoose.Types.ObjectId(userId); // Ensure it's an ObjectId
         }
-        // Filtering by planId requires joining/lookup, might be complex for simple GET
-        // if (planId) { ... }
+        // Add paymentMethod filter
+        if (paymentMethod) query.paymentMethod = paymentMethod;
 
+        // Handle date range filtering
         if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             if (isNaN(start.getTime()) || isNaN(end.getTime())) throw new BadRequestError('Invalid date format');
             end.setHours(23, 59, 59, 999);
             query.paymentDate = { $gte: start, $lte: end };
+        } else if (startDate) {
+            const start = new Date(startDate);
+            if (isNaN(start.getTime())) throw new BadRequestError('Invalid start date format');
+            query.paymentDate = { $gte: start };
+        } else if (endDate) {
+            const end = new Date(endDate);
+            if (isNaN(end.getTime())) throw new BadRequestError('Invalid end date format');
+            end.setHours(23, 59, 59, 999);
+            query.paymentDate = { $lte: end };
         }
 
+        // Start aggregation pipeline
+        let aggregationPipeline = [];
+
+        // Initial match stage based on basic filters
+        if (Object.keys(query).length > 0) {
+             aggregationPipeline.push({ $match: query });
+        }
+
+
+        // Handle customerName filtering using aggregation if necessary
+        if (customerName) {
+            // Find user IDs matching the customer name (case-insensitive)
+            const users = await User.find({ name: { $regex: customerName, $options: 'i' } }).select('_id');
+            const userIds = users.map(user => user._id);
+            // Add a match stage to filter payments by these user IDs
+            // Ensure this match happens *after* the initial query match if both exist
+            aggregationPipeline.push({ $match: { user: { $in: userIds } } });
+        }
+
+        // Add lookup stages to populate related data
+        aggregationPipeline.push(
+            {
+                $lookup: {
+                    from: "users", // collection name
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "userData" // Changed from userDetails
+                }
+            },
+            {
+                $unwind: { // Use unwind instead of directly accessing [0] if you expect only one user
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true // Keep payment even if user is somehow missing
+                }
+            },
+            {
+                $lookup: {
+                    from: "usersubscriptions", // collection name
+                    localField: "userSubscription",
+                    foreignField: "_id",
+                    as: "subscriptionData" // Changed from userSubscriptionDetails
+                }
+            },
+            {
+                $unwind: {
+                    path: "$subscriptionData",
+                    preserveNullAndEmptyArrays: true // Keep payment even if subscription is missing
+                }
+            },
+            {
+                $lookup: {
+                    from: "subscriptionplans", // collection name
+                    localField: "subscriptionData.subscriptionPlan", // Use the field from the unwound subscriptionData
+                    foreignField: "_id",
+                    as: "planData"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$planData",
+                    preserveNullAndEmptyArrays: true // Keep payment even if plan is missing
+                }
+            },
+             // Project the desired fields, renaming/restructuring as needed
+            {
+                $project: {
+                    // Include original payment fields
+                    _id: 1,
+                    amount: 1,
+                    description: 1,
+                    paymentDate: 1,
+                    status: 1,
+                    paymentMethod: 1,
+                    currency: 1,
+                    invoiceNumber: 1,
+                    transactionId: 1,
+                    // Add populated data, handling potential nulls from preserveNullAndEmptyArrays
+                    user: { // Keep the user field structure expected by frontend
+                        _id: "$userData._id",
+                        name: "$userData.name",
+                        email: "$userData.email"
+                        // Add other user fields if needed
+                    },
+                    userSubscription: { // Keep subscription structure
+                         _id: "$subscriptionData._id",
+                         status: "$subscriptionData.status",
+                         // Add plan details directly inside subscription if needed, or keep separate
+                         plan: {
+                             _id: "$planData._id",
+                             name: "$planData.name",
+                             price: "$planData.price"
+                             // Add other plan fields if needed
+                         }
+                         // Add other subscription fields if needed
+                    },
+                    // Remove intermediate lookup fields if not needed
+                    // userData: 0, // Optional: remove intermediate fields
+                    // subscriptionData: 0,
+                    // planData: 0
+                }
+            }
+        );
+
+        // Define pagination options
         const options = {
             page: parseInt(page, 10),
             limit: parseInt(limit, 10),
-            sort: { paymentDate: -1 },
-            populate: [
-                { path: 'user', select: 'name email' },
-                { path: 'userSubscription', populate: { path: 'plan', select: 'name' } }
-            ]
+            sort: { paymentDate: -1 }, // Default sort
+            lean: true // Use lean for better performance with aggregation
         };
 
-        const payments = await Payment.paginate(query, options); // Assuming mongoose-paginate-v2 is used
+        // Create the aggregate object
+        const aggregate = Payment.aggregate(aggregationPipeline);
+
+        // Execute aggregation with pagination
+        const payments = await Payment.aggregatePaginate(aggregate, options);
 
         res.status(200).json(payments);
 
     } catch (error) {
-        console.error('Error fetching payments:', error);
-        // Simply pass the error to the global handler
-        next(error); 
+        console.error('Error fetching payments:', error); // Log the specific error
+        next(error); // Pass error to the centralized handler
     }
 };
 
@@ -947,10 +1092,17 @@ exports.exportReport = async (req, res, next) => {
         
         // 5. Revenue by Plan
         const revenueByPlan = await Payment.aggregate([
-            { $match: { paymentDate: { $gte: reportStartDate, $lte: reportEndDate }, status: 'completed', subscriptionPlan: { $exists: true } } },
-            { $lookup: {
+            { $match: { paymentDate: { $gte: reportStartDate, $lte: reportEndDate }, status: 'completed', userSubscription: { $exists: true } } },
+            { $lookup: { // Join with UserSubscription to get plan details
+                from: 'usersubscriptions',
+                localField: 'userSubscription',
+                foreignField: '_id',
+                as: 'subDetails'
+            }},
+            { $unwind: '$subDetails' },
+            { $lookup: { // Join with SubscriptionPlan to get plan name
                 from: 'subscriptionplans',
-                localField: 'subscriptionPlan',
+                localField: 'subDetails.subscriptionPlan',
                 foreignField: '_id',
                 as: 'planDetails'
             }},

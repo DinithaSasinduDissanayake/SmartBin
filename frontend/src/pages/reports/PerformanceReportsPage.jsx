@@ -1,4 +1,3 @@
-// filepath: c:\y2s2ITP\SmartBin\frontend\src\pages\reports\PerformanceReportsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart, 
@@ -13,6 +12,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { LinearProgress } from '@mui/material'; // Assuming Material UI is used, adjust if needed
 import performanceApi from '../../services/performanceApi';
 import './FinancialReportsPage.css'; // Reuse same styling
 
@@ -341,6 +341,7 @@ const PerformanceReportsPage = () => {
             )}
           </div>
         ))}
+
       </div>
     );
   };
@@ -427,13 +428,16 @@ const PerformanceReportsPage = () => {
           {loading ? 'Generating...' : 'Generate Report'}
         </button>
         
-        <button 
-          className="btn secondary" 
-          onClick={handleExportReport} 
-          disabled={exportLoading}
-        >
-          {exportLoading ? 'Exporting...' : 'Export PDF Report'}
-        </button>
+        <div className="export-section"> {/* Wrap button and progress bar */}
+          <button 
+            className="btn secondary" 
+            onClick={handleExportReport} 
+            disabled={exportLoading}
+          >
+            {exportLoading ? 'Exporting...' : 'Export PDF Report'}
+          </button>
+          {exportLoading && <LinearProgress style={{ marginTop: '8px' }} />} {/* Add progress bar */}
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}

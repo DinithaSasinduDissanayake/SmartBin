@@ -10,6 +10,8 @@ const {
 const { protect, authorize } = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
+const { param, body } = require('express-validator');
+const { handleValidationErrors } = require('../middleware/validationErrorHandler');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -38,6 +40,17 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB max size
 });
 
+// Validation for document ID parameter
+const documentIdValidation = [
+  param('id').isMongoId().withMessage('Invalid document ID format')
+];
+
+// Validation for document verification
+const verifyDocumentValidation = [
+  body('verified').isBoolean().withMessage('Verified status must be a boolean'),
+  body('verificationNotes').optional().isString().trim().escape()
+];
+
 // All routes are protected with authentication
 router.use(protect);
 
@@ -49,11 +62,17 @@ router.route('/upload')
   .post(upload.single('document'), uploadDocument);
 
 router.route('/:id')
-  .get(getDocumentById)
-  .delete(deleteDocument);
+  .get(documentIdValidation, handleValidationErrors, getDocumentById)
+  .delete(documentIdValidation, handleValidationErrors, deleteDocument);
 
 // Admin only routes
 router.route('/:id/verify')
-  .put(authorize('admin'), verifyDocument);
+  .put(
+    authorize('admin'), 
+    documentIdValidation,
+    verifyDocumentValidation,
+    handleValidationErrors,
+    verifyDocument
+  );
 
 module.exports = router;

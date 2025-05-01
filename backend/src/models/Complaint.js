@@ -22,7 +22,6 @@ const complaintSchema = new mongoose.Schema({
     type: String,
     enum: ['Open', 'In Progress', 'Resolved', 'Closed'],
     default: 'Open',
-    index: true // Index for filtering by status
   },
   // Reference to PickupRequest or other related entities if applicable
   relatedRequestId: {

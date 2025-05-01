@@ -25,6 +25,13 @@ import SubscriptionPlans from '../../components/financial/SubscriptionPlans';
 import FinancialReportsPage from '../../pages/reports/FinancialReportsPage';
 import AttendanceReportsPage from '../../pages/reports/AttendanceReportsPage';
 import PerformanceReportsPage from '../../pages/reports/PerformanceReportsPage';
+import BudgetAllocationPage from '../../pages/budget/BudgetAllocationPage';
+import PaymentsPage from '../../pages/payments/PaymentsPage';
+
+// Import Admin specific pages
+import UserManagementPage from '../../pages/admin/UserManagementPage';
+import StatisticsPage from '../../pages/statistics/StatisticsPage';
+import SystemSettingsPage from '../../pages/admin/SystemSettingsPage'; // Import the System Settings page
 
 import './DashboardLayout.css';
 
@@ -56,7 +63,8 @@ function DashboardLayout() {
               <>
                 <Route path="/financial-overview" element={<FinancialDashboard />} />
                 <Route path="/subscription-plans" element={<SubscriptionPlans />} />
-                <Route path="/budget-allocation" element={<div className="dashboard-content"><h2>Budget Allocation</h2></div>} />
+                <Route path="/budget-allocation" element={<BudgetAllocationPage />} />
+                <Route path="/payments" element={<PaymentsPage />} />
                 <Route path="/payment-processing" element={<div className="dashboard-content"><h2>Payment Processing</h2></div>} />
                 <Route path="/financial-reports" element={<FinancialReportsPage />} />
                 <Route path="/payroll" element={<AdminPayrollPage />} />
@@ -66,13 +74,15 @@ function DashboardLayout() {
             {/* Admin routes */}
             {user?.role === 'admin' && (
               <>
-                <Route path="/users" element={<div className="dashboard-content"><h2>User Management</h2></div>} />
-                <Route path="/statistics" element={<div className="dashboard-content"><h2>Statistics</h2></div>} />
-                <Route path="/settings" element={<div className="dashboard-content"><h2>System Settings</h2></div>} />
+                <Route path="/users" element={<UserManagementPage />} />
+                <Route path="/statistics" element={<StatisticsPage />} />
+                <Route path="/settings" element={<SystemSettingsPage />} />
                 <Route path="/complaints" element={<AllComplaintsPage />} />
                 <Route path="/payroll" element={<AdminPayrollPage />} />
                 <Route path="/financial-overview" element={<FinancialDashboard />} />
                 <Route path="/subscription-plans" element={<SubscriptionPlans />} />
+                <Route path="/budget-allocation" element={<BudgetAllocationPage />} />
+                <Route path="/payments" element={<PaymentsPage />} />
                 <Route path="/financial-reports" element={<FinancialReportsPage />} />
                 <Route path="/attendance-reports" element={<AttendanceReportsPage />} />
                 <Route path="/performance-reports" element={<PerformanceReportsPage />} />

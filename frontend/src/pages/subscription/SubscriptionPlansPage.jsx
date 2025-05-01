@@ -2,12 +2,12 @@ import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/AuthContext';
 import CustomerSubscriptionPlans from '../../components/financial/CustomerSubscriptionPlans';
-import MainLayout from '../../components/layouts/MainLayout';
+import DashboardLayout from '../../components/layouts/DashboardLayout';
 import './SubscriptionPlansPage.css';
 
 /**
  * Page component for displaying subscription plans to customers
- * Uses the CustomerSubscriptionPlans component wrapped in main layout
+ * Uses the CustomerSubscriptionPlans component wrapped in dashboard layout
  */
 const SubscriptionPlansPage = () => {
   const { user, isAuthenticated } = useContext(AuthContext);
@@ -27,7 +27,7 @@ const SubscriptionPlansPage = () => {
   }
   
   return (
-    <MainLayout>
+    <DashboardLayout>
       <div className="subscription-plans-page">
         <div className="page-header">
           <h1>Subscription Plans</h1>
@@ -91,7 +91,7 @@ const SubscriptionPlansPage = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </DashboardLayout>
   );
 };
 

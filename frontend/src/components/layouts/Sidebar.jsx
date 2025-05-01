@@ -109,10 +109,12 @@ function Sidebar() {
   return (
     <nav>
       <div className="sidebar">
-        <div className="logo">
-          <img src="#" alt="logo" className="logo-img" />
-          <span className="logo-name">SmartBin</span>
-        </div>
+        <Link to="/" className="logo-link"> {/* Changed Link destination to / */}
+          <div className="logo">
+            <img src="#" alt="logo" className="logo-img" />
+            <span className="logo-name">SmartBin</span>
+          </div>
+        </Link>
         
         <div className="sidebar-content">
           <ul className="list">
