@@ -1,0 +1,239 @@
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.main-content { 
+    display: flex;
+    flex: 1;
+    width: 100%;
+}
+
+.form-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    color: #333;
+}
+
+.form-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+
+.form-box {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    min-height: 80vh;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.form-image {
+    flex: 1;
+    background-image: url('/images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    min-height: 100%;
+}
+
+.form-fields {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-fields form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-fields label {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.form-fields input,
+.form-fields select,
+.form-fields .react-datepicker-wrapper {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-fields input:focus,
+.form-fields select:focus,
+.form-fields .react-datepicker-wrapper input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.form-fields .react-datepicker-wrapper input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+}
+
+.form-fields button {
+    padding: 12px;
+    background-color: #ddd;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.form-fields button:hover {
+    background-color: #ccc;
+}
+
+.form-fields button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+}
+
+.form-fields button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+
+.waste-type-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.waste-type-option {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.waste-type-option:hover {
+    background-color: #e6f0ff;
+}
+
+.waste-type-option label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    font-size: 1rem;
+    color: #444;
+    cursor: pointer;
+}
+
+.waste-type-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #007bff;
+    cursor: pointer;
+}
+
+.ratio-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 25px;
+}
+
+.ratio-input label {
+    flex: 1;
+    font-weight: normal;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.ratio-input input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+}
+
+.ratio-input input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.error {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+.map-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.map-modal-content {
+    background-color: rgb(254, 252, 252);
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    width: 80%;
+    max-width: 800px;
+}
+
+.close-map {
+    position:absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 5px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
