@@ -1,0 +1,381 @@
+/* ProfileComponents.css */
+
+/* Overall profile page layout */
+.profile-container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.profile-header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.profile-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #3e4b2e;
+}
+
+.profile-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-tab {
+  padding: 10px 20px;
+  margin-right: 5px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.profile-tab:hover {
+  color: #3e4b2e;
+}
+
+.profile-tab.active {
+  color: #3e4b2e;
+  border-bottom: 3px solid #3e4b2e;
+  font-weight: 600;
+}
+
+/* Form elements */
+.profile-form {
+  max-width: 800px;
+}
+
+.form-section {
+  margin-bottom: 30px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 20px;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+.form-section h3 {
+  font-size: 1.2rem;
+  color: #3e4b2e;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="password"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3e4b2e;
+}
+
+.form-group input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Address fields grid layout */
+.address-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+/* Required field indicator */
+.required {
+  color: #dc3545;
+}
+
+/* Skills tags */
+.skills-input-group {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.skills-input-group input {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.btn-add-skill {
+  padding: 8px 15px;
+  background-color: #3e4b2e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-add-skill:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.skill-tag {
+  background-color: #f0f4eb;
+  color: #3e4b2e;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.btn-remove-skill {
+  border: none;
+  background: none;
+  color: #999;
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0 3px;
+}
+
+.btn-remove-skill:hover {
+  color: #dc3545;
+}
+
+/* Preference checkboxes */
+.preference-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.preference-item {
+  display: flex;
+  align-items: center;
+}
+
+/* Read-only fields */
+.readonly-field input {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+/* Action buttons */
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Document upload styles */
+.documents-container {
+  margin-top: 20px;
+}
+
+.document-upload-form {
+  background-color: #f9f9f9;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 30px;
+  transition: border-color 0.3s;
+}
+
+.document-upload-form:hover {
+  border-color: #3e4b2e;
+}
+
+.drop-zone {
+  padding: 40px 20px;
+  cursor: pointer;
+}
+
+.drop-zone.active {
+  border-color: #3e4b2e;
+  background-color: #f0f4eb;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-icon {
+  font-size: 48px;
+  color: #3e4b2e;
+  margin-bottom: 15px;
+}
+
+.upload-progress {
+  margin-top: 15px;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #3e4b2e;
+  transition: width 0.3s ease;
+}
+
+/* Document list */
+.document-list {
+  margin-top: 30px;
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: box-shadow 0.3s;
+}
+
+.document-item:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.document-icon {
+  margin-right: 15px;
+  font-size: 20px;
+  color: #3e4b2e;
+}
+
+.document-details {
+  flex-grow: 1;
+}
+
+.document-name {
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+
+.document-meta {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.document-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* MFA setup */
+.mfa-setup {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.qr-container {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.qr-code {
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+}
+
+.verification-code {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.verification-code input {
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.recovery-codes {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.recovery-code {
+  font-family: monospace;
+  font-size: 1rem;
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .profile-tab {
+    padding: 10px 15px;
+    margin-bottom: 5px;
+  }
+  
+  .address-fields {
+    grid-template-columns: 1fr;
+  }
+  
+  .preference-checkboxes {
+    grid-template-columns: 1fr;
+  }
+}

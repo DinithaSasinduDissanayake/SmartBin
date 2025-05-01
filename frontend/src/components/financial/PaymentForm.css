@@ -1,0 +1,150 @@
+.payment-form-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin: 20px 0;
+  max-width: 500px;
+  width: 100%;
+}
+
+.payment-form-container h3 {
+  color: #2c3e50;
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.plan-description {
+  color: #7f8c8d;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.plan-price {
+  font-size: 24px;
+  font-weight: 700;
+  color: #27ae60;
+  margin: 12px 0;
+}
+
+.plan-features {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 24px;
+}
+
+.plan-features li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ecf0f1;
+  color: #34495e;
+}
+
+.plan-features li:last-child {
+  border-bottom: none;
+}
+
+.plan-features li:before {
+  content: "✓ ";
+  color: #27ae60;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #34495e;
+  font-weight: 500;
+}
+
+.card-element-container {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.card-element-container:hover {
+  border-color: #95a5a6;
+}
+
+.card-element-container:focus-within {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.payment-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 16px;
+}
+
+.payment-btn:hover {
+  background-color: #2980b9;
+}
+
+.payment-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.payment-error {
+  color: #e74c3c;
+  margin: 16px 0;
+  padding: 12px;
+  background-color: #fadbd8;
+  border-radius: 4px;
+  border-left: 4px solid #e74c3c;
+}
+
+.payment-success {
+  text-align: center;
+  padding: 24px;
+}
+
+.payment-success h4 {
+  color: #27ae60;
+  margin-bottom: 16px;
+}
+
+.primary-btn {
+  padding: 10px 16px;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 16px;
+}
+
+.primary-btn:hover {
+  background-color: #219653;
+}
+
+.payment-security-note {
+  margin-top: 16px;
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.payment-security-note i {
+  margin-right: 4px;
+  color: #27ae60;
+}

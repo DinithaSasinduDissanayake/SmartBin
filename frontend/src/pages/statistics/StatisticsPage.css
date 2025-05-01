@@ -1,0 +1,40 @@
+/* frontend/src/pages/statistics/StatisticsPage.css */
+
+/* Ensure charts are responsive and maintain aspect ratio */
+.recharts-responsive-container {
+    width: 100% !important; /* Override default inline style if necessary */
+    height: 250px !important; /* Fixed height for consistency, adjust as needed */
+}
+
+/* Style for KPI cards */
+.kpi-card {
+    text-align: center;
+}
+
+/* Add some padding within paper components */
+.MuiPaper-root {
+    padding: 16px; /* Adjust padding as needed */
+}
+
+/* Style for the filter bar */
+.filter-bar {
+    margin-bottom: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap; /* Allow filters to wrap on smaller screens */
+}
+
+/* Ensure date pickers have appropriate width */
+.filter-bar .MuiFormControl-root {
+    min-width: 150px;
+}
+
+/* Adjust chart label sizes if needed */
+.recharts-text.recharts-label {
+    font-size: 0.8rem;
+}
+
+.recharts-legend-item-text {
+    font-size: 0.9rem;
+}
