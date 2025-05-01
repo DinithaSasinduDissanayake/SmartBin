@@ -6,16 +6,21 @@ export interface ISchedule extends Document {
   truckNo: string;
   date: string;
   time: string;
-  status: 'Waiting' | 'Start' | 'Completed';
+  status: string;
 }
 
-const scheduleSchema: Schema = new Schema<ISchedule>({
+const ScheduleSchema: Schema = new Schema({
   scheduleNo: { type: String, required: true, unique: true },
   route: { type: [String], required: true },
   truckNo: { type: String, required: true },
   date: { type: String, required: true },
   time: { type: String, required: true },
-  status: { type: String, enum: ['Waiting', 'Start', 'Completed'], default: 'Waiting' }
-}, { timestamps: true });
+  status: {
+    type: String,
+    required: true,
+    enum: ['Waiting', 'Completed', 'Pending', 'Cancelled'], // Add "Pending" and "Cancelled"
+    default: 'Waiting',
+  },
+});
 
-export default mongoose.model<ISchedule>('Schedule', scheduleSchema);
+export default mongoose.model<ISchedule>('Schedule', ScheduleSchema);

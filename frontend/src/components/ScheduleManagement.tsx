@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/custom.css';
 
+
+
+
 const ScheduleManagement: React.FC = () => {
   const [schedule, setSchedules] = useState({
     scheduleNo: '',
