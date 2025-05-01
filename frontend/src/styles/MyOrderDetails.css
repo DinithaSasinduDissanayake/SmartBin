@@ -1,0 +1,38 @@
+.my-order-details-container {
+  margin-left: 220px; /* Adjust for sidebar width */
+  padding: 20px;
+  max-width: 600px;
+  margin-right: auto;
+}
+
+h2 {
+  text-align: center;
+}
+
+.order-details {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.order-details p {
+  margin: 10px 0;
+}
+
+.update-btn {
+  padding: 10px 20px;
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+  display: block; /* Center the button */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.update-btn:hover {
+  background-color: #ff1493;
+}

@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
+import AdminSidebar from './components/admin/AdminSidebar';
+import RecycleForm from './components/RecycleForm';
+import RequestList from './components/RequestList';
+import MyOrderDetails from './pages/MyOrderDetails';
+import UpdateOrder from './pages/UpdateOrder';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminRecyclingRequests from './components/admin/AdminRecyclingRequests';
+import AdminRequestDetails from './components/admin/AdminRequestDetails'; // Import the new component
+// import WasteMaterials from './components/admin/WasteMaterials'; // Import new admin page
+//import SeeWasteMaterials from './pages/SeeWasteMaterials'; // Import new user page
 
-function App() {
-  const [count, setCount] = useState(0)
+import './App.css';
+
+const App: React.FC = () => {
+  const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="app-container">
+      {isAdminRoute ? <AdminSidebar /> : <Sidebar />}
+      
+      <div className="main-content">
+        <Routes>
+          {/* User Routes */}
+          <Route path="/" element={<RecycleForm />} />
+          <Route path="/my-orders" element={<RequestList />} />
+          <Route path="/order-details/:id" element={<MyOrderDetails />} />
+          <Route path="/update-order/:id" element={<UpdateOrder />} />
+          {/* <Route path="/see-waste-materials" element={<SeeWasteMaterials />} /> New user route */}
 
-export default App
+          {/* Admin Routes */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/requests" element={<AdminRecyclingRequests />} />
+          <Route path="/admin/request/:id" element={<AdminRequestDetails />} /> {/* Updated route */}
+          {/* <Route path="/admin/waste-materials" element={<WasteMaterials />} /> New admin route */}
+        </Routes>
+      </div>
+    </div>
+  );
+};
+
+const AppWrapper: React.FC = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+export default AppWrapper;

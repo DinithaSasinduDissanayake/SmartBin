@@ -1,0 +1,90 @@
+.recycle-form-container {
+  max-width: 600px; /* Slightly wider to match the screenshot */
+  margin: 20px auto;
+  padding: 60px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  background-color: #b4b5f3; /* White background like the screenshot */
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #10177a;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Reduced gap to match the screenshot */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: row; /* Label and input side by side */
+  align-items: center; /* Vertically center the label and input */
+  gap: 10px; /* Space between label and input */
+}
+
+.form-group.button-group {
+  justify-content: center; /* Center the Submit button */
+}
+
+label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000;
+  width: 250px; /* Fixed width for labels to align inputs */
+  text-align: left;
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Take remaining space */
+}
+
+input,
+select {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #3240fc;
+  border-radius: 5px;
+  outline: none;
+  width: 100%; /* Full width within the input-wrapper */
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+  border-color: #6d4bcc;
+  box-shadow: 0 0 5px rgba(29, 48, 155, 0.3);
+}
+
+input[readonly] {
+  background-color: #e0e0e0; /* Light gray for readonly fields */
+}
+
+.error {
+  color: rgb(235, 60, 60);
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #87CEEB; /* Light blue */
+  color: #000000; /* Black text */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #6BB9D8; /* Slightly darker light blue on hover */
+}
+
+p {
+  text-align: center;
+  margin-top: 10px;
+}

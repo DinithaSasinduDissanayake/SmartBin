@@ -1,0 +1,39 @@
+.sidebar {
+    width: 200px;
+    height: 100vh;
+    background-color: #cbdaf5;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 20px;
+  }
+  
+  .sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: rgb(5, 3, 78);
+  }
+  
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar-menu li {
+    margin: 10px 0;
+  }
+  
+  .sidebar-menu li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #000000;
+    background-color: #77b5ce;
+    border-radius: 5px;
+    margin: 0 10px;
+  }
+  
+  .sidebar-menu li a:hover {
+    background-color: #2332bb;
+    color: white;
+  }

@@ -1,0 +1,45 @@
+.admin-sidebar {
+    width: 200px;
+    height: 100vh;
+    background-color: #cbdaf5; /* Match Sidebar background */
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding-top: 20px;
+  }
+  
+  .admin-sidebar-header {
+    text-align: center;
+    margin-bottom: 20px; /* Match Sidebar */
+    color: rgb(5, 3, 78); /* Match Sidebar header color */
+  }
+  
+  .admin-sidebar-header h3 {
+    margin: 0;
+    color: rgb(5, 3, 78); /* Ensure h3 matches */
+  }
+  
+  .admin-sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .admin-sidebar-menu li {
+    margin: 10px 0; /* Match Sidebar */
+  }
+  
+  .admin-sidebar-menu li a {
+    display: block; /* Make links behave like buttons */
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #000000; /* Match Sidebar link color */
+    background-color: #77b5ce; /* Match Sidebar button background */
+    border-radius: 5px; /* Match Sidebar */
+    margin: 0 10px; /* Match Sidebar */
+  }
+  
+  .admin-sidebar-menu li a:hover {
+    background-color: #2332bb; /* Match Sidebar hover background */
+    color: white; /* Match Sidebar hover text color */
+  }

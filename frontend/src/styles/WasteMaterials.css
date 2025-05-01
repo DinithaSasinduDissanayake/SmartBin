@@ -1,0 +1,77 @@
+/* .waste-materials-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .waste-materials-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #10177a;  Match the color scheme from RecycleForm.css 
+  }
+  
+  .waste-materials-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .waste-materials-container th,
+  .waste-materials-container td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .waste-materials-container th {
+    background-color: #b4b5f3; 
+    color: #000;
+  }
+  
+  .waste-materials-container td {
+    background-color: #fff;
+  }
+  
+  .quantity-input {
+    padding: 5px;
+    width: 80px;
+    border: 1px solid #3240fc; 
+    border-radius: 5px;
+  }
+  
+  .update-btn,
+  .save-btn,
+  .cancel-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 5px;
+  }
+  
+  .update-btn {
+    background-color: #6d4bcc; 
+    color: #fff;
+  }
+  
+  .update-btn:hover {
+    background-color: #4b2e99; 
+  }
+  
+  .save-btn {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .save-btn:hover {
+    background-color: #218838;
+  }
+  
+  .cancel-btn {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #c82333;
+  } */

@@ -1,0 +1,29 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import RecycleForm from './components/RecycleForm';
+import Sidebar from './components/Sidebar';
+import MyOrders from './pages/MyOrders';
+import MyOrderDetails from './pages/MyOrderDetails';
+import UpdateOrder from './pages/UpdateOrder'; // Import UpdateOrder
+import './App.css';
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <div className="app-container">
+        <Sidebar />
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<RecycleForm />} />
+            <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/order-details/:id" element={<MyOrderDetails />} />
+            <Route path="/update-order/:id" element={<UpdateOrder />} /> {/* Add route for UpdateOrder */}
+            <Route path="/profile" element={<div>Profile Page (Placeholder)</div>} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
+  );
+};
+
+export default App;
