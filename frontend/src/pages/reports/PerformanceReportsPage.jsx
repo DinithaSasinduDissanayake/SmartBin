@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell
 } from 'recharts';
-import { LinearProgress } from '@mui/material'; // Assuming Material UI is used, adjust if needed
+import {
+  LinearProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Paper,
+  Grid
+} from '@mui/material';
 import performanceApi from '../../services/performanceApi';
-import './FinancialReportsPage.css'; // Reuse same styling
+import './FinancialReportsPage.css';
 
 const PerformanceReportsPage = () => {
   const [reportType, setReportType] = useState('summary');
@@ -28,15 +40,16 @@ const PerformanceReportsPage = () => {
   const [exportLoading, setExportLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Get staff list for filtering
   useEffect(() => {
     const fetchStaffList = async () => {
       try {
-        // This is a placeholder. In a real app, you would fetch staff list from an API
-        // For now, we'll leave it empty as we don't have a specific endpoint
-        // setStaffList([...]);
+        setStaffList([
+          { _id: 'staff1', name: 'John Doe' },
+          { _id: 'staff2', name: 'Jane Smith' },
+        ]);
       } catch (err) {
         console.error('Error fetching staff list:', err);
+        setError('Failed to load staff list.');
       }
     };
 
@@ -45,29 +58,26 @@ const PerformanceReportsPage = () => {
 
   const handleGenerateReport = async () => {
     if (reportType === 'detailed') {
-      // For detailed reports, validate date range
       if (!startDate || !endDate) {
         setError('Please select both start and end dates.');
         return;
       }
-      
-      // Validate date range
       if (new Date(startDate) > new Date(endDate)) {
         setError('Start date cannot be after end date.');
         return;
       }
     }
-    
+
     setLoading(true);
     setError('');
     setReportData(null);
-    
+
     try {
       let response;
-      
+
       switch (reportType) {
         case 'summary':
-          response = await performanceApi.getPerformanceSummary();
+          response = await performanceApi.getPerformanceSummary(period);
           setReportData(response.data);
           break;
         case 'detailed':
@@ -88,18 +98,15 @@ const PerformanceReportsPage = () => {
   const handleExportReport = async () => {
     setExportLoading(true);
     setError('');
-    
+
     try {
       const response = await performanceApi.exportPerformanceReport(period, staffId || undefined);
-      
-      // Create a blob from the PDF data
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
-      
-      // Create a link and trigger download
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       const reportPeriod = period || 'custom';
-                         
+
       a.href = url;
       a.download = `performance-report-${reportPeriod}-${new Date().toISOString().slice(0, 10)}.pdf`;
       document.body.appendChild(a);
@@ -116,19 +123,17 @@ const PerformanceReportsPage = () => {
 
   const renderPerformanceSummary = (data) => {
     if (!data || !data.byStaff || data.byStaff.length === 0) {
-      return <p>No performance data available for the selected period.</p>;
+      return <Typography>No performance data available for the selected period.</Typography>;
     }
-    
+
     const { overall, byStaff, period } = data;
-    
-    // Prepare data for charts
+
     const staffRatings = byStaff.map(staff => ({
       name: staff.staffName,
       rating: staff.averageRating,
       reviews: staff.reviewCount
     })).sort((a, b) => b.rating - a.rating);
-    
-    // Rating distribution data
+
     const ratingDistribution = [
       { name: "5★", value: 0 },
       { name: "4★", value: 0 },
@@ -136,46 +141,45 @@ const PerformanceReportsPage = () => {
       { name: "2★", value: 0 },
       { name: "1★", value: 0 }
     ];
-    
-    // Count staff by rating buckets
+
     byStaff.forEach(staff => {
       const ratingFloor = Math.floor(staff.averageRating);
       if (ratingFloor >= 1 && ratingFloor <= 5) {
         ratingDistribution[5 - ratingFloor].value += 1;
       }
     });
-    
+
     const COLORS = ['#4caf50', '#8bc34a', '#ffeb3b', '#ff9800', '#f44336'];
-    
+
     return (
-      <div className="report-content">
-        <div className="report-summary">
-          <h4>Performance Summary</h4>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Period:</span>
-              <span className="value">
+      <Box>
+        <Box>
+          <Typography variant="h6">Performance Summary</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>Period:</Typography>
+              <Typography>
                 {new Date(period.start).toLocaleDateString()} - {new Date(period.end).toLocaleDateString()}
-              </span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Overall Rating:</span>
-              <span className="value">{overall.averageRating.toFixed(2)}/5.0</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Total Reviews:</span>
-              <span className="value">{overall.totalReviews}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Staff Evaluated:</span>
-              <span className="value">{byStaff.length}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="report-charts-grid">
-          <div className="chart-container">
-            <h4>Staff Rating Distribution</h4>
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>Overall Rating:</Typography>
+              <Typography>{overall.averageRating.toFixed(2)}/5.0</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>Total Reviews:</Typography>
+              <Typography>{overall.totalReviews}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>Staff Evaluated:</Typography>
+              <Typography>{byStaff.length}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6">Staff Rating Distribution</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -195,10 +199,10 @@ const PerformanceReportsPage = () => {
                 <Tooltip formatter={(value) => `${value} staff`} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
-          
-          <div className="chart-container">
-            <h4>Staff Performance Ratings</h4>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6">Staff Performance Ratings</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={staffRatings.slice(0, 10)}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -208,12 +212,12 @@ const PerformanceReportsPage = () => {
                 <Bar dataKey="rating" name="Rating" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-        
-        <div className="report-table">
-          <h4>Staff Performance Details</h4>
-          <table className="data-table">
+          </Grid>
+        </Grid>
+
+        <Box>
+          <Typography variant="h6">Staff Performance Details</Typography>
+          <table>
             <thead>
               <tr>
                 <th>Staff Name</th>
@@ -227,95 +231,90 @@ const PerformanceReportsPage = () => {
                 <tr key={index}>
                   <td>{staff.staffName}</td>
                   <td>{staff.staffEmail}</td>
-                  <td>
-                    <span className={`rating rating-${Math.floor(staff.averageRating)}`}>
-                      {staff.averageRating.toFixed(2)}/5.0
-                    </span>
-                  </td>
+                  <td>{staff.averageRating.toFixed(2)}/5.0</td>
                   <td>{staff.reviewCount}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   };
-  
+
   const renderDetailedReport = (data) => {
     if (!data || !data.staffReports || data.staffReports.length === 0) {
-      return <p>No performance data available for the selected period.</p>;
+      return <Typography>No performance data available for the selected period.</Typography>;
     }
-    
+
     const { periodInfo, staffReports } = data;
-    
+
     return (
-      <div className="report-content">
-        <div className="report-summary">
-          <h4>Performance Period Summary</h4>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Start Date:</span>
-              <span className="value">{new Date(periodInfo.startDate).toLocaleDateString()}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">End Date:</span>
-              <span className="value">{new Date(periodInfo.endDate).toLocaleDateString()}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Total Reviews:</span>
-              <span className="value">{periodInfo.totalReviews}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Staff Members:</span>
-              <span className="value">{staffReports.length}</span>
-            </div>
-          </div>
-        </div>
-        
+      <Box>
+        <Box>
+          <Typography variant="h6">Performance Period Summary</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>Start Date:</Typography>
+              <Typography>{new Date(periodInfo.startDate).toLocaleDateString()}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>End Date:</Typography>
+              <Typography>{new Date(periodInfo.endDate).toLocaleDateString()}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>Total Reviews:</Typography>
+              <Typography>{periodInfo.totalReviews}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Typography>Staff Members:</Typography>
+              <Typography>{staffReports.length}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
         {staffReports.map((staffReport, index) => (
-          <div key={index} className="staff-report-section">
-            <h4>{staffReport.staffInfo.name}</h4>
-            <div className="summary-grid mini">
-              <div className="summary-item">
-                <span className="label">Average Rating:</span>
-                <span className="value">{staffReport.summary.averageRating.toFixed(2)}/5.0</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Total Reviews:</span>
-                <span className="value">{staffReport.summary.totalReviews}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Email:</span>
-                <span className="value">{staffReport.staffInfo.email}</span>
-              </div>
-            </div>
-            
-            <h5>Rating Distribution</h5>
-            <div className="rating-bars">
+          <Box key={index}>
+            <Typography variant="h6">{staffReport.staffInfo.name}</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography>Average Rating:</Typography>
+                <Typography>{staffReport.summary.averageRating.toFixed(2)}/5.0</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography>Total Reviews:</Typography>
+                <Typography>{staffReport.summary.totalReviews}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography>Email:</Typography>
+                <Typography>{staffReport.staffInfo.email}</Typography>
+              </Grid>
+            </Grid>
+
+            <Typography variant="h6">Rating Distribution</Typography>
+            <Box>
               {Object.entries(staffReport.summary.ratingDistribution)
                 .sort(([a], [b]) => parseInt(b) - parseInt(a))
                 .map(([rating, count]) => (
-                  <div key={rating} className="rating-bar-container">
-                    <span className="rating-label">{rating} ★</span>
-                    <div className="rating-bar">
-                      <div 
-                        className="rating-bar-fill" 
+                  <Box key={rating}>
+                    <Typography>{rating} ★</Typography>
+                    <Box>
+                      <Box
                         style={{
                           width: `${(count / staffReport.summary.totalReviews) * 100}%`,
                           backgroundColor: rating >= 4 ? '#4caf50' : rating >= 3 ? '#ffeb3b' : '#f44336'
                         }}
-                      ></div>
-                    </div>
-                    <span className="rating-count">{count}</span>
-                  </div>
+                      ></Box>
+                    </Box>
+                    <Typography>{count}</Typography>
+                  </Box>
                 ))}
-            </div>
-            
+            </Box>
+
             {staffReport.reviews.length > 0 && (
-              <>
-                <h5>Recent Performance Reviews</h5>
-                <table className="data-table mini">
+              <Box>
+                <Typography variant="h6">Recent Performance Reviews</Typography>
+                <table>
                   <thead>
                     <tr>
                       <th>Date</th>
@@ -329,26 +328,23 @@ const PerformanceReportsPage = () => {
                       <tr key={idx}>
                         <td>{new Date(review.reviewDate).toLocaleDateString()}</td>
                         <td>{review.reviewer.name}</td>
-                        <td className={`rating rating-${Math.floor(review.rating)}`}>
-                          {review.rating.toFixed(1)}/5.0
-                        </td>
+                        <td>{review.rating.toFixed(1)}/5.0</td>
                         <td>{review.comments || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </>
+              </Box>
             )}
-          </div>
+          </Box>
         ))}
-
-      </div>
+      </Box>
     );
   };
-  
+
   const renderReportData = () => {
     if (!reportData) return null;
-    
+
     switch (reportType) {
       case 'summary':
         return renderPerformanceSummary(reportData);
@@ -360,95 +356,160 @@ const PerformanceReportsPage = () => {
   };
 
   return (
-    <div className="performance-reports-page dashboard-content">
-      <h2>Performance Reports</h2>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>Performance Reports</Typography>
 
-      <div className="report-controls">
-        <div className="form-group">
-          <label htmlFor="reportType">Report Type:</label>
-          <select id="reportType" value={reportType} onChange={(e) => setReportType(e.target.value)}>
-            <option value="summary">General Summary</option>
-            <option value="detailed">Detailed Performance</option>
-          </select>
-        </div>
-        
-        {reportType === 'summary' ? (
-          <div className="form-group">
-            <label htmlFor="period">Period:</label>
-            <select id="period" value={period} onChange={(e) => setPeriod(e.target.value)}>
-              <option value="month">Last Month</option>
-              <option value="quarter">Last Quarter</option>
-              <option value="year">Last Year</option>
-            </select>
-          </div>
-        ) : (
-          <>
-            <div className="form-group">
-              <label htmlFor="startDate">Start Date:</label>
-              <input 
-                type="date" 
-                id="startDate" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)}
-                max={endDate || undefined}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="endDate">End Date:</label>
-              <input 
-                type="date" 
-                id="endDate" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)} 
-                min={startDate || undefined}
-              />
-            </div>
-          </>
-        )}
-        
-        {staffList.length > 0 && (
-          <div className="form-group">
-            <label htmlFor="staffId">Staff Member:</label>
-            <select id="staffId" value={staffId} onChange={(e) => setStaffId(e.target.value)}>
-              <option value="">All Staff</option>
-              {staffList.map(staff => (
-                <option key={staff._id} value={staff._id}>
-                  {staff.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        
-        <button 
-          className="btn primary" 
-          onClick={handleGenerateReport} 
-          disabled={loading || (reportType === 'detailed' && (!startDate || !endDate))}
-        >
-          {loading ? 'Generating...' : 'Generate Report'}
-        </button>
-        
-        <div className="export-section"> {/* Wrap button and progress bar */}
-          <button 
-            className="btn secondary" 
-            onClick={handleExportReport} 
-            disabled={exportLoading}
-          >
-            {exportLoading ? 'Exporting...' : 'Export PDF Report'}
-          </button>
-          {exportLoading && <LinearProgress style={{ marginTop: '8px' }} />} {/* Add progress bar */}
-        </div>
-      </div>
+      <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+        <Grid container spacing={2} alignItems="flex-end">
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel id="reportType-label">Report Type</InputLabel>
+              <Select
+                labelId="reportType-label"
+                id="reportType"
+                value={reportType}
+                label="Report Type"
+                onChange={(e) => setReportType(e.target.value)}
+              >
+                <MenuItem value="summary">General Summary</MenuItem>
+                <MenuItem value="detailed">Detailed Performance</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
 
-      {error && <div className="error-message">{error}</div>}
+          {reportType === 'summary' ? (
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel id="period-label">Period</InputLabel>
+                <Select
+                  labelId="period-label"
+                  id="period"
+                  value={period}
+                  label="Period"
+                  onChange={(e) => setPeriod(e.target.value)}
+                >
+                  <MenuItem value="month">Last Month</MenuItem>
+                  <MenuItem value="quarter">Last Quarter</MenuItem>
+                  <MenuItem value="year">Last Year</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          ) : (
+            <>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="startDate"
+                  label="Start Date"
+                  type="date"
+                  variant="outlined"
+                  size="small"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    max: endDate || undefined
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="endDate"
+                  label="End Date"
+                  type="date"
+                  variant="outlined"
+                  size="small"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    min: startDate || undefined
+                  }}
+                />
+              </Grid>
+            </>
+          )}
 
-      <div className="report-output">
-        <h3>{reportType === 'summary' ? 'Performance Summary' : 'Detailed Performance Report'}</h3>
-        {loading && <p className="loading-message">Loading report data...</p>}
+          {staffList.length > 0 && (
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel id="staffId-label">Staff Member</InputLabel>
+                <Select
+                  labelId="staffId-label"
+                  id="staffId"
+                  value={staffId}
+                  label="Staff Member"
+                  onChange={(e) => setStaffId(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>All Staff</em>
+                  </MenuItem>
+                  {staffList.map(staff => (
+                    <MenuItem key={staff._id} value={staff._id}>
+                      {staff.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          )}
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleGenerateReport}
+              disabled={loading || (reportType === 'detailed' && (!startDate || !endDate))}
+              fullWidth
+              sx={{ height: '40px' }}
+            >
+              {loading ? 'Generating...' : 'Generate Report'}
+            </Button>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Box sx={{ position: 'relative', width: '100%' }}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={handleExportReport}
+                disabled={exportLoading}
+                fullWidth
+                sx={{ height: '40px' }}
+              >
+                {exportLoading ? 'Exporting...' : 'Export PDF Report'}
+              </Button>
+              {exportLoading && (
+                <LinearProgress
+                  sx={{
+                    position: 'absolute',
+                    bottom: -8,
+                    left: 0,
+                    width: '100%',
+                  }}
+                />
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+
+      <Paper elevation={1} sx={{ p: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          {reportType === 'summary' ? 'Performance Summary' : 'Detailed Performance Report'}
+        </Typography>
+        {loading && <Typography sx={{ my: 2 }}>Loading report data...</Typography>}
         {!loading && reportData && renderReportData()}
-        {!loading && !reportData && !error && <p>Select parameters and generate a report.</p>}
-      </div>
-    </div>
+        {!loading && !reportData && !error && <Typography sx={{ my: 2 }}>Select parameters and generate a report.</Typography>}
+      </Paper>
+    </Box>
   );
 };
 

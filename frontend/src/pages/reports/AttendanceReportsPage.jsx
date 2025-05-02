@@ -1,27 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell
 } from 'recharts';
-import { LinearProgress } from '@mui/material'; // Assuming Material UI is used, adjust if needed
+import {
+  LinearProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Alert
+} from '@mui/material';
 import attendanceApi from '../../services/attendanceApi';
-import './FinancialReportsPage.css'; // Reuse same styling
 
 const AttendanceReportsPage = () => {
   const [reportType, setReportType] = useState('monthly');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [month, setMonth] = useState(new Date().getMonth() + 1); // Current month (1-12)
-  const [year, setYear] = useState(new Date().getFullYear()); // Current year
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(new Date().getFullYear());
   const [staffId, setStaffId] = useState('');
   const [staffList, setStaffList] = useState([]);
   const [reportData, setReportData] = useState(null);
@@ -29,15 +41,16 @@ const AttendanceReportsPage = () => {
   const [exportLoading, setExportLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Get staff list for filtering
   useEffect(() => {
     const fetchStaffList = async () => {
       try {
-        // This is a placeholder. In a real app, you would fetch staff list from an API
-        // For now, we'll leave it empty as we don't have a specific endpoint
-        // setStaffList([...]);
+        setStaffList([
+          { _id: 'staff1', name: 'John Doe' },
+          { _id: 'staff2', name: 'Jane Smith' },
+        ]);
       } catch (err) {
         console.error('Error fetching staff list:', err);
+        setError('Failed to load staff list.');
       }
     };
 
@@ -51,26 +64,23 @@ const AttendanceReportsPage = () => {
         return;
       }
     } else {
-      // For detailed reports
       if (!startDate || !endDate) {
         setError('Please select both start and end dates.');
         return;
       }
-      
-      // Validate date range
       if (new Date(startDate) > new Date(endDate)) {
         setError('Start date cannot be after end date.');
         return;
       }
     }
-    
+
     setLoading(true);
     setError('');
     setReportData(null);
-    
+
     try {
       let response;
-      
+
       switch (reportType) {
         case 'monthly':
           response = await attendanceApi.getAttendanceSummary(month, year);
@@ -96,35 +106,33 @@ const AttendanceReportsPage = () => {
       setError('Please select both month and year to export report.');
       return;
     }
-    
+    if (reportType === 'detailed' && (!startDate || !endDate)) {
+      setError('Please select both start and end dates to export report.');
+      return;
+    }
+
     setExportLoading(true);
     setError('');
-    
+
     try {
       let response;
-      
+
       if (reportType === 'monthly') {
         response = await attendanceApi.exportAttendanceReport(month, year);
       } else {
-        // For detailed report, we need to generate the summary first
         if (!reportData) {
           await handleGenerateReport();
         }
         response = await attendanceApi.exportAttendanceReport(month, year);
       }
-      
-      // Create a blob from the PDF data
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
-      
-      // Create a link and trigger download
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                         'July', 'August', 'September', 'October', 'November', 'December'];
-                         
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
       a.href = url;
-      a.download = `attendance-report-${monthNames[month-1]}-${year}.pdf`;
+      a.download = `attendance-report-${monthNames[month - 1]}-${year}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -138,16 +146,14 @@ const AttendanceReportsPage = () => {
   };
 
   const renderMonthlySummary = (data) => {
-    if (!data || data.length === 0) return <p>No attendance data available for the selected month.</p>;
-    
-    // Process data for charts
-    // Calculate department-wide statistics
+    if (!data || data.length === 0) return <Typography>No attendance data available for the selected month.</Typography>;
+
     let totalHours = 0;
     let totalPresent = 0;
     let totalAbsent = 0;
     let totalLate = 0;
     let totalLeave = 0;
-    
+
     data.forEach(staff => {
       totalHours += staff.summary?.totalHours || 0;
       totalPresent += staff.summary?.presentDays || 0;
@@ -155,54 +161,47 @@ const AttendanceReportsPage = () => {
       totalLate += staff.summary?.lateDays || 0;
       totalLeave += staff.summary?.leaveDays || 0;
     });
-    
-    // Prepare status distribution data for pie chart
+
     const statusData = [
       { name: 'Present', value: totalPresent },
       { name: 'Absent', value: totalAbsent },
       { name: 'Late', value: totalLate },
       { name: 'On Leave', value: totalLeave }
     ].filter(item => item.value > 0);
-    
-    // Prepare staff hours data for bar chart
+
     const staffHoursData = data.map(staff => ({
       name: staff.staff?.name || 'Unknown',
       hours: staff.summary?.totalHours || 0
-    })).sort((a, b) => b.hours - a.hours); // Sort by hours (descending)
-    
+    })).sort((a, b) => b.hours - a.hours);
+
     const COLORS = ['#4caf50', '#f44336', '#ff9800', '#2196f3'];
-    
+
     return (
-      <div className="report-content">
-        <div className="report-summary">
-          <h4>Department Summary</h4>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Total Hours:</span>
-              <span className="value">{totalHours.toFixed(2)}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Present Days:</span>
-              <span className="value">{totalPresent}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Absent Days:</span>
-              <span className="value">{totalAbsent}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Late Days:</span>
-              <span className="value">{totalLate}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Leave Days:</span>
-              <span className="value">{totalLeave}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="report-charts-grid">
-          <div className="chart-container">
-            <h4>Attendance Status Distribution</h4>
+      <Box>
+        <Box>
+          <Typography variant="h6">Department Summary</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Typography>Total Hours: {totalHours.toFixed(2)}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Present Days: {totalPresent}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Absent Days: {totalAbsent}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Late Days: {totalLate}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Leave Days: {totalLeave}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6">Attendance Status Distribution</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -222,10 +221,10 @@ const AttendanceReportsPage = () => {
                 <Tooltip formatter={(value) => `${value} days`} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
-          
-          <div className="chart-container">
-            <h4>Staff Hours Worked</h4>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6">Staff Hours Worked</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={staffHoursData.slice(0, 10)}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -235,132 +234,97 @@ const AttendanceReportsPage = () => {
                 <Bar dataKey="hours" name="Hours" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-        
-        <div className="report-table">
-          <h4>Staff Attendance Details</h4>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Staff Name</th>
-                <th>Total Hours</th>
-                <th>Present Days</th>
-                <th>Absent Days</th>
-                <th>Late Days</th>
-                <th>Leave Days</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((staff, index) => (
-                <tr key={index}>
-                  <td>{staff.staff?.name || 'Unknown'}</td>
-                  <td>{(staff.summary?.totalHours || 0).toFixed(2)}</td>
-                  <td>{staff.summary?.presentDays || 0}</td>
-                  <td>{staff.summary?.absentDays || 0}</td>
-                  <td>{staff.summary?.lateDays || 0}</td>
-                  <td>{staff.summary?.leaveDays || 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+          </Grid>
+        </Grid>
+      </Box>
     );
   };
-  
+
   const renderDetailedReport = (data) => {
-    if (!data || !data.staffReports || data.staffReports.length === 0) 
-      return <p>No attendance data available for the selected period.</p>;
-    
-    // Process working days information
+    if (!data || !data.staffReports || data.staffReports.length === 0)
+      return <Typography>No attendance data available for the selected period.</Typography>;
+
     const workingDays = data.periodInfo?.workingDays || 0;
-    
+
     return (
-      <div className="report-content">
-        <div className="report-summary">
-          <h4>Attendance Period Summary</h4>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Start Date:</span>
-              <span className="value">{new Date(data.periodInfo.startDate).toLocaleDateString()}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">End Date:</span>
-              <span className="value">{new Date(data.periodInfo.endDate).toLocaleDateString()}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Working Days:</span>
-              <span className="value">{workingDays}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Staff Members:</span>
-              <span className="value">{data.staffReports.length}</span>
-            </div>
-          </div>
-        </div>
-        
+      <Box>
+        <Box>
+          <Typography variant="h6">Attendance Period Summary</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Typography>Start Date: {new Date(data.periodInfo.startDate).toLocaleDateString()}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>End Date: {new Date(data.periodInfo.endDate).toLocaleDateString()}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Working Days: {workingDays}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>Staff Members: {data.staffReports.length}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
         {data.staffReports.map((staffReport, index) => (
-          <div key={index} className="staff-report-section">
-            <h4>{staffReport.staffInfo.name}</h4>
-            <div className="summary-grid mini">
-              <div className="summary-item">
-                <span className="label">Total Hours:</span>
-                <span className="value">{staffReport.summary.totalHours.toFixed(2)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Attendance Rate:</span>
-                <span className="value">{staffReport.summary.attendanceRate}%</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Present:</span>
-                <span className="value">{staffReport.summary.presentDays}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Absent:</span>
-                <span className="value">{staffReport.summary.absentDays}</span>
-              </div>
-              <div className="summary-item">
-                <span className="label">Late:</span>
-                <span className="value">{staffReport.summary.lateDays}</span>
-              </div>
-            </div>
-            
+          <Box key={index}>
+            <Typography variant="h6">{staffReport.staffInfo.name}</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography>Total Hours: {staffReport.summary.totalHours.toFixed(2)}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>Attendance Rate: {staffReport.summary.attendanceRate}%</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>Present: {staffReport.summary.presentDays}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>Absent: {staffReport.summary.absentDays}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography>Late: {staffReport.summary.lateDays}</Typography>
+              </Grid>
+            </Grid>
+
             {staffReport.records.length > 0 && (
-              <table className="data-table mini">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Check In</th>
-                    <th>Check Out</th>
-                    <th>Hours</th>
-                    <th>Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {staffReport.records.map((record, idx) => (
-                    <tr key={idx}>
-                      <td>{new Date(record.date).toLocaleDateString()}</td>
-                      <td className={record.status.toLowerCase().replace(' ', '-')}>{record.status}</td>
-                      <td>{record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}</td>
-                      <td>{record.checkOutTime ? new Date(record.checkOutTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}</td>
-                      <td>{record.totalHours ? record.totalHours.toFixed(2) : '-'}</td>
-                      <td>{record.notes || '-'}</td>
+              <Box>
+                <Typography variant="h6">Attendance Records</Typography>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Check In</th>
+                      <th>Check Out</th>
+                      <th>Hours</th>
+                      <th>Notes</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {staffReport.records.map((record, idx) => (
+                      <tr key={idx}>
+                        <td>{new Date(record.date).toLocaleDateString()}</td>
+                        <td>{record.status}</td>
+                        <td>{record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                        <td>{record.checkOutTime ? new Date(record.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                        <td>{record.totalHours ? record.totalHours.toFixed(2) : '-'}</td>
+                        <td>{record.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Box>
             )}
-          </div>
+          </Box>
         ))}
-      </div>
+      </Box>
     );
   };
-  
+
   const renderReportData = () => {
     if (!reportData) return null;
-    
+
     switch (reportType) {
       case 'monthly':
         return renderMonthlySummary(reportData);
@@ -370,7 +334,7 @@ const AttendanceReportsPage = () => {
         return <pre>{JSON.stringify(reportData, null, 2)}</pre>;
     }
   };
-  
+
   const monthOptions = [
     { value: 1, label: 'January' },
     { value: 2, label: 'February' },
@@ -385,117 +349,181 @@ const AttendanceReportsPage = () => {
     { value: 11, label: 'November' },
     { value: 12, label: 'December' }
   ];
-  
-  // Generate year options (last 5 years)
+
   const currentYear = new Date().getFullYear();
-  const yearOptions = [];
-  for (let i = 0; i < 5; i++) {
-    yearOptions.push({ value: currentYear - i, label: (currentYear - i).toString() });
-  }
+  const yearOptions = Array.from({ length: 5 }, (_, i) => {
+    const yearValue = currentYear - i;
+    return { value: yearValue, label: yearValue.toString() };
+  });
 
   return (
-    <div className="attendance-reports-page dashboard-content">
-      <h2>Attendance Reports</h2>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>Attendance Reports</Typography>
 
-      <div className="report-controls">
-        <div className="form-group">
-          <label htmlFor="reportType">Report Type:</label>
-          <select id="reportType" value={reportType} onChange={(e) => setReportType(e.target.value)}>
-            <option value="monthly">Monthly Summary</option>
-            <option value="detailed">Detailed Attendance</option>
-          </select>
-        </div>
-        
-        {reportType === 'monthly' ? (
-          <>
-            <div className="form-group">
-              <label htmlFor="month">Month:</label>
-              <select id="month" value={month} onChange={(e) => setMonth(parseInt(e.target.value, 10))}>
-                {monthOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="year">Year:</label>
-              <select id="year" value={year} onChange={(e) => setYear(parseInt(e.target.value, 10))}>
-                {yearOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="form-group">
-              <label htmlFor="startDate">Start Date:</label>
-              <input 
-                type="date" 
-                id="startDate" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)}
-                max={endDate || undefined}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="endDate">End Date:</label>
-              <input 
-                type="date" 
-                id="endDate" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)} 
-                min={startDate || undefined}
-              />
-            </div>
-            {staffList.length > 0 && (
-              <div className="form-group">
-                <label htmlFor="staffId">Staff Member:</label>
-                <select id="staffId" value={staffId} onChange={(e) => setStaffId(e.target.value)}>
-                  <option value="">All Staff</option>
-                  {staffList.map(staff => (
-                    <option key={staff._id} value={staff._id}>
-                      {staff.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </>
-        )}
-        
-        <button 
-          className="btn primary" 
-          onClick={handleGenerateReport} 
-          disabled={loading || (reportType === 'monthly' ? (!month || !year) : (!startDate || !endDate))}
-        >
-          {loading ? 'Generating...' : 'Generate Report'}
-        </button>
-        
-        <div className="export-section"> {/* Wrap button and progress bar */}
-          <button 
-            className="btn secondary" 
-            onClick={handleExportReport} 
-            disabled={exportLoading || (reportType === 'monthly' ? (!month || !year) : (!startDate || !endDate))}
-          >
-            {exportLoading ? 'Exporting...' : 'Export PDF Report'}
-          </button>
-          {exportLoading && <LinearProgress style={{ marginTop: '8px' }} />} {/* Add progress bar */}
-        </div>
-      </div>
+      <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+        <Grid container spacing={2} alignItems="flex-end">
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel id="reportType-label">Report Type</InputLabel>
+              <Select
+                labelId="reportType-label"
+                id="reportType"
+                value={reportType}
+                label="Report Type"
+                onChange={(e) => setReportType(e.target.value)}
+              >
+                <MenuItem value="monthly">Monthly Summary</MenuItem>
+                <MenuItem value="detailed">Detailed Attendance</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
 
-      {error && <div className="error-message">{error}</div>}
+          {reportType === 'monthly' ? (
+            <>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth variant="outlined" size="small">
+                  <InputLabel id="month-label">Month</InputLabel>
+                  <Select
+                    labelId="month-label"
+                    id="month"
+                    value={month}
+                    label="Month"
+                    onChange={(e) => setMonth(parseInt(e.target.value, 10))}
+                  >
+                    {monthOptions.map(option => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth variant="outlined" size="small">
+                  <InputLabel id="year-label">Year</InputLabel>
+                  <Select
+                    labelId="year-label"
+                    id="year"
+                    value={year}
+                    label="Year"
+                    onChange={(e) => setYear(parseInt(e.target.value, 10))}
+                  >
+                    {yearOptions.map(option => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </>
+          ) : (
+            <>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="startDate"
+                  label="Start Date"
+                  type="date"
+                  variant="outlined"
+                  size="small"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ max: endDate || undefined }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="endDate"
+                  label="End Date"
+                  type="date"
+                  variant="outlined"
+                  size="small"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: startDate || undefined }}
+                />
+              </Grid>
+              {staffList.length > 0 && (
+                <Grid item xs={12} sm={6} md={3}>
+                  <FormControl fullWidth variant="outlined" size="small">
+                    <InputLabel id="staffId-label">Staff Member</InputLabel>
+                    <Select
+                      labelId="staffId-label"
+                      id="staffId"
+                      value={staffId}
+                      label="Staff Member"
+                      onChange={(e) => setStaffId(e.target.value)}
+                    >
+                      <MenuItem value="">
+                        <em>All Staff</em>
+                      </MenuItem>
+                      {staffList.map(staff => (
+                        <MenuItem key={staff._id} value={staff._id}>
+                          {staff.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              )}
+            </>
+          )}
 
-      <div className="report-output">
-        <h3>{reportType === 'monthly' ? 'Monthly Attendance Summary' : 'Detailed Attendance Report'}</h3>
-        {loading && <p className="loading-message">Loading report data...</p>}
+          <Grid item xs={12} sm={6} md={reportType === 'monthly' ? 3 : (staffList.length > 0 ? 3 : 6)}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleGenerateReport}
+              disabled={loading || (reportType === 'monthly' ? (!month || !year) : (!startDate || !endDate))}
+              fullWidth
+              sx={{ height: '40px' }}
+            >
+              {loading ? 'Generating...' : 'Generate Report'}
+            </Button>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={reportType === 'monthly' ? 3 : (staffList.length > 0 ? 3 : 6)}>
+            <Box sx={{ position: 'relative', width: '100%' }}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={handleExportReport}
+                disabled={exportLoading || (reportType === 'monthly' ? (!month || !year) : (!startDate || !endDate))}
+                fullWidth
+                sx={{ height: '40px' }}
+              >
+                {exportLoading ? 'Exporting...' : 'Export PDF Report'}
+              </Button>
+              {exportLoading && (
+                <LinearProgress
+                  sx={{
+                    position: 'absolute',
+                    bottom: -8,
+                    left: 0,
+                    width: '100%',
+                  }}
+                />
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+      <Paper elevation={1} sx={{ p: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          {reportType === 'monthly' ? 'Monthly Attendance Summary' : 'Detailed Attendance Report'}
+        </Typography>
+        {loading && <Typography sx={{ my: 2 }}>Loading report data...</Typography>}
         {!loading && reportData && renderReportData()}
-        {!loading && !reportData && !error && <p>Select parameters and generate a report.</p>}
-      </div>
-    </div>
+        {!loading && !reportData && !error && <Typography sx={{ my: 2 }}>Select parameters and generate a report.</Typography>}
+      </Paper>
+    </Box>
   );
 };
 

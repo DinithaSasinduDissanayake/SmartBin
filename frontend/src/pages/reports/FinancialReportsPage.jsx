@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   LineChart,
   Line,
@@ -14,13 +14,25 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { LinearProgress } from '@mui/material'; // Assuming Material UI is used, adjust if needed
+import {
+  LinearProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Alert
+} from '@mui/material';
 import financialApi from '../../services/financialApi';
-import './FinancialReportsPage.css'; 
 
 const FinancialReportsPage = () => {
   const [reportType, setReportType] = useState('profit-loss');
-  const [startDate, setStartDate] = useState(''); 
+  const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -28,26 +40,24 @@ const FinancialReportsPage = () => {
   const [exportLoading, setExportLoading] = useState(false);
 
   const handleGenerateReport = async () => {
-    // Basic validation
     if (!startDate || !endDate) {
-       setError('Please select both start and end dates.');
-       return;
+      setError('Please select both start and end dates.');
+      return;
     }
-    
-    // Validate date range
+
     if (new Date(startDate) > new Date(endDate)) {
       setError('Start date cannot be after end date.');
       return;
     }
-    
+
     setLoading(true);
     setError('');
     setReportData(null);
-    
+
     try {
       const params = { startDate, endDate };
       let response;
-      
+
       switch (reportType) {
         case 'profit-loss':
           response = await financialApi.getProfitLossReport(params);
@@ -72,42 +82,28 @@ const FinancialReportsPage = () => {
     }
   };
 
-  // Function to handle PDF export
   const handleExportReport = async () => {
     if (!startDate || !endDate) {
       setError('Please select both start and end dates.');
       return;
     }
-    
+
     setExportLoading(true);
     setError('');
-    
+
     try {
-      // Create date range parameter for the API call
       const params = { startDate, endDate, type: reportType };
-      
-      // Call the export API function with proper parameters
       const response = await financialApi.exportReport(params);
-      
-      // Create a blob from the response data
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
-      
-      // Create a URL for the blob
       const url = window.URL.createObjectURL(blob);
-      
-      // Create a temporary link element to trigger the download
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `${reportType}-report-${startDate}-to-${endDate}.pdf`);
-      
-      // Append link to body, click it to start download, then clean up
       document.body.appendChild(link);
       link.click();
-      
-      // Clean up by removing the link and revoking the URL
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
     } catch (err) {
       console.error('Report export error:', err);
       setError('Failed to export report as PDF. Please try again later.');
@@ -116,7 +112,6 @@ const FinancialReportsPage = () => {
     }
   };
 
-  // Format currency for report display
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -125,31 +120,28 @@ const FinancialReportsPage = () => {
   };
 
   const renderProfitLossReport = (data) => {
-    if (!data || !data.summary) return <p>No profit & loss data available for the selected period.</p>;
-    
+    if (!data || !data.summary) return <Typography>No profit & loss data available for the selected period.</Typography>;
+
     return (
-      <div className="report-content">
-        <div className="report-summary">
-          <h4>Summary</h4>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Total Revenue:</span>
-              <span className="value">{formatCurrency(data.summary.totalRevenue)}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Total Expenses:</span>
-              <span className="value">{formatCurrency(data.summary.totalExpenses)}</span>
-            </div>
-            <div className="summary-item highlight">
-              <span className="label">Net Profit:</span>
-              <span className="value">{formatCurrency(data.summary.netProfit)}</span>
-            </div>
-          </div>
-        </div>
-        
+      <Box>
+        <Box>
+          <Typography variant="h6">Summary</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Typography>Total Revenue: {formatCurrency(data.summary.totalRevenue)}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography>Total Expenses: {formatCurrency(data.summary.totalExpenses)}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography>Net Profit: {formatCurrency(data.summary.netProfit)}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
         {data.monthlyData && data.monthlyData.length > 0 && (
-          <div className="report-chart">
-            <h4>Monthly Trends</h4>
+          <Box>
+            <Typography variant="h6">Monthly Trends</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data.monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -162,46 +154,40 @@ const FinancialReportsPage = () => {
                 <Line type="monotone" dataKey="profit" name="Profit" stroke="#2196f3" />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
     );
   };
-  
+
   const renderRevenueByCustomerReport = (data) => {
-    if (!data || !data.customers || data.customers.length === 0) 
-      return <p>No customer revenue data available for the selected period.</p>;
-    
-    // Sort customers by revenue (highest first)
+    if (!data || !data.customers || data.customers.length === 0)
+      return <Typography>No customer revenue data available for the selected period.</Typography>;
+
     const sortedCustomers = [...data.customers].sort((a, b) => b.revenue - a.revenue);
-    const topCustomers = sortedCustomers.slice(0, 10); // Show top 10
-    
-    // Prepare data for pie chart
+    const topCustomers = sortedCustomers.slice(0, 10);
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
-    
+
     return (
-      <div className="report-content">
-        <div className="report-summary">
-          <h4>Customer Revenue Summary</h4>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Total Customers:</span>
-              <span className="value">{data.totalCustomers}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Total Revenue:</span>
-              <span className="value">{formatCurrency(data.totalRevenue)}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Average Per Customer:</span>
-              <span className="value">{formatCurrency(data.averageRevenue)}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="report-charts-grid">
-          <div className="chart-container">
-            <h4>Top Customers by Revenue</h4>
+      <Box>
+        <Box>
+          <Typography variant="h6">Customer Revenue Summary</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={4}>
+              <Typography>Total Customers: {data.totalCustomers}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography>Total Revenue: {formatCurrency(data.totalRevenue)}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Typography>Average Per Customer: {formatCurrency(data.averageRevenue)}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">Top Customers by Revenue</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={topCustomers}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -211,10 +197,10 @@ const FinancialReportsPage = () => {
                 <Bar dataKey="revenue" name="Revenue" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-          
-          <div className="chart-container">
-            <h4>Revenue Distribution</h4>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">Revenue Distribution</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -234,12 +220,12 @@ const FinancialReportsPage = () => {
                 <Tooltip formatter={(value) => formatCurrency(value)} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-        
-        <div className="report-table">
-          <h4>Customer Details</h4>
-          <table className="data-table">
+          </Grid>
+        </Grid>
+
+        <Box>
+          <Typography variant="h6">Customer Details</Typography>
+          <table>
             <thead>
               <tr>
                 <th>Customer</th>
@@ -259,43 +245,38 @@ const FinancialReportsPage = () => {
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   };
-  
+
   const renderExpenseDetailsReport = (data) => {
     if (!data || !data.expenses || data.expenses.length === 0)
-      return <p>No expense data available for the selected period.</p>;
-    
-    // Group expenses by category
+      return <Typography>No expense data available for the selected period.</Typography>;
+
     const expensesByCategory = data.expensesByCategory || [];
-    
-    // Prepare colors for charts
     const COLORS = ['#ff9800', '#e91e63', '#2196f3', '#4caf50', '#9c27b0', '#795548'];
-    
+
     return (
-      <div className="report-content">
-        <div className="report-summary">
-          <h4>Expense Summary</h4>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <span className="label">Total Expenses:</span>
-              <span className="value">{formatCurrency(data.totalExpenses)}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Largest Category:</span>
-              <span className="value">
-                {expensesByCategory[0]?.category || 'N/A'} 
+      <Box>
+        <Box>
+          <Typography variant="h6">Expense Summary</Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Typography>Total Expenses: {formatCurrency(data.totalExpenses)}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography>
+                Largest Category: {expensesByCategory[0]?.category || 'N/A'}{' '}
                 {expensesByCategory[0]?.amount ? ` (${formatCurrency(expensesByCategory[0].amount)})` : ''}
-              </span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="report-charts-grid">
-          <div className="chart-container">
-            <h4>Expenses by Category</h4>
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">Expenses by Category</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -315,10 +296,10 @@ const FinancialReportsPage = () => {
                 <Tooltip formatter={(value) => formatCurrency(value)} />
               </PieChart>
             </ResponsiveContainer>
-          </div>
-          
-          <div className="chart-container">
-            <h4>Monthly Expense Trend</h4>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">Monthly Expense Trend</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data.monthlyExpenses || []}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -328,12 +309,12 @@ const FinancialReportsPage = () => {
                 <Line type="monotone" dataKey="amount" name="Expenses" stroke="#f44336" />
               </LineChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-        
-        <div className="report-table">
-          <h4>Recent Expenses</h4>
-          <table className="data-table">
+          </Grid>
+        </Grid>
+
+        <Box>
+          <Typography variant="h6">Recent Expenses</Typography>
+          <table>
             <thead>
               <tr>
                 <th>Date</th>
@@ -353,14 +334,14 @@ const FinancialReportsPage = () => {
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   };
 
   const renderReportData = () => {
     if (!reportData) return null;
-    
+
     switch (reportType) {
       case 'profit-loss':
         return renderProfitLossReport(reportData);
@@ -374,68 +355,117 @@ const FinancialReportsPage = () => {
   };
 
   return (
-    <div className="financial-reports-page dashboard-content">
-      <h2>Financial Reports</h2>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Financial Reports
+      </Typography>
 
-      <div className="report-controls">
-        <div className="form-group">
-          <label htmlFor="startDate">Start Date:</label>
-          <input 
-            type="date" 
-            id="startDate" 
-            value={startDate} 
-            onChange={(e) => setStartDate(e.target.value)}
-            max={endDate || undefined}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="endDate">End Date:</label>
-          <input 
-            type="date" 
-            id="endDate" 
-            value={endDate} 
-            onChange={(e) => setEndDate(e.target.value)} 
-            min={startDate || undefined}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="reportType">Report Type:</label>
-          <select id="reportType" value={reportType} onChange={(e) => setReportType(e.target.value)}>
-            <option value="profit-loss">Profit & Loss</option>
-            <option value="revenue-by-customer">Revenue By Customer</option>
-            <option value="expense-details">Expense Details</option>
-          </select>
-        </div>
-        <button 
-          className="btn primary" 
-          onClick={handleGenerateReport} 
-          disabled={loading || !startDate || !endDate}
-        >
-          {loading ? 'Generating...' : 'Generate Report'}
-        </button>
-        {reportData && (
-          <div className="export-section"> {/* Wrap button and progress bar */}
-            <button
-              className="btn secondary"
-              onClick={handleExportReport}
-              disabled={exportLoading || !startDate || !endDate}
+      <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+        <Grid container spacing={2} alignItems="flex-end">
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              fullWidth
+              id="startDate"
+              label="Start Date"
+              type="date"
+              variant="outlined"
+              size="small"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true
+              }}
+              inputProps={{
+                max: endDate || undefined
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              fullWidth
+              id="endDate"
+              label="End Date"
+              type="date"
+              variant="outlined"
+              size="small"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true
+              }}
+              inputProps={{
+                min: startDate || undefined
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth variant="outlined" size="small">
+              <InputLabel id="reportType-label">Report Type</InputLabel>
+              <Select
+                labelId="reportType-label"
+                id="reportType"
+                value={reportType}
+                label="Report Type"
+                onChange={(e) => setReportType(e.target.value)}
+              >
+                <MenuItem value="profit-loss">Profit & Loss</MenuItem>
+                <MenuItem value="revenue-by-customer">Revenue By Customer</MenuItem>
+                <MenuItem value="expense-details">Expense Details</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleGenerateReport}
+              disabled={loading || !startDate || !endDate}
+              fullWidth
+              sx={{ height: '40px' }}
             >
-              {exportLoading ? 'Exporting...' : 'Export PDF Report'}
-            </button>
-            {exportLoading && <LinearProgress style={{ marginTop: '8px' }} />} {/* Add progress bar */}
-          </div>
-        )}
-      </div>
+              {loading ? 'Generating...' : 'Generate Report'}
+            </Button>
+          </Grid>
+          {reportData && (
+            <Grid item xs={12} sm={6} md={3}>
+              <Box sx={{ position: 'relative', width: '100%' }}>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleExportReport}
+                  disabled={exportLoading || !startDate || !endDate}
+                  fullWidth
+                  sx={{ height: '40px' }}
+                >
+                  {exportLoading ? 'Exporting...' : 'Export PDF Report'}
+                </Button>
+                {exportLoading && (
+                  <LinearProgress
+                    sx={{
+                      position: 'absolute',
+                      bottom: -8,
+                      left: 0,
+                      width: '100%'
+                    }}
+                  />
+                )}
+              </Box>
+            </Grid>
+          )}
+        </Grid>
+      </Paper>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <div className="report-output">
-        <h3>{reportType.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} Report</h3>
-        {loading && <p className="loading-message">Loading report data...</p>}
+      <Paper elevation={1} sx={{ p: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          {reportType.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} Report
+        </Typography>
+        {loading && <Typography sx={{ my: 2 }}>Loading report data...</Typography>}
         {!loading && reportData && renderReportData()}
-        {!loading && !reportData && !error && <p>Select parameters and generate a report.</p>}
-      </div>
-    </div>
+        {!loading && !reportData && !error && <Typography sx={{ my: 2 }}>Select parameters and generate a report.</Typography>}
+      </Paper>
+    </Box>
   );
 };
 

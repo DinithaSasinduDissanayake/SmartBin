@@ -1,161 +1,109 @@
--/* 
+/*
  * SmartBin Global CSS Variables
  * These variables ensure consistent styling across the application
  * and complement the Material UI theme
  */
 
 :root {
-  /* Color palette - matches MUI theme */
-  --primary-color: #3e4b2e;
-  --primary-light: #5e7245;
-  --primary-dark: #2c3720;
-  --secondary-color: #5e6472;
-  --secondary-light: #7d8490;
-  --secondary-dark: #424854;
-  
-  /* Status colors */
-  --success-color: #198754;
-  --success-light: #d1e7dd;
-  --error-color: #dc3545;
-  --error-light: #f8d7da;
-  --warning-color: #ffc107;
-  --warning-light: #fff3cd;
-  --info-color: #0dcaf0;
-  --info-light: #cff4fc;
-  
-  /* Text colors */
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --text-light: #999999;
-  --text-white: #ffffff;
-  
-  /* Background colors */
-  --bg-default: #f8f9fa;
-  --bg-paper: #ffffff;
-  --bg-light: #f5f5f5;
-  --bg-dark: #212529;
-  
+  /* Color palette - Ensure these align with or are derived from muiTheme.js */
+  --primary-color: #3e4b2e; /* Keep */
+  --primary-light: #5e7245; /* Keep */
+  --primary-dark: #2c3720; /* Keep */
+  --secondary-color: #5e6472; /* Keep */
+  --secondary-light: #7d8490; /* Keep */
+  --secondary-dark: #424854; /* Keep */
+
+  /* Status colors - Ensure these align with or are derived from muiTheme.js */
+  --success-color: #198754; /* Keep */
+  --success-light: #d1e7dd; /* Keep */
+  --error-color: #dc3545; /* Keep */
+  --error-light: #f8d7da; /* Keep */
+  --warning-color: #ffc107; /* Keep */
+  --warning-light: #fff3cd; /* Keep */
+  --info-color: #0dcaf0; /* Keep */
+  --info-light: #cff4fc; /* Keep */
+
+  /* Text colors - Ensure these align with or are derived from muiTheme.js */
+  --text-primary: #212529; /* Keep */
+  --text-secondary: #6c757d; /* Keep */
+  --text-light: #999999; /* Keep */
+  --text-white: #ffffff; /* Keep */
+
+  /* Background colors - Ensure these align with or are derived from muiTheme.js */
+  --bg-default: #f8f9fa; /* Keep */
+  --bg-paper: #ffffff; /* Keep */
+  --bg-light: #f5f5f5; /* Keep */
+  --bg-dark: #212529; /* Keep */
+
   /* Border colors */
-  --border-color: #dee2e6;
-  --border-light: #f0f0f0;
-  
-  /* Spacing */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-xxl: 48px;
-  
-  /* Border radius */
-  --border-radius-sm: 4px;
-  --border-radius-md: 6px;
-  --border-radius-lg: 8px;
-  --border-radius-xl: 12px;
-  --border-radius-pill: 50px;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.14);
-  
-  /* Typography */
-  --font-family: 'Roboto', 'Arial', sans-serif;
-  --font-size-xs: 0.75rem;    /* 12px */
-  --font-size-sm: 0.875rem;   /* 14px */
-  --font-size-md: 1rem;       /* 16px */
-  --font-size-lg: 1.25rem;    /* 20px */
-  --font-size-xl: 1.5rem;     /* 24px */
-  --font-size-xxl: 2rem;      /* 32px */
-  
-  --font-weight-light: 300;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-bold: 600;
-  --font-weight-extrabold: 700;
-  
-  /* Z-index */
-  --z-index-dropdown: 1000;
-  --z-index-sticky: 1020;
-  --z-index-fixed: 1030;
-  --z-index-modal-backdrop: 1040;
-  --z-index-modal: 1050;
-  --z-index-popover: 1060;
-  --z-index-tooltip: 1070;
-  
-  /* Transitions */
-  --transition-speed-fast: 150ms;
-  --transition-speed-normal: 300ms;
-  --transition-speed-slow: 500ms;
-  --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  
-  /* Container widths */
+  --border-color: #dee2e6; /* Keep */
+  --border-light: #f0f0f0; /* Keep */
+
+  /* Spacing - Ensure these align with MUI spacing units if possible */
+  --space-xs: 4px; /* Keep */
+  --space-sm: 8px; /* Keep */
+  --space-md: 16px; /* Keep */
+  --space-lg: 24px; /* Keep */
+  --space-xl: 32px; /* Keep */
+  --space-xxl: 48px; /* Keep */
+
+  /* Border radius - Ensure these align with MUI theme shape */
+  --border-radius-sm: 4px; /* Keep */
+  --border-radius-md: 6px; /* Keep */
+  --border-radius-lg: 8px; /* Keep */
+  --border-radius-xl: 12px; /* Keep */
+  --border-radius-pill: 50px; /* Keep */
+
+  /* Shadows - Ensure these align with MUI theme shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1); /* Keep */
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1); /* Keep */
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.12); /* Keep */
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.14); /* Keep */
+
+  /* Typography - Ensure these align with MUI theme typography */
+  --font-family: 'Roboto', 'Arial', sans-serif; /* Keep */
+  --font-size-xs: 0.75rem;    /* 12px */ /* Keep */
+  --font-size-sm: 0.875rem;   /* 14px */ /* Keep */
+  --font-size-md: 1rem;       /* 16px */ /* Keep */
+  --font-size-lg: 1.25rem;    /* 20px */ /* Keep */
+  --font-size-xl: 1.5rem;     /* 24px */ /* Keep */
+  --font-size-xxl: 2rem;      /* 32px */ /* Keep */
+
+  --font-weight-light: 300; /* Keep */
+  --font-weight-regular: 400; /* Keep */
+  --font-weight-medium: 500; /* Keep */
+  --font-weight-bold: 600; /* Keep */
+  --font-weight-extrabold: 700; /* Keep */
+
+  /* Z-index - Ensure these align with MUI zIndex */
+  --z-index-dropdown: 1000; /* Keep */
+  --z-index-sticky: 1020; /* Keep */
+  --z-index-fixed: 1030; /* Keep */
+  --z-index-modal-backdrop: 1040; /* Keep */
+  --z-index-modal: 1050; /* Keep */
+  --z-index-popover: 1060; /* Keep */
+  --z-index-tooltip: 1070; /* Keep */
+
+  /* Transitions - Ensure these align with MUI transitions */
+  --transition-speed-fast: 150ms; /* Keep */
+  --transition-speed-normal: 300ms; /* Keep */
+  --transition-speed-slow: 500ms; /* Keep */
+  --transition-ease: cubic-bezier(0.4, 0, 0.2, 1); /* Keep */
+
+  /* Container widths - Consider using MUI Container component */
+  /* Removing these as MUI Container is preferred */
+  /*
   --container-sm: 540px;
   --container-md: 720px;
   --container-lg: 960px;
   --container-xl: 1140px;
-  
+  */
+
   /* Common component-specific variables */
-  --header-height: 70px;
-  --sidebar-width: 260px;
-  --sidebar-collapsed-width: 72px;
-  --card-padding: 20px;
-  --input-height: 40px;
-  --button-height: 38px;
-}
-
-/* Dark mode theme - to be implemented later if needed */
-.dark-theme {
-  --bg-default: #121212;
-  --bg-paper: #1e1e1e;
-  --bg-light: #2c2c2c;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --border-color: #333333;
-  --border-light: #333333;
-}
-
-/* Utility classes */
-.text-primary { color: var(--primary-color); }
-.text-secondary { color: var(--secondary-color); }
-.text-success { color: var(--success-color); }
-.text-error { color: var(--error-color); }
-.text-warning { color: var(--warning-color); }
-.text-info { color: var(--info-color); }
-
-.bg-primary { background-color: var(--primary-color); }
-.bg-secondary { background-color: var(--secondary-color); }
-.bg-success { background-color: var(--success-light); }
-.bg-error { background-color: var(--error-light); }
-.bg-warning { background-color: var(--warning-light); }
-.bg-info { background-color: var(--info-light); }
-
-/* Status badge styles */
-.badge {
-  display: inline-block;
-  padding: 0.25em 0.6em;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  border-radius: var(--border-radius-pill);
-}
-
-.badge-success {
-  background-color: var(--success-light);
-  color: var(--success-color);
-}
-
-.badge-error {
-  background-color: var(--error-light);
-  color: var(--error-color);
-}
-
-.badge-warning {
-  background-color: var(--warning-light);
-  color: var(--warning-color);
-}
-
-.badge-info {
-  background-color: var(--info-light);
-  color: var(--info-color);
+  --header-height: 70px; /* Keep */
+  --sidebar-width: 260px; /* Keep */
+  --sidebar-collapsed-width: 72px; /* Keep */
+  --card-padding: 20px; /* Keep */
+  --input-height: 40px; /* Keep */
+  --button-height: 38px; /* Keep */
 }
