@@ -3,6 +3,7 @@
 
 const mongoose = require('mongoose');
 const path = require('path');
+const bcrypt = require('bcryptjs'); // Added bcrypt for password hashing
 // Ensure dotenv path is correct relative to this script's location
 require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 const config = require('../../config'); // Adjusted path
@@ -88,22 +89,43 @@ async function ensureUsers() {
   const roles = ['admin', 'financial_manager', 'staff', 'customer'];
   const usersData = {
     admin: { name: 'Admin User', email: 'admin@example.com', password: 'Password123!' },
+    admin2: { name: 'Second Admin', email: 'admin2@example.com', password: 'Password123!' }, // Added second admin
     financial_manager: { name: 'Finance Manager', email: 'finance@example.com', password: 'Password123!' },
     staff: { name: 'Staff Member', email: 'staff@example.com', password: 'Password123!' },
     customer: { name: 'Customer User', email: 'customer@example.com', password: 'Password123!' }
   };
   const createdUsers = {};
 
+  // Add admin2 to the roles array if it's not already there for processing
+  if (!roles.includes('admin2')) {
+      roles.splice(1, 0, 'admin2'); // Insert 'admin2' after 'admin'
+  }
+
+
   for (const role of roles) {
-    let user = await User.findOne({ email: usersData[role].email });
+    // Handle the case where role might be 'admin2' but data is keyed differently
+    const userData = usersData[role] || usersData['admin2']; // Fallback for admin2 key
+    if (!userData) {
+        console.warn(`No user data found for role: ${role}`);
+        continue;
+    }
+    let user = await User.findOne({ email: userData.email });
     if (!user) {
-      user = new User({ ...usersData[role], role });
+      // Assign the correct role ('admin' for 'admin2')
+      const userRole = role === 'admin2' ? 'admin' : role;
+      const hashedPassword = await bcrypt.hash(userData.password, 12); // Hash password before saving
+      user = new User({ ...userData, password: hashedPassword, role: userRole });
       await user.save();
-      console.log(`Created ${role} user: ${user.email}`);
+      console.log(`Created ${userRole} user: ${user.email}`);
     } else {
       console.log(`${role} user already exists: ${user.email}`);
     }
-    createdUsers[role] = user;
+    // Store the primary admin user under 'admin' key for later use
+    if (role === 'admin') {
+        createdUsers['admin'] = user;
+    } else if (role !== 'admin2') { // Don't overwrite coreUsers.admin with admin2
+        createdUsers[role] = user;
+    }
   }
 
   // Ensure additional staff and customers if needed for variety
