@@ -22,7 +22,7 @@ interface Pickup {
     amount: number;
 }
 
-//Edit and store edited data
+// Edit and store edited data
 const PickupDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -88,7 +88,7 @@ const PickupDetails: React.FC = () => {
         calculateAmount();
     }, [formData?.community, formData?.serviceType, formData?.address]);
 
-    //Update changes on form data
+    // Update changes on form data
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => prev ? { ...prev, [name]: value } : null);
@@ -106,7 +106,7 @@ const PickupDetails: React.FC = () => {
         });
     };
 
-    //Send request to backend
+    // Send request to backend
     const handleUpdate = async () => {
         if (!formData) return;
         try {
@@ -138,9 +138,31 @@ const PickupDetails: React.FC = () => {
         }
     };
 
-    const handlePayNow = () => {
-        alert('Proceeding to payment...');
-        
+    const handlePayNow = async () => {
+        if (!pickup) return;
+
+        try {
+            console.log('Initiating payment for pickup ID:', pickup._id);
+            alert('Proceeding to payment...');
+            const response = await axios.post('http://localhost:5000/api/create-checkout-session', {
+                pickupId: pickup._id,
+            });
+            console.log('Checkout session response:', response.data);
+            if (response.data.url) {
+                window.location.href = response.data.url; // Redirect to Stripe Checkout
+            } else {
+                throw new Error('No redirect URL in response');
+            }
+        } catch (error: any) {
+            console.error('Error initiating Stripe Checkout:', error);
+            if (error.response) {
+                alert(`Payment initiation failed: ${error.response.data.message || 'Server error'}`);
+            } else if (error.request) {
+                alert('Payment initiation failed: No response from server. Please check if the backend is running.');
+            } else {
+                alert('Payment initiation failed: ' + error.message);
+            }
+        }
     };
 
     return (

@@ -1,6 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { Types } from 'mongoose';
 
-interface IPickup extends Document {
+// Export the IPickup interface
+export interface IPickup extends Document {
+    _id: Types.ObjectId; // Explicitly define _id as mongoose.Types.ObjectId
     binId: string;
     name: string;
     contactNumber: string;
@@ -19,7 +22,11 @@ const PickupSchema: Schema = new Schema({
     binId: { type: String, unique: true },
     name: { type: String, required: true },
     contactNumber: { type: String, required: true },
-    email: { type: String, required: true },
+    email: {
+        type: String,
+        required: true,
+        match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please provide a valid email address']
+    },
     community: { type: String, required: true, enum: ['Household', 'Industry'] },
     wasteType: { type: [String], required: true, enum: ['Organic', 'Plastic', 'Paper'] },
     address: { type: String, required: true },

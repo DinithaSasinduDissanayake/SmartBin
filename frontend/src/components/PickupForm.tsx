@@ -43,7 +43,7 @@ const PickupForm: React.FC = () => {
             let locationPrice = 0;
             if (formData.address.toLowerCase().includes('colombo')) {
                 locationPrice = 200;
-            } else if (formData.address.toLowerCase().includes('magama')) {
+            } else if (formData.address.toLowerCase().includes('gampaha')) {
                 locationPrice = 300;
             } else if (formData.address.toLowerCase().includes('kalutara')) {
                 locationPrice = 400;
