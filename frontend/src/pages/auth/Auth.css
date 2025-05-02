@@ -137,6 +137,56 @@ input:-moz-autofill:active {
   color: #333 !important;
 }
 
+/* Password field with toggle button */
+.password-input-container {
+  position: relative;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.password-field input {
+  flex: 1;
+  padding-right: 40px; /* Space for the toggle button */
+}
+
+.password-toggle-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+.password-toggle-button:hover {
+  color: var(--primary-color, #4ea14a);
+}
+
+.password-toggle-button:focus {
+  outline: none;
+  color: var(--primary-color, #4ea14a);
+}
+
+.password-toggle-button:hover,
+.password-toggle-button:focus {
+  transform: translateY(-50%); /* Maintain vertical position on hover/focus */
+}
+
 /* Address section */
 .address-heading {
   margin-top: 1.5rem;

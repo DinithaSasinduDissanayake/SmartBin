@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
-import '../styles/custom.css';
 import '../variables.css'; // Added import
 import '../styles/themeStyles.css'; // Added import
 

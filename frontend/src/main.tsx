@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom'; // Import BrowserRouter
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 import './styles/App.css'; // Import new CSS
-import './styles/custom.css'; // Import new CSS
 import App from './App.jsx'; // Keep .jsx if App hasn't been converted to .tsx
 
 // React Router future flags (optional but recommended if used in index.tsx)

@@ -3,7 +3,6 @@ import axios from 'axios';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import '../variables.css'; // Added import
 import '../styles/themeStyles.css'; // Added import
-import '../styles/custom.css';
 
 const containerStyle = {
   width: '100%',
