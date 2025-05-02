@@ -10,140 +10,294 @@
 
 body {
     min-height: 100%;
-    background: #f3f5f0;
+    background: #f8f9fa;
 }
 
-nav .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 260px;
-    padding: 20px 0;
-    background-color: #c3ceb6;
-    box-shadow: 0 5px 1px rgba(27, 27, 27, 0.1);
-    transition: all 0.4s ease;
-    text-decoration: none;
+/* Clean, minimalist sidebar inspired by modern UI/UX research */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 260px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  font-family: "Poppins", sans-serif;
+  overflow-y: auto;
 }
 
-.sidebar .logo {
-    display: flex;
-    align-items: center;
-    margin: 0 24px 30px;
-    cursor: pointer;
+.sidebar.collapsed {
+  width: 72px;
 }
 
-.logo .logo-name {
-    color: #141a17;
-    font-size: 22px;
-    font-weight: 500;
-    margin-left: 20px;
+.sidebar::-webkit-scrollbar {
+  width: 4px;
 }
 
-.sidebar .sidebar-content {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 30px 16px;
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.sidebar-content .list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.sidebar::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 10px;
 }
 
-.sidebar-content .list-item {
-    list-style: none;
-    margin: 8px 0;
-    border-radius: 12px; 
-    width: 90%;
-    height: 50px;
-    border: 2px solid transparent;
-    cursor: pointer;
+/* HEADER */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  padding: 0 20px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.sidebar-content .list-item a {
-    display: flex;
-    align-items: center;
-    padding: 14px 16px;
-    background-color: #88afa1;
-    border-radius: 12px;
-    height: 100%;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.sidebar-content .list-item:hover a {
-    background-color: rgb(130, 150, 106);
-    transform: scale(1.02);
+.brand-icon {
+  color: #4CAF50;
+  font-size: 24px;
 }
 
-/* Update the nav-icon style to make icons more visible */
-.nav-icon {
-    margin-right: 14px;
-    font-size: 20px;
-    color: #141a17; /* Dark color for visibility */
-    transition: color 0.3s ease;
-    display: inline-block; /* Ensure proper display */
-    width: 20px;
-    text-align: center;
+.brand-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #4CAF50;
 }
 
-/* Also ensure FontAwesome icons are properly sized and visible */
-.sidebar-content .list-item a .nav-icon {
-    display: inline-block;
-    width: 20px;
-    text-align: center;
+.toggle-button {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 16px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Ensure active nav items show icons clearly */
-.sidebar-content .list-item a.active .nav-icon {
-    color: #141a17;
+.toggle-button:hover {
+  color: #4CAF50;
+  background: rgba(76, 175, 80, 0.08);
 }
 
-.link {
-    font-size: 16px;
-    color: #141a17;
-    font-weight: 400;
+/* USER PROFILE */
+.user-profile {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  gap: 12px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.sidebar-content .list-item:hover .nav-icon {
-    color: #141a17;
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: #4CAF50;
 }
 
-.bottom-content {
-    margin-top: auto;
-    padding-top: 20px;
+.user-info {
+  display: flex;
+  flex-direction: column;
 }
 
-.social-icons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 10px 0 10px 10px;
-    padding-right: 30px;
+.user-info .name {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
 }
 
-.social-icons .icon {
-    font-size: 24px;
-    color: #4ea14a;
-    margin-right: 10px;
-    transition: color 0.3s ease;
+.user-info .role {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+  text-transform: capitalize;
 }
 
-/* Make social icons more visible too */
-.social-icons .icon svg {
-    width: 24px;
-    height: 24px;
-    display: inline-block;
+/* NOTIFICATIONS */
+.notifications-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #888;
+  position: relative;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.social-icons .icon svg path {
-    fill: #4ea14a !important;
+.notifications-link:hover {
+  background-color: rgba(76, 175, 80, 0.08);
+  color: #4CAF50;
 }
 
-.social-icons .icon:hover {
-    color: #141a17;
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 30px;
+  background: #FF5722;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar.collapsed .badge {
+  left: 40px;
+}
+
+.notification-label {
+  font-size: 13px;
+  color: #333;
+}
+
+/* NAVIGATION */
+.navigation {
+  flex: 1;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.navigation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navigation::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+.nav-section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  padding: 0 20px;
+  margin: 0 0 8px;
+  letter-spacing: 0.5px;
+}
+
+.nav-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  margin: 2px 0;
+}
+
+.nav-item a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  color: #555;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.sidebar.collapsed .nav-item a {
+  padding: 10px 0;
+  justify-content: center;
+}
+
+.nav-item a:hover {
+  background-color: rgba(76, 175, 80, 0.08);
+  color: #4CAF50;
+}
+
+.nav-item a.active {
+  background-color: #e8f5e9;
+  color: #4CAF50;
+  border-left: 3px solid #4CAF50;
+}
+
+.sidebar.collapsed .nav-item a.active {
+  border-left: none;
+  border-right: 3px solid #4CAF50;
+}
+
+.nav-item svg {
+  font-size: 18px;
+  width: 18px;
+}
+
+/* FOOTER */
+.sidebar-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 0;
+  background-color: #ffebee;
+  color: #f44336;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 15px;
+}
+
+.logout-button:hover {
+  background-color: #ffcdd2;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.social-links a {
+  color: #888;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+social-links a:hover {
+  color: #4CAF50;
+  transform: translateY(-2px);
 }

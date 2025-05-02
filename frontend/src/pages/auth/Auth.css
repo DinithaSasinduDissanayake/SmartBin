@@ -5,6 +5,7 @@
   align-items: center;
   min-height: 100vh;
   background-color: #f9f9f9;
+  padding: 2rem 1rem;
 }
 
 .auth-form-container {
@@ -34,27 +35,56 @@
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #333;
 }
 
-.error-message {
-  background-color: #ffe6e6;
-  color: #e74c3c;
-  padding: 0.75rem;
-  margin-bottom: 1.5rem;
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder {
+  color: #999;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4ea14a;
+  box-shadow: 0 0 0 2px rgba(78, 161, 74, 0.1);
+}
+
+.form-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.auth-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
   border-radius: 4px;
-  text-align: center;
+  border: 1px solid #f5c6cb;
 }
 
 .auth-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #2ecc71;
+  background-color: #4ea14a;
   color: white;
   border: none;
   border-radius: 4px;
@@ -65,7 +95,12 @@
 }
 
 .auth-button:hover {
-  background-color: #27ae60;
+  background-color: #3c8a38;
+}
+
+.auth-button:disabled {
+  background-color: #8bc887;
+  cursor: not-allowed;
 }
 
 .auth-footer {
@@ -75,10 +110,79 @@
 }
 
 .auth-footer a {
-  color: #2ecc71;
+  color: #4ea14a;
   text-decoration: none;
 }
 
 .auth-footer a:hover {
   text-decoration: underline;
+}
+
+/* Override autofill styles in Chrome/Safari */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #333 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* For Firefox and other browsers */
+input:-moz-autofill,
+input:-moz-autofill:hover,
+input:-moz-autofill:focus,
+input:-moz-autofill:active {
+  background-color: white !important;
+  color: #333 !important;
+}
+
+/* Address section */
+.address-heading {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #444;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+/* MFA related styles */
+.mfa-options {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mfa-link-button {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem;
+  text-decoration: underline;
+  text-align: center;
+}
+
+.mfa-link-button:hover {
+  color: #357ABD;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .auth-form-container {
+    padding: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.6rem;
+  }
 }

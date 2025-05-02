@@ -1,0 +1,130 @@
+.profile-page {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.profile-page h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.profile-loading {
+  text-align: center;
+  padding: 30px;
+  font-size: 16px;
+  color: #666;
+}
+
+.profile-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+.profile-tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: #f8f8f8; /* Brighter background for inactive tabs */
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #555;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 10px; /* Add margin to create space between tabs */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+}
+
+.tab-button:hover {
+  color: #4ea14a;
+  background-color: #ffffff; /* Even brighter on hover */
+}
+
+.tab-button.active {
+  border-bottom: 3px solid #4ea14a;
+  color: #4ea14a;
+  font-weight: bold; /* Make the active tab text bold */
+  background-color: #ffffff; /* White background for active tab */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slightly stronger shadow for active tab */
+}
+
+.profile-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Update input field styles */
+.profile-form-container input,
+.profile-form-container select,
+.profile-form-container textarea {
+  background-color: #ffffff; /* Light background color */
+  color: #333; /* Dark text color */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.profile-form-container input::placeholder,
+.profile-form-container select::placeholder,
+.profile-form-container textarea::placeholder {
+  color: #999; /* Placeholder text color */
+}
+
+.profile-form-container input:focus,
+.profile-form-container select:focus,
+.profile-form-container textarea:focus {
+  outline: none;
+  border-color: #4ea14a; /* Add focus border color */
+}
+
+/* Add this at the end of your file */
+
+.delete-account-section {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.delete-account-section h3 {
+  color: #dc3545;
+  margin-bottom: 10px;
+}
+
+.delete-account-section p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.delete-account-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.delete-account-button:hover {
+  background-color: #bd2130;
+}
+
+.delete-account-button:disabled {
+  background-color: #e4606d;
+  cursor: not-allowed;
+}

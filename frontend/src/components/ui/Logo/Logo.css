@@ -1,0 +1,53 @@
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  color: #4CAF50;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4CAF50;
+  letter-spacing: 0.5px;
+}
+
+.logo-text span {
+  color: #2E7D32;
+}
+
+/* Logo size variations */
+.logo-small .logo-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.logo-small .logo-text {
+  font-size: 1.1rem;
+}
+
+.logo-large .logo-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.logo-large .logo-text {
+  font-size: 1.8rem;
+}
+
+@media (max-width: 768px) {
+  .logo-text {
+    font-size: 1.2rem;
+  }
+  
+  .logo-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
