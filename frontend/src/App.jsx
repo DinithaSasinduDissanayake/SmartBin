@@ -14,6 +14,13 @@ import SubscriptionPlansPage from './pages/subscription/SubscriptionPlansPage';
 import PaymentDemonstrationPage from './components/financial/PaymentDemonstrationPage';
 import ShadcnExperimentPage from './pages/experimental/ShadcnExperimentPage';
 import AceternityExperimentPage from './pages/experimental/AceternityExperimentPage';
+import CustomerScheduleDisplay from './components/CustomerScheduleDisplay';
+import EquipmentManagement from './components/EquipmentManagement';
+import ResourceManagement from './components/ResourceManagement';
+import ResourcesDisplay from './components/ResourcesDisplay';
+import ScheduleDisplay from './components/ScheduleDisplay';
+import ScheduleManagement from './components/ScheduleManagement';
+import ToolManagement from './components/ToolManagement';
 import './App.css';
 
 // Loading Indicator component
@@ -88,6 +95,16 @@ function AppContent() {
         {/* Payment demonstration - made public for easy testing */}
         <Route path="/payment-demo" element={<PaymentDemonstrationPage />} />
         
+        {/* --- TEMPORARY PREVIEW ROUTES --- */}
+        <Route path="/preview/customer-schedule-display" element={<CustomerScheduleDisplay />} />
+        <Route path="/preview/equipment-management" element={<EquipmentManagement />} />
+        <Route path="/preview/resource-management" element={<ResourceManagement />} />
+        <Route path="/preview/resources-display" element={<ResourcesDisplay />} />
+        <Route path="/preview/schedule-display" element={<ScheduleDisplay />} />
+        <Route path="/preview/schedule-management" element={<ScheduleManagement />} />
+        <Route path="/preview/tool-management" element={<ToolManagement />} />
+        {/* --- END TEMPORARY PREVIEW ROUTES --- */}
+        
         {/* Subscription route */}
         <Route path="/subscription-plans" element={
           <ProtectedRoute>
@@ -111,9 +128,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider theme={muiTheme}>
         <CssBaseline />
-        <Router>
-          <AppContent />
-        </Router>
+        <AppContent />
       </ThemeProvider>
     </AuthProvider>
   );

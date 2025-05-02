@@ -2,31 +2,31 @@
 
 ## Project Overview
 
-SmartBin is a comprehensive Full-Stack application designed to streamline waste management processes for customers, staff, financial managers, and administrators. It includes features for user management, dynamic subscription handling, financial tracking (payments, expenses), automated payroll, attendance tracking, performance monitoring, document management, and a complaint resolution system. This project is developed as part of the IT2080 IT Project module at SLIIT.
+SmartBin is a comprehensive Full-Stack application designed to streamline waste management processes for customers, staff, financial managers, and administrators. It includes features for user management, dynamic subscription handling, financial tracking (payments, expenses), automated payroll, attendance tracking, performance monitoring, document management, complaint resolution, resource management (equipment, tools, trucks), scheduling, and email notifications. This project is developed as part of the IT2080 IT Project module at SLIIT.
 
 ## Project Structure
 
 The project is divided into two main parts:
 
-*   **`/backend`**: Contains the Node.js/Express API server, connecting to MongoDB.
+*   **`/backend`**: Contains the Node.js/Express API server (using TypeScript), connecting to MongoDB.
 *   **`/frontend`**: Contains the React application built with Vite for the user interface.
 *   **`/docs`**: (Optional) Intended location for detailed documentation like diagrams, requirements specifications, etc.
 
 ```
 SmartBin/
-├── backend/            # Node.js/Express API (MongoDB)
-│   ├── src/
-│   │   ├── controllers/  # Request handling logic
-│   │   ├── models/       # Mongoose schemas
-│   │   ├── routes/       # API endpoint definitions
-│   │   ├── services/     # Business logic (e.g., payroll calculation)
-│   │   ├── middleware/   # Auth, validation, error handling
-│   │   ├── config/       # Environment config loading
-│   │   ├── errors/       # Custom error classes
-│   │   ├── utils/        # Helper functions
-│   │   └── server.js     # Main Express app setup
+├── backend/            # Node.js/Express API (TypeScript, MongoDB)
+│   ├── models/       # Mongoose schemas (.ts & .js)
+│   ├── routes/       # API endpoint definitions (.ts & .js)
+│   ├── controllers/  # Request handling logic (.js)
+│   ├── services/     # Business logic (.js)
+│   ├── middleware/   # Auth, validation, error handling (.js)
+│   ├── utils/        # Helper functions (e.g., email.ts)
+│   ├── config/       # Environment config loading (.js)
+│   ├── errors/       # Custom error classes (.js)
 │   ├── tests/          # Jest tests (unit, integration)
 │   ├── uploads/        # File storage for documents
+│   ├── tsconfig.json   # TypeScript configuration
+│   ├── server.ts     # Main Express app setup
 │   ├── .env.example    # Environment variable template
 │   └── package.json
 ├── frontend/           # React Vite SPA
@@ -46,6 +46,7 @@ SmartBin/
 ├── .gitignore
 └── README.md           # This file
 ```
+*(Note: Backend structure now includes both `.ts` and `.js` files during the transition)*
 
 ## Key Features
 
@@ -86,6 +87,14 @@ SmartBin/
   * Staff assignment and resolution tracking
   * Status updates and notification
 
+* **Resource Management & Scheduling (New)**
+  * Equipment, Tool, and Truck management
+  * Customer and operational scheduling
+  * Map integration (e.g., Google Maps)
+
+* **Email Notifications (New)**
+  * Using Nodemailer for various system notifications.
+
 ## Getting Started
 
 ### Prerequisites
@@ -95,32 +104,40 @@ SmartBin/
 *   MongoDB (Local instance or MongoDB Atlas connection URI)
 *   Git
 *   (Optional) Stripe Account for payment features
+*   (Optional) Gmail account with an "App Password" enabled if using Gmail for Nodemailer email transport.
 
 ### Backend Setup
 
 1.  Navigate to the backend directory: `cd backend`
 2.  Install dependencies: `npm install` or `yarn install`
 3.  Copy `.env.example` to `.env`: `cp .env.example .env`
-4.  **Crucially, update the `.env` file** with your `MONGODB_URI`, `JWT_SECRET`, and payment gateway keys if required.
-5.  Run the development server: `npm run dev` (uses nodemon for auto-restarts)
-6.  To start normally: `npm start`
-7.  (Optional) Seed initial admin/test users: `node src/scripts/createTestUsers.js` or `node src/scripts/recreateUsers.js`
-8.  (Optional) Seed financial data: `node src/scripts/seedFinancialData.js`
+4.  **Crucially, update the `.env` file** with your `MONGODB_URI`, `JWT_SECRET`, email credentials (if using Nodemailer), and payment gateway keys if required.
+5.  Run the development server: `npm run dev` (uses `ts-node-dev` for TypeScript execution and auto-restarts)
+6.  To build the TypeScript code: `npm run build`
+7.  To start the built JavaScript code: `npm start`
+8.  (Optional) Seed initial admin/test users: `node dist/scripts/createTestUsers.js` (run after build) or adapt seeding scripts.
+9.  (Optional) Seed financial data: `node dist/scripts/seedFinancialData.js` (run after build) or adapt seeding scripts.
 
 ### Frontend Setup
 
 1.  Navigate to the frontend directory: `cd frontend`
 2.  Install dependencies: `npm install` or `yarn install`
-3.  Copy `.env.example` to `.env` if needed (e.g., for `VITE_STRIPE_PUBLISHABLE_KEY`).
+3.  Copy `.env.example` to `.env` if needed (e.g., for `VITE_STRIPE_PUBLISHABLE_KEY`, `VITE_GOOGLE_MAPS_API_KEY`). Update with your keys.
 4.  Run the development server: `npm run dev`
 5.  Access the application in your browser, usually at `http://localhost:5173` (check terminal output).
+
+### Running Both Simultaneously
+
+From the **root** directory:
+1. Install all dependencies: `npm run install-all`
+2. Run both frontend and backend in development mode: `npm run dev`
 
 ## Running Tests
 
 ### Backend Tests
 
 1.  Navigate to the backend directory: `cd backend`
-2.  Run tests: `npm test` (Runs Jest tests)
+2.  Run tests: `npm test` (Runs Jest tests, configured to handle TypeScript)
 3.  For test coverage: `npm run test:coverage`
 
 ## API Documentation
@@ -133,11 +150,15 @@ A more complete Postman collection for testing all API endpoints can be found in
 
 ### Backend
 * Node.js & Express
+* TypeScript & JavaScript (Hybrid during transition)
 * MongoDB & Mongoose ODM
 * JWT Authentication
 * Stripe API for payments
+* Nodemailer for email
 * PDF generation for reports
 * Jest for testing
+* Security Middleware (helmet, cors, express-mongo-sanitize, xss-clean, hpp)
+* `ts-node-dev` for development
 
 ### Frontend
 * React with Hooks
@@ -146,20 +167,21 @@ A more complete Postman collection for testing all API endpoints can be found in
 * Recharts for data visualization
 * Axios for API communication
 * React Context API for state management
+* `@react-google-maps/api` for Maps integration
 
 ## Development Workflow
 
-1. Create feature branches from `main` or `development`
+1. Create feature branches from `develop`
 2. Implement features based on user stories
 3. Write tests for critical functionality
-4. Create pull requests for code reviews
-5. Merge to main branch after approval
-6. Deploy to staging/production
+4. Create pull requests for code reviews against `develop`
+5. Merge to `develop` after approval
+6. Periodically merge `develop` into `main` for stable releases.
 
 ## Contributing
 
 Please follow these guidelines when contributing to the project:
-* Use descriptive commit messages
+* Use descriptive commit messages (follow project conventions if specified)
 * Follow the project coding standards
 * Write tests for new features
 * Document API endpoints and functions
@@ -171,6 +193,7 @@ Please follow these guidelines when contributing to the project:
 * Passwords are securely hashed
 * API endpoints have rate limiting
 * File uploads are validated
+* Use environment variables for sensitive keys
 
 ## License
 

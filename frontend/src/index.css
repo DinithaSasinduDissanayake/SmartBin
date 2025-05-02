@@ -2,7 +2,7 @@
 @import url('./variables.css');
 
 /* Import our theme styles */
-@import url('../styles/themeStyles.css');
+@import url('./styles/themeStyles.css');
 
 /* Base styles and resets */
 * {

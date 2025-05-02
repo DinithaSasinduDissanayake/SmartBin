@@ -5,12 +5,14 @@
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.19.3",
     "date-fns": "^4.1.0",
     "mongoose-aggregate-paginate-v2": "^1.1.4",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
     "concurrently": "^8.2.2"
   }
 }
