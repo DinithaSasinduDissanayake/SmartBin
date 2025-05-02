@@ -1,0 +1,1096 @@
+--- File: .\frontend\package.json ---
+
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@hookform/resolvers": "^5.0.1",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "@mui/x-date-pickers": "^8.1.0",
+    "@radix-ui/react-accordion": "^1.2.8",
+    "@radix-ui/react-alert-dialog": "^1.1.11",
+    "@radix-ui/react-avatar": "^1.1.7",
+    "@radix-ui/react-checkbox": "^1.2.3",
+    "@radix-ui/react-dialog": "^1.1.11",
+    "@radix-ui/react-dropdown-menu": "^2.1.12",
+    "@radix-ui/react-hover-card": "^1.1.11",
+    "@radix-ui/react-label": "^2.1.4",
+    "@radix-ui/react-popover": "^1.1.11",
+    "@radix-ui/react-progress": "^1.1.4",
+    "@radix-ui/react-select": "^2.2.2",
+    "@radix-ui/react-separator": "^1.1.4",
+    "@radix-ui/react-slider": "^1.3.2",
+    "@radix-ui/react-slot": "^1.2.0",
+    "@radix-ui/react-switch": "^1.2.2",
+    "@radix-ui/react-tabs": "^1.1.9",
+    "@radix-ui/react-tooltip": "^1.2.4",
+    "@stripe/react-stripe-js": "^3.6.0",
+    "@stripe/stripe-js": "^2.4.0",
+    "axios": "^1.8.4",
+    "chart.js": "^4.4.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
+    "next-themes": "^0.4.6",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.56.1",
+    "react-router-dom": "^7.4.0",
+    "react-transition-group": "^4.4.5",
+    "recharts": "^2.15.3",
+    "sonner": "^2.0.3",
+    "tailwind-merge": "^3.2.0",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@shadcn/ui": "^0.0.4",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/postcss": "^4.1.5",
+    "@tailwindcss/vite": "^4.1.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.21",
+    "date-fns": "^3.6.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "lucide-react": "^0.503.0",
+    "postcss": "^8.5.3",
+    "shadcn-ui": "^0.9.5",
+    "tailwindcss": "^4.1.5",
+    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "^1.2.8",
+    "vite": "^6.2.0"
+  }
+}
+
+
+--- End File: .\frontend\package.json ---
+
+
+--- File: .\frontend\tailwind.config.js ---
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: ["class"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+        },
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
+        },
+        destructive: {
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
+        },
+        muted: {
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+        },
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
+        },
+        card: {
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: 0 },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: 0 },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+}
+
+--- End File: .\frontend\tailwind.config.js ---
+
+
+--- File: .\frontend\postcss.config.cjs ---
+
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {}, // Use the correct Tailwind CSS PostCSS plugin
+    autoprefixer: {},
+  },
+}
+
+--- End File: .\frontend\postcss.config.cjs ---
+
+
+--- File: .\frontend\vite.config.js ---
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})
+
+
+--- End File: .\frontend\vite.config.js ---
+
+
+--- File: .\frontend\src\index.css ---
+
+/* Import global CSS variables and theme styles */
+@import url('./variables.css');
+@import url('../styles/themeStyles.css');
+@import "tw-animate-css";
+
+/* Import Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles and resets */
+@custom-variant dark (&:is(.dark *));
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  line-height: 1.5;
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  background-color: var(--bg-default);
+  min-height: 100vh;
+  min-width: 320px;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5em;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: var(--font-size-xxl);
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+}
+
+h3 {
+  font-size: var(--font-size-lg);
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-speed-fast) ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* Focus styling for accessibility */
+:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Button styling */
+button {
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius-md);
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: var(--font-size-md);
+  background-color: var(--bg-light);
+  transition: all var(--transition-speed-normal) var(--transition-ease);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form controls */
+input, select, textarea {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-paper);
+  transition: border-color var(--transition-speed-fast) ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(62, 75, 46, 0.1);
+}
+
+/* Common component styles */
+.card {
+  background-color: var(--bg-paper);
+  border-radius: var(--border-radius-lg);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-speed-normal) ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Page transitions */
+.page-transition {
+  opacity: 1;
+  transition: var(--transition-speed-normal) var(--transition-ease);
+  transition-property: opacity, transform;
+}
+
+.page-transition.fadeIn {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.page-transition.fadeOut {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+
+/* Loading indicator */
+.loading-indicator {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-light);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+  margin: 40px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Animations */
+@keyframes pulse-light {
+  0% { box-shadow: 0 0 0 0 rgba(62, 75, 46, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(62, 75, 46, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(62, 75, 46, 0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Common utility classes */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--space-sm); }
+.mb-2 { margin-bottom: var(--space-md); }
+.mb-3 { margin-bottom: var(--space-lg); }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--space-sm); }
+.mt-2 { margin-top: var(--space-md); }
+.mt-3 { margin-top: var(--space-lg); }
+
+.p-0 { padding: 0; }
+.p-1 { padding: var(--space-sm); }
+.p-2 { padding: var(--space-md); }
+.p-3 { padding: var(--space-lg); }
+
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+.d-flex { display: flex; }
+.flex-column { flex-direction: column; }
+.justify-content-between { justify-content: space-between; }
+.align-items-center { align-items: center; }
+.flex-wrap { flex-wrap: wrap; }
+
+/* Dark mode - to be implemented fully later if needed */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    color: var(--text-white);
+    background-color: var(--bg-dark);
+  }
+
+  button {
+    background-color: #2c2c2c;
+    color: var(--text-white);
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.705 0.015 286.067);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.705 0.015 286.067);
+}
+
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.552 0.016 285.938);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+--- End File: .\frontend\src\index.css ---
+
+
+--- File: .\frontend\src\main.jsx ---
+
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { AuthProvider } from './contexts/AuthContext'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </StrictMode>,
+)
+
+
+--- End File: .\frontend\src\main.jsx ---
+
+
+--- File: .\frontend\src\App.jsx ---
+
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useState, useEffect, useRef } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import muiTheme from './muiTheme';
+import LandingPage from './pages/LandingPage';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import DashboardLayout from './components/layouts/DashboardLayout';
+import ProfilePage from './pages/profile/ProfilePage';
+import SubscriptionPlansPage from './pages/subscription/SubscriptionPlansPage';
+import PaymentDemonstrationPage from './components/financial/PaymentDemonstrationPage';
+import ShadcnExperimentPage from './pages/experimental/ShadcnExperimentPage';
+import AceternityExperimentPage from './pages/experimental/AceternityExperimentPage';
+import './App.css';
+
+// Loading Indicator component
+const LoadingSpinner = () => {
+  return <div className="loading-indicator"></div>;
+};
+
+// Protected route component with enhanced loading state
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate a minimum loading time for better UX
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 600);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show enhanced loading state
+  if (loading || isLoading) return <LoadingSpinner />;
+
+  // Redirect to login if not authenticated
+  if (!user) return <Navigate to="/login" />;
+
+  return children;
+};
+
+// Custom hook for animating page transitions
+const usePageTransition = () => {
+  const [displayLocation, setDisplayLocation] = useState(null);
+  const [transitionStage, setTransitionStage] = useState("fadeIn");
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location !== displayLocation) {
+      setTransitionStage("fadeOut");
+    }
+  }, [location, displayLocation]);
+
+  useEffect(() => {
+    if (transitionStage === "fadeOut") {
+      const timeout = setTimeout(() => {
+        setTransitionStage("fadeIn");
+        setDisplayLocation(location);
+      }, 50); // Reduced from 300ms to 50ms for snappier navigation
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [transitionStage, location, displayLocation]);
+
+  return { transitionStage, displayLocation: displayLocation || location };
+};
+
+function AppContent() {
+  const { transitionStage, displayLocation } = usePageTransition();
+  
+  return (
+    <div className={`page-transition ${transitionStage}`}>
+      <Routes location={displayLocation}>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* Experimental UI pages - public for easy access */}
+        <Route path="/shadcn-experiment" element={<ShadcnExperimentPage />} />
+        <Route path="/aceternity-experiment" element={<AceternityExperimentPage />} />
+        
+        {/* Payment demonstration - made public for easy testing */}
+        <Route path="/payment-demo" element={<PaymentDemonstrationPage />} />
+        
+        {/* Subscription route */}
+        <Route path="/subscription-plans" element={
+          <ProtectedRoute>
+            <SubscriptionPlansPage />
+          </ProtectedRoute>
+        } />
+        
+        {/* Protected routes - all dashboard routes should be nested here */}
+        <Route path="/dashboard/*" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <ThemeProvider theme={muiTheme}>
+        <CssBaseline />
+        <Router>
+          <AppContent />
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
+
+
+--- End File: .\frontend\src\App.jsx ---
+
+
+--- File: .\frontend\src\pages\experimental\ShadcnExperimentPage.jsx ---
+
+// frontend/src/pages/experimental/ShadcnExperimentPage.jsx
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Button as MuiButton, 
+  TextField, 
+  Card as MuiCard, 
+  CardContent, 
+  Typography, 
+  Switch as MuiSwitch,
+  Snackbar,
+  Alert,
+  Paper,
+  Dialog as MuiDialog,
+  DialogTitle as MuiDialogTitle,
+  DialogContent as MuiDialogContent,
+  DialogActions as MuiDialogActions,
+  Tab,
+  Tabs
+} from '@mui/material';
+
+// Import shadcn/ui components
+import { Button } from "@/components/ui/button";
+import { Card, CardContent as ShadcnCardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import ReusableDialog from "@/components/ui/ReusableDialog";
+import FormExample from "@/components/ui/FormExample";
+import showToast from "@/components/ui/ToastNotification";
+import { Toaster } from "@/components/ui/sonner";
+import UserDataDisplay from "@/components/ui/UserDataDisplay";
+
+// CSS for shadcn-like styling
+import './ShadcnExperimentPage.css';  // Re-enable the CSS import
+
+/**
+ * This is an experimental page for testing shadcn/ui components
+ * alongside our existing Material UI components
+ */
+const ShadcnExperimentPage = () => {
+  const [count, setCount] = useState(0);
+  const [inputValue, setInputValue] = useState('');
+  const [switchValue, setSwitchValue] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [progressValue, setProgressValue] = useState(33);
+  const [muiDialogOpen, setMuiDialogOpen] = useState(false);
+  const [shadcnDialogOpen, setShadcnDialogOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState(0);
+
+  const handleIncrement = () => {
+    setCount(count + 1);
+    // Increment progress as well to demonstrate dynamic updates
+    setProgressValue((prev) => Math.min(prev + 10, 100));
+  };
+
+  const handleShowSnackbar = () => {
+    setSnackbarOpen(true);
+  };
+
+  const handleShowShadcnToast = (type) => {
+    switch (type) {
+      case 'success':
+        showToast.success('Operation completed successfully!');
+        break;
+      case 'error':
+        showToast.error('An error occurred while processing your request.');
+        break;
+      case 'info':
+        showToast.info('Here is some information you might find useful.');
+        break;
+      case 'warning':
+        showToast.warning('Be careful with this action.');
+        break;
+      case 'promise':
+        showToast.promise(
+          new Promise((resolve, reject) => {
+            setTimeout(() => {
+              // 80% chance of success
+              if (Math.random() > 0.2) {
+                resolve({ data: 'Success data' });
+              } else {
+                reject(new Error('Sample error'));
+              }
+            }, 2000);
+          }),
+          {
+            loading: 'Loading data...',
+            success: 'Data loaded successfully!',
+            error: 'Failed to load data'
+          }
+        );
+        break;
+      default:
+        showToast.success('Notification from shadcn/ui!');
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+  };
+
+  const handleFormSubmit = (data) => {
+    console.log('Form submitted:', data);
+    showToast.success('Form submitted successfully!');
+  };
+
+  return (
+    <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
+      {/* Sonner Toaster Component - Should be included once per application */}
+      <Toaster position="bottom-right" />
+      
+      <Paper sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Shadcn/UI Experiment Page
+        </Typography>
+        <Typography variant="body1" paragraph>
+          This page demonstrates real shadcn/ui components alongside our existing Material UI components.
+          You can see the differences in design language and functionality between the two libraries.
+        </Typography>
+
+        <Tabs value={currentTab} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+          <Tab label="Basic Components" />
+          <Tab label="Form Example" />
+          <Tab label="Toast Notifications" />
+          <Tab label="User Data Display" />
+        </Tabs>
+      </Paper>
+
+      {currentTab === 0 && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
+          {/* Material UI Components */}
+          <MuiCard variant="outlined" sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h5" color="primary" gutterBottom>
+                Material UI Components (Current)
+              </Typography>
+              
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>Buttons</Typography>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                  <MuiButton variant="contained" color="primary">Primary</MuiButton>
+                  <MuiButton variant="outlined" color="primary">Secondary</MuiButton>
+                  <MuiButton variant="text">Text</MuiButton>
+                </Box>
+              </Box>
+              
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>Input</Typography>
+                <TextField 
+                  label="Material UI Input" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+              </Box>
+              
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>Counter</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <MuiButton variant="contained" onClick={handleIncrement}>
+                    Count: {count}
+                  </MuiButton>
+                </Box>
+              </Box>
+              
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>Switch</Typography>
+                <MuiSwitch 
+                  checked={switchValue} 
+                  onChange={() => setSwitchValue(!switchValue)} 
+                />
+                <Typography variant="body2" component="span" sx={{ ml: 1 }}>
+                  {switchValue ? 'On' : 'Off'}
+                </Typography>
+              </Box>
+              
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>Dialog</Typography>
+                <MuiButton variant="contained" color="primary" onClick={() => setMuiDialogOpen(true)}>
+                  Open Dialog
+                </MuiButton>
+                <MuiDialog open={muiDialogOpen} onClose={() => setMuiDialogOpen(false)}>
+                  <MuiDialogTitle>Material UI Dialog</MuiDialogTitle>
+                  <MuiDialogContent>
+                    <Typography>This is a standard Material UI dialog component.</Typography>
+                  </MuiDialogContent>
+                  <MuiDialogActions>
+                    <MuiButton onClick={() => setMuiDialogOpen(false)}>Close</MuiButton>
+                  </MuiDialogActions>
+                </MuiDialog>
+              </Box>
+              
+              <Box>
+                <Typography variant="subtitle1" gutterBottom>Notification</Typography>
+                <MuiButton variant="contained" color="secondary" onClick={handleShowSnackbar}>
+                  Show Notification
+                </MuiButton>
+              </Box>
+            </CardContent>
+          </MuiCard>
+
+          {/* Real Shadcn UI Components */}
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Shadcn UI Components (Real)</CardTitle>
+            </CardHeader>
+            <ShadcnCardContent>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Buttons</h3>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button>Primary</Button>
+                    <Button variant="outline">Secondary</Button>
+                    <Button variant="ghost">Text</Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Counter</h3>
+                  <Button onClick={handleIncrement}>
+                    Count: {count}
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Switch</h3>
+                  <div className="flex items-center gap-2">
+                    <Switch 
+                      checked={switchValue}
+                      onCheckedChange={setSwitchValue}
+                    />
+                    <span className="text-sm">{switchValue ? 'On' : 'Off'}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Progress</h3>
+                  <Progress value={progressValue} className="w-full" />
+                  <div className="text-xs text-right text-muted-foreground">
+                    {progressValue}%
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Dialog</h3>
+                  <Button onClick={() => setShadcnDialogOpen(true)}>
+                    Open Dialog
+                  </Button>
+                  <ReusableDialog
+                    open={shadcnDialogOpen}
+                    onOpenChange={setShadcnDialogOpen}
+                    title="Shadcn UI Dialog"
+                    description="This is our custom reusable dialog component built with shadcn/ui."
+                  >
+                    <p className="text-sm text-muted-foreground">
+                      The dialog component is fully accessible and customizable. It handles focus
+                      management, keyboard interactions, and proper ARIA attributes automatically.
+                    </p>
+                  </ReusableDialog>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Skeleton</h3>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[250px]" />
+                    <Skeleton className="h-4 w-[200px]" />
+                    <Skeleton className="h-4 w-[150px]" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Notification</h3>
+                  <Button variant="secondary" onClick={() => handleShowShadcnToast('success')}>
+                    Show Toast
+                  </Button>
+                </div>
+              </div>
+            </ShadcnCardContent>
+          </Card>
+        </Box>
+      )}
+
+      {currentTab === 1 && (
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+            Shadcn/UI Form Example
+          </Typography>
+          <Typography variant="body1" paragraph>
+            This example demonstrates a complete form built with shadcn/ui components,
+            including React Hook Form integration and Zod validation.
+          </Typography>
+          
+          <FormExample onSubmit={handleFormSubmit} />
+        </Box>
+      )}
+
+      {currentTab === 2 && (
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+            Toast Notifications
+          </Typography>
+          <Typography variant="body1" paragraph>
+            These are shadcn/ui toast notifications using the Sonner library. They provide a modern, 
+            accessible way to show notifications to users.
+          </Typography>
+          
+          <Card className="w-full p-6">
+            <CardHeader>
+              <CardTitle>Toast Notification Examples</CardTitle>
+            </CardHeader>
+            <ShadcnCardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Basic Toasts</h3>
+                  <div className="flex flex-col gap-2">
+                    <Button variant="default" onClick={() => handleShowShadcnToast('success')}>
+                      Success Toast
+                    </Button>
+                    <Button variant="destructive" onClick={() => handleShowShadcnToast('error')}>
+                      Error Toast
+                    </Button>
+                    <Button variant="outline" onClick={() => handleShowShadcnToast('info')}>
+                      Info Toast
+                    </Button>
+                    <Button variant="secondary" onClick={() => handleShowShadcnToast('warning')}>
+                      Warning Toast
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Advanced Toasts</h3>
+                  <div className="flex flex-col gap-2">
+                    <Button onClick={() => handleShowShadcnToast('promise')}>
+                      Promise Toast
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </ShadcnCardContent>
+          </Card>
+        </Box>
+      )}
+
+      {currentTab === 3 && (
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+            Advanced Component Example: User Data Display
+          </Typography>
+          <Typography variant="body1" paragraph>
+            This example demonstrates multiple shadcn/ui components working together to create a 
+            comprehensive user management interface. It combines Tabs, Table, Card, Accordion, 
+            HoverCard, and Avatar components.
+          </Typography>
+          
+          <UserDataDisplay />
+        </Box>
+      )}
+
+      {/* MUI Snackbar for notifications */}
+      <Snackbar 
+        open={snackbarOpen} 
+        autoHideDuration={4000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success">
+          This is a Material UI notification message!
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+};
+
+export default ShadcnExperimentPage;
+
+--- End File: .\frontend\src\pages\experimental\ShadcnExperimentPage.jsx ---
+
+
