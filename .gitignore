@@ -100,3 +100,4 @@ CollectAllCode.ps1
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+.github/copilot-instructions.md.bak
