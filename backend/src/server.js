@@ -106,6 +106,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes'); // Import dashboard
 const budgetRoutes = require('./routes/budgetRoutes'); // Import budget routes
 const statisticsRoutes = require('./routes/statisticsRoutes'); // Import statistics routes
 const settingsRoutes = require('./routes/settingsRoutes'); // Import settings routes
+const recyclingRoutes = require('./routes/recyclingRoutes'); // Import recycling routes
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -124,6 +125,7 @@ app.use('/api/budgets', budgetRoutes); // Mount budget routes
 app.use('/api/admin', adminRoutes); // Mount admin routes
 app.use('/api/statistics', statisticsRoutes); // Mount statistics routes
 app.use('/api/settings', settingsRoutes); // Mount settings routes
+app.use('/api/recycling-requests', recyclingRoutes); // Mount recycling routes
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {

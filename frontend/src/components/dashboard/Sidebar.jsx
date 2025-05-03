@@ -32,7 +32,8 @@ import {
   faBell,
   faSignOutAlt,
   faBuilding,
-  faServer // Add an icon for system logs
+  faServer,
+  faCalendarCheck // Add icon for schedule display
 } from "@fortawesome/free-solid-svg-icons";
 import { NotificationBadge } from '../ui/AnimatedComponents';
 
@@ -61,7 +62,8 @@ library.add(
   faBell,
   faSignOutAlt,
   faBuilding,
-  faServer
+  faServer,
+  faCalendarCheck // Add to library
 );
 
 import './Sidebar.css';
@@ -127,7 +129,9 @@ function Sidebar() {
           { path: '/dashboard/pickup-form', label: 'Request Pickup', icon: faTruck },
           { path: '/dashboard/my-bin-details', label: 'My Bin Details', icon: faBuilding },
           { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: faClipboardList },
-          { path: '/dashboard/available-garbage', label: 'Available Garbage', icon: faRecycle },
+          { path: '/dashboard/recycle-request', label: 'Recycle Request', icon: faRecycle },
+          { path: '/dashboard/my-requests', label: 'My Recycling Orders', icon: faListCheck },
+          { path: '/dashboard/schedule-display', label: 'Collection Schedule', icon: faCalendarDays },
         ]},
         { section: 'HISTORY', items: [
           { path: '/dashboard/collection-history', label: 'Collection History', icon: faCalendarDays },
@@ -151,6 +155,7 @@ function Sidebar() {
           { path: '/dashboard/attendance-reports', label: 'Attendance Reports', icon: faClipboardList },
           { path: '/dashboard/performance-reports', label: 'Performance Reports', icon: faTrophy },
           { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
+          { path: '/dashboard/schedule-display', label: 'Schedule Display', icon: faCalendarCheck },
         ]},
       ],
       staff: [

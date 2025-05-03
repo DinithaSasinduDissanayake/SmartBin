@@ -37,6 +37,8 @@ import PickupForm from '../../components/PickupForm';
 import MyBinDetails from '../../components/MyBinDetails';
 import PickupDetails from '../../components/PickupDetails';
 import PickupRequestDetails from '../../components/PickupRequestDetails';
+import ScheduleDisplay from '../../components/ScheduleDisplay'; // Import ScheduleDisplay component
+import CustomerScheduleDisplay from '../../components/CustomerScheduleDisplay'; // Import CustomerScheduleDisplay component
 
 import './DashboardLayout.css';
 
@@ -110,6 +112,7 @@ function DashboardLayout() {
                 <Route path="/complaints" element={<MyComplaintsPage />} />
                 <Route path="/subscriptions" element={<UserSubscriptionsPage />} />
                 <Route path="/documents" element={<UserDocumentsPage />} />
+                <Route path="/schedule-display" element={<CustomerScheduleDisplay />} />
                 {/* Add other customer-specific routes here */}
               </>
             )}
@@ -143,6 +146,7 @@ function DashboardLayout() {
                 <Route path="/financial-reports" element={<FinancialReportsPage />} />
                 <Route path="/attendance-reports" element={<AttendanceReportsPage />} />
                 <Route path="/performance-reports" element={<PerformanceReportsPage />} />
+                <Route path="/schedule-display" element={<ScheduleDisplay />} />
                 {/* Add other Admin-specific routes here */}
               </>
             )}

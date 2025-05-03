@@ -27,6 +27,9 @@ import MyBinDetails from './components/MyBinDetails';
 import PickupDetails from './components/PickupDetails';
 import PickupRequests from './components/PickupRequests';
 import PickupRequestDetails from './components/PickupRequestDetails';
+// Import recycling components
+import RecycleForm from './components/recycling/RecycleForm';
+import RequestList from './components/recycling/RequestList';
 import './App.css';
 
 // Loading Indicator component
@@ -151,6 +154,17 @@ function AppContent() {
         <Route path="/dashboard/*" element={
           <ProtectedRoute>
             <DashboardLayout />
+          </ProtectedRoute>
+        } />
+        {/* Recycling feature routes inside dashboard */}
+        <Route path="/dashboard/recycle-request" element={
+          <ProtectedRoute>
+            <RecycleForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/my-requests" element={
+          <ProtectedRoute>
+            <RequestList />
           </ProtectedRoute>
         } />
       </Routes>
