@@ -21,9 +21,16 @@ import ResourcesDisplay from './components/ResourcesDisplay';
 import ScheduleDisplay from './components/ScheduleDisplay';
 import ScheduleManagement from './components/ScheduleManagement';
 import ToolManagement from './components/ToolManagement';
+// Import landing pages from feature branch
 import Pricing from './pages/Pricing';
 import Team from './pages/Team';
 import Contact from './pages/Contact';
+// Import new pickup components from develop branch
+import PickupForm from './components/PickupForm';
+import MyBinDetails from './components/MyBinDetails';
+import PickupDetails from './components/PickupDetails';
+import PickupRequests from './components/PickupRequests';
+import PickupRequestDetails from './components/PickupRequestDetails';
 import './App.css';
 
 // Loading Indicator component
@@ -35,22 +42,19 @@ const LoadingSpinner = () => {
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     // Simulate a minimum loading time for better UX
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 600);
-    
+
     return () => clearTimeout(timer);
   }, []);
-
   // Show enhanced loading state
   if (loading || isLoading) return <LoadingSpinner />;
-
   // Redirect to login if not authenticated
   if (!user) return <Navigate to="/login" />;
-
   return children;
 };
 
@@ -59,7 +63,6 @@ const usePageTransition = () => {
   const [displayLocation, setDisplayLocation] = useState(null);
   const [transitionStage, setTransitionStage] = useState("fadeIn");
   const location = useLocation();
-
   useEffect(() => {
     if (location !== displayLocation) {
       setTransitionStage("fadeOut");
@@ -72,17 +75,16 @@ const usePageTransition = () => {
         setTransitionStage("fadeIn");
         setDisplayLocation(location);
       }, 50); // Reduced from 300ms to 50ms for snappier navigation
-      
+
       return () => clearTimeout(timeout);
     }
   }, [transitionStage, location, displayLocation]);
-
   return { transitionStage, displayLocation: displayLocation || location };
 };
 
 function AppContent() {
   const { transitionStage, displayLocation } = usePageTransition();
-  
+
   return (
     <div className={`page-transition ${transitionStage}`}>
       <Routes location={displayLocation}>
@@ -90,17 +92,19 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        
+        {/* New landing pages */}
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/team" element={<Team />} />
         <Route path="/contact" element={<Contact />} />
-        
+
         {/* Experimental UI pages - public for easy access */}
         <Route path="/shadcn-experiment" element={<ShadcnExperimentPage />} />
         <Route path="/aceternity-experiment" element={<AceternityExperimentPage />} />
-        
+
         {/* Payment demonstration - made public for easy testing */}
         <Route path="/payment-demo" element={<PaymentDemonstrationPage />} />
-        
+
         {/* --- TEMPORARY PREVIEW ROUTES --- */}
         <Route path="/preview/customer-schedule-display" element={<CustomerScheduleDisplay />} />
         <Route path="/preview/equipment-management" element={<EquipmentManagement />} />
@@ -109,15 +113,22 @@ function AppContent() {
         <Route path="/preview/schedule-display" element={<ScheduleDisplay />} />
         <Route path="/preview/schedule-management" element={<ScheduleManagement />} />
         <Route path="/preview/tool-management" element={<ToolManagement />} />
-        {/* --- END TEMPORARY PREVIEW ROUTES --- */}
         
+        {/* Pickup related routes */}
+        <Route path="/preview/pickup-form" element={<PickupForm />} />
+        <Route path="/preview/my-bin-details" element={<MyBinDetails />} />
+        <Route path="/preview/pickup-details" element={<PickupDetails />} />
+        <Route path="/preview/pickup-requests" element={<PickupRequests />} />
+        <Route path="/preview/pickup-request-details" element={<PickupRequestDetails />} />
+        {/* --- END TEMPORARY PREVIEW ROUTES --- */}
+
         {/* Subscription route */}
         <Route path="/subscription-plans" element={
           <ProtectedRoute>
             <SubscriptionPlansPage />
           </ProtectedRoute>
         } />
-        
+
         {/* Protected routes - all dashboard routes should be nested here */}
         <Route path="/dashboard/*" element={
           <ProtectedRoute>

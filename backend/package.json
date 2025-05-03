@@ -17,6 +17,7 @@
   "description": "",
   "dependencies": {
     "@faker-js/faker": "^9.7.0",
+    "@sendgrid/mail": "^8.1.5",
     "bcryptjs": "^3.0.2",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
@@ -38,7 +39,7 @@
     "pdfkit": "^0.17.0",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
-    "stripe": "^14.16.0",
+    "stripe": "^14.25.0",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {

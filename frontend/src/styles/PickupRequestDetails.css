@@ -1,0 +1,121 @@
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    display: flex;
+    flex: 1;
+}
+
+.pickup-request-details-section {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.pickup-request-details-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.details-box {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.details-box p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.details-box p strong {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.status-update {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.status-select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.status-select:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.update-status-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.update-status-btn:hover {
+    background-color: #45a049;
+}
+
+.delete-btn {
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+.back-btn {
+    padding: 10px 20px;
+    background-color: #757575;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.back-btn:hover {
+    background-color: #616161;
+}
+
+.error-message {
+    color: #f44336;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 20px;
+}

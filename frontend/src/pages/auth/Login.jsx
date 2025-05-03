@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import mfaApi from '../../services/mfaApi';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import './Auth.css';
 
 function Login() {
@@ -19,6 +21,7 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showMfaPrompt, setShowMfaPrompt] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to track password visibility
   const navigate = useNavigate();
   const { login, setAuthState } = useAuth();
 
@@ -39,6 +42,11 @@ function Login() {
       recoveryCode: ''
     });
     setError('');
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   // Handle regular login (first step)
@@ -180,16 +188,26 @@ function Login() {
                 />
               </div>
               
-              <div className="form-group">
+              <div className="form-group password-input-container">
                 <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
+                <div className="password-field">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                  <button 
+                    type="button" 
+                    className="password-toggle-button" 
+                    onClick={togglePasswordVisibility}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
               </div>
               
               <button 
