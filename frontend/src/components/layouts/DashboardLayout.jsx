@@ -31,6 +31,12 @@ import PaymentsPage from '../../pages/payments/PaymentsPage';
 import UserManagementPage from '../../pages/admin/UserManagementPage';
 import StatisticsPage from '../../pages/statistics/StatisticsPage';
 import SystemSettingsPage from '../../pages/admin/SystemSettingsPage';
+// Import the PickupRequests component
+import PickupRequests from '../../components/PickupRequests';
+import PickupForm from '../../components/PickupForm';
+import MyBinDetails from '../../components/MyBinDetails';
+import PickupDetails from '../../components/PickupDetails';
+import PickupRequestDetails from '../../components/PickupRequestDetails';
 
 import './DashboardLayout.css';
 
@@ -73,6 +79,23 @@ function DashboardLayout() {
 
             <Route path="/profile" element={<ProfilePage />} />
             
+            {/* Common routes for all users */}
+            <Route path="/pickup-requests" element={<PickupRequests />} />
+            
+            {/* Customer-specific pickup management */}
+            {user?.role === 'customer' && (
+              <>
+                <Route path="/pickup-form" element={<PickupForm />} />
+                <Route path="/my-bin-details" element={<MyBinDetails />} />
+                <Route path="/pickup/:id" element={<PickupDetails />} />
+              </>
+            )}
+
+            {/* Admin/staff pickup request details */}
+            {(user?.role === 'admin' || user?.role === 'staff') && (
+              <Route path="/pickup-request/:id" element={<PickupRequestDetails />} />
+            )}
+
             {/* Common routes accessible by financial managers and admin */}
             {(user?.role === 'financial_manager' || user?.role === 'admin') && (
               <>

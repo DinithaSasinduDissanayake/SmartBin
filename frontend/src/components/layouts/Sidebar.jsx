@@ -28,7 +28,9 @@ import {
   faClipboardList,
   faListCheck,
   faTrophy,
-  faTachometerAlt // Added icon for financial overview
+  faTachometerAlt,
+  faTrash, // Added for bin details
+  faMapMarkerAlt // Added for pickup request form
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -52,7 +54,9 @@ library.add(
   faClipboardList,
   faListCheck,
   faTrophy,
-  faTachometerAlt // Add the new icon to the library
+  faTachometerAlt,
+  faTrash, // Add the new icon to the library
+  faMapMarkerAlt // Add the new icon to the library
 );
 
 import './Sidebar.css';
@@ -73,19 +77,21 @@ function Sidebar() {
         { path: '/dashboard/collection-history', label: 'Collection History', icon: faCalendarDays },
         { path: '/dashboard/financial-history', label: 'Financial History', icon: faMoneyBill },
         { path: '/dashboard/complaints', label: 'Complaints', icon: faFileSignature },
-        { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: faTruck },
+        { path: '/my-bin-details', label: 'My Bin Details', icon: faTrash }, // Updated to link to new component
+        { path: '/request-pickup', label: 'Request Pickup', icon: faMapMarkerAlt }, // New entry for pickup request form
         { path: '/dashboard/available-garbage', label: 'Available Garbage', icon: faRecycle },
         { path: '/dashboard/purchase-history', label: 'Purchase History', icon: faScroll },
       ],
       admin: [
-        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Admin
+        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt },
         { path: '/dashboard/users', label: 'User Management', icon: faUsers },
+        { path: '/pickup-requests', label: 'Pickup Requests', icon: faTruck }, // Added link to pickup requests admin panel
         { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
         { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
       ],
       // Maintaining the database role name format (with underscore)
       financial_manager: [
-        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt }, // Add link for Financial Manager
+        { path: '/dashboard/financial-overview', label: 'Financial Overview', icon: faTachometerAlt },
         { path: '/dashboard/subscription-plans', label: 'Subscription Plans', icon: faFileLines },
         { path: '/dashboard/budget-allocation', label: 'Budget Allocation', icon: faMoneyBillTransfer },
         { path: '/dashboard/salary', label: 'Salary', icon: faUser },
@@ -95,6 +101,7 @@ function Sidebar() {
         { path: '/dashboard/attendance', label: 'Attendance', icon: faClipboardList },
         { path: '/dashboard/tasks', label: 'Tasks', icon: faListCheck },
         { path: '/dashboard/performance', label: 'Performance', icon: faTrophy },
+        { path: '/pickup-requests', label: 'Manage Pickups', icon: faTruck }, // Staff can also manage pickup requests
       ],
     };
 

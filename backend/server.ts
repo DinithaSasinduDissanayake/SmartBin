@@ -29,6 +29,7 @@ import resourceRoutes from './routes/resourceRoutes';
 import scheduleRoutes from './routes/scheduleRoutes';
 import equipmentRoutes from './routes/equipmentRoutes';
 import toolRoutes from './routes/toolRoutes';
+import pickupRoutes from './routes/pickupRoutes'; // Added pickup routes
 // Existing routes from server.js (adjust paths)
 import authRoutes from './src/routes/authRoutes';
 import userRoutes from './src/routes/userRoutes';
@@ -127,6 +128,7 @@ app.use('/api', resourceRoutes);
 app.use('/api', scheduleRoutes);
 app.use('/api', equipmentRoutes);
 app.use('/api', toolRoutes);
+app.use('/', pickupRoutes); // Added pickup routes
 // Existing Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

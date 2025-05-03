@@ -21,6 +21,12 @@ import ResourcesDisplay from './components/ResourcesDisplay';
 import ScheduleDisplay from './components/ScheduleDisplay';
 import ScheduleManagement from './components/ScheduleManagement';
 import ToolManagement from './components/ToolManagement';
+// Import new pickup components
+import PickupForm from './components/PickupForm';
+import MyBinDetails from './components/MyBinDetails';
+import PickupDetails from './components/PickupDetails';
+import PickupRequests from './components/PickupRequests';
+import PickupRequestDetails from './components/PickupRequestDetails';
 import './App.css';
 
 // Loading Indicator component
@@ -94,6 +100,35 @@ function AppContent() {
         
         {/* Payment demonstration - made public for easy testing */}
         <Route path="/payment-demo" element={<PaymentDemonstrationPage />} />
+        
+        {/* --- PICKUP RELATED ROUTES --- */}
+        <Route path="/request-pickup" element={
+          <ProtectedRoute>
+            <PickupForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/my-bin-details" element={
+          <ProtectedRoute>
+            <MyBinDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/pickup/:id" element={
+          <ProtectedRoute>
+            <PickupDetails />
+          </ProtectedRoute>
+        } />
+        {/* Admin routes for pickup request management */}
+        <Route path="/pickup-requests" element={
+          <ProtectedRoute>
+            <PickupRequests />
+          </ProtectedRoute>
+        } />
+        <Route path="/pickup-request/:id" element={
+          <ProtectedRoute>
+            <PickupRequestDetails />
+          </ProtectedRoute>
+        } />
+        {/* --- END PICKUP RELATED ROUTES --- */}
         
         {/* --- TEMPORARY PREVIEW ROUTES --- */}
         <Route path="/preview/customer-schedule-display" element={<CustomerScheduleDisplay />} />

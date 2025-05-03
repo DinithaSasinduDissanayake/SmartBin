@@ -124,7 +124,9 @@ function Sidebar() {
           { path: '/dashboard/profile', label: 'My Profile', icon: faUser },
         ]},
         { section: 'SERVICES', items: [
-          { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: faTruck },
+          { path: '/dashboard/pickup-form', label: 'Request Pickup', icon: faTruck },
+          { path: '/dashboard/my-bin-details', label: 'My Bin Details', icon: faBuilding },
+          { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: faClipboardList },
           { path: '/dashboard/available-garbage', label: 'Available Garbage', icon: faRecycle },
         ]},
         { section: 'HISTORY', items: [
@@ -145,6 +147,7 @@ function Sidebar() {
           { path: '/dashboard/users', label: 'User Management', icon: faUsers },
           { path: '/dashboard/statistics', label: 'Statistics', icon: faChartLine },
           { path: '/dashboard/complaints', label: 'Manage Complaints', icon: faFileSignature },
+          { path: '/dashboard/pickup-requests', label: 'Pickup Requests', icon: faTruck },
           { path: '/dashboard/attendance-reports', label: 'Attendance Reports', icon: faClipboardList },
           { path: '/dashboard/performance-reports', label: 'Performance Reports', icon: faTrophy },
           { path: '/dashboard/settings', label: 'System Settings', icon: faCog },
