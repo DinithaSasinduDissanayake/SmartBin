@@ -21,6 +21,9 @@ import ResourcesDisplay from './components/ResourcesDisplay';
 import ScheduleDisplay from './components/ScheduleDisplay';
 import ScheduleManagement from './components/ScheduleManagement';
 import ToolManagement from './components/ToolManagement';
+import Pricing from './pages/Pricing';
+import Team from './pages/Team';
+import Contact from './pages/Contact';
 import './App.css';
 
 // Loading Indicator component
@@ -87,6 +90,9 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/team" element={<Team />} />
+        <Route path="/contact" element={<Contact />} />
         
         {/* Experimental UI pages - public for easy access */}
         <Route path="/shadcn-experiment" element={<ShadcnExperimentPage />} />

@@ -1,6 +1,7 @@
+import dotenv from 'dotenv';
+
 import express, { Request, Response, NextFunction } from 'express'; // Added types
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet'; // Added from server.js
 import morgan from 'morgan'; // Added from server.js
@@ -76,7 +77,6 @@ process.on('unhandledRejection', (reason: any, promise: Promise<any>) => { // Ad
 
 // --- Initialize Express App ---
 const app = express();
-dotenv.config(); // Ensure env vars are loaded
 
 // --- Global Middleware (Combined & Ordered) ---
 

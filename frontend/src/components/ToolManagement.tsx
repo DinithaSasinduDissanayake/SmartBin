@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../variables.css'; // Added import
 import '../styles/themeStyles.css'; // Added import
-import '../styles/custom.css';
 
 // Tool Management component define කරන්න්
 const ToolManagement: React.FC = () => {

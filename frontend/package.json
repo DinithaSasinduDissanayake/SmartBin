@@ -19,6 +19,7 @@
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@mui/x-date-pickers": "^8.1.0",
+    "@react-google-maps/api": "^2.20.6",
     "@stripe/react-stripe-js": "^3.6.0",
     "@stripe/stripe-js": "^2.4.0",
     "axios": "^1.8.4",
@@ -46,6 +47,7 @@
     "globals": "^15.15.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.5",
+    "ts-node": "^10.9.2",
     "vite": "^6.2.0"
   }
 }
