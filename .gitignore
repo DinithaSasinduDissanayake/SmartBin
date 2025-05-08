@@ -113,6 +113,7 @@ all_code.txt
 all_diffs_from_last_commit.patch
 uncommitted-changes.patch
 dhanushka_integration_diff.txt
+frontend_config_dump.txt
 .github/copilot*
 !.github/copilot-instructions.md # Keep instructions if shared
 # Documentation Output (Optional)
@@ -122,3 +123,4 @@ dhanushka_integration_diff.txt
 
 # Gatsby specific (Uncomment if using Gatsby)
 # public
+.qodo

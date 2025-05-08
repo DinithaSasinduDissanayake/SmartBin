@@ -384,3 +384,86 @@ what he has done is he has developed his feature in his own project and then pus
 what is the easiest way to get his code into my branch
 
 ================================================================================================================================================================================================================================================
+
+okay here is the deal i am developing a website for a module called itp in my degree program
+
+it is a garbage management website 
+
+it has a landing page then a login page 
+
+then based on the user type it goes to different dashboards
+
+there are 4 dashboards and 4 user types
+
+    1. admin
+    2. financial manager
+    3. staff
+    4. customer
+ 
+in these dashboard there is a sidebar . and in the sidebar there are buttons and when clicked on the right side of the screen the content changes based on the button clicked
+
+that is the basic architecture of the website
+
+so our team members are developing different features but they are not devided like admin dashboard is developed by one person and financial manager dashboard is developed by another person . some people are developing features for few dashboards .
+
+so the thing is our team is new to git and they have not used git the way it is supposed to be used
+
+what they have done is created their own projects locally then developed sidebars and stuff then added buttons related to their features in the sidebar and got it working 
+then pushed it to their branch
+then i am supposed to integrate all of this into one final product
+
+
+so now i am tasked to do is get all of the features they have developed and integrate them into my version of the project and make sure everything works without breaking my stuff 
+
+i have so far integrated one members stuff by taking file by file and copying it into my version of the project and making sure everything works
+
+
+
+
+
+================================================================================================================================================================================================================================================
+
+how to use llm to speed up this process | i have vs code copilot pro 
+
+how to use it to speed up this process | i dont know how to use github merge tool 
+
+and also i am somewhat done with dhanushika's branch i want to merge (if merging is the best option) tharindu's branch into my branch without breaking my stuff . all i want to do is get his features into my branch and make sure everything works without breaking my stuff
+===============================================================================================================================================================================================================================================
+
+okay here is the deal i am developing a website for a module called itp in my degree program
+
+it is a garbage management website 
+
+it has a landing page then a login page 
+
+then based on the user type it goes to different dashboards
+
+there are 4 dashboards and 4 user types
+
+    1. admin
+    2. financial manager
+    3. staff
+    4. customer
+ 
+in these dashboard there is a sidebar . and in the sidebar there are buttons and when clicked on the right side of the screen the content changes based on the button clicked
+
+that is the basic architecture of the website
+
+so our team members are developing different features but they are not devided like admin dashboard is developed by one person and financial manager dashboard is developed by another person . some people are developing features for few dashboards .
+
+so the thing is our team is new to git and they have not used git the way it is supposed to be used
+
+what they have done is created their own projects locally then developed sidebars and stuff then added buttons related to their features in the sidebar and got it working 
+then pushed it to their branch
+then i am supposed to integrate all of this into one final product
+
+
+so now i am tasked to do is get all of the features they have developed and integrate them into my version of the project and make sure everything works without breaking my stuff 
+
+i have so far integrated one members stuff by taking file by file and copying it into my version of the project and making sure everything works
+
+so here is how i am planning to integrate those features 
+
+first tharindu's branch to the develop branch
+
+i am going to give the file structure and the code 

@@ -14,7 +14,26 @@
   flex-direction: column; /* Common layout pattern */
 }
 
-/* Global Form Styles - Consider using MUI components for forms */
-/* If keeping, ensure they don't conflict with MUI styles */
-/* .form-group, .form-message, .form-error, .form-success, .read-only styles removed */
-/* Recommend using MUI components like TextField, FormControl, Alert, and the sx prop instead */
+/* Table header styles */
+th {
+  background-color: #e3ecd3;
+  color: #222;
+}
+
+/* Table cell styles */
+td {
+  background-color: #fff;
+  color: #222;
+}
+
+/* Table row border for visibility */
+tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Optional: override for dark mode if needed */
+@media (prefers-color-scheme: dark) {
+  th, td {
+    background-color: #222;
+    color: #e3ecd3;
+}

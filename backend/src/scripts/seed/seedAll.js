@@ -21,6 +21,12 @@ const Performance = require('../../models/Performance');
 const Complaint = require('../../models/Complaint');
 const Document = require('../../models/Document');
 
+// Remove or comment out problematic TypeScript imports since they can't be directly required
+// const Equipment = require('../../../models/equipment');
+// const Truck = require('../../../models/truck');
+// const Tool = require('../../../models/tool');
+// const Schedule = require('../../../models/schedule');
+
 // Fixed "Current Date" for consistent seeding
 const DEMO_CURRENT_DATE = new Date('2025-04-30T12:00:00Z');
 // Start Date: 1 year and 3 months before DEMO_CURRENT_DATE
@@ -65,22 +71,12 @@ const randomDate = (start, end) => {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 };
 
-
 // Utility: generate a unique invoice number (Placeholder - needs implementation if required)
 async function generateUniqueInvoiceNumber() {
   // Placeholder logic - replace with actual unique generation if needed
   const timestamp = Date.now();
   const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
   return `INV-${timestamp}-${randomSuffix}`;
-  // In a real scenario, you'd check the DB to ensure uniqueness
-  // let exists = true;
-  // let invoiceNumber;
-  // while (exists) {
-  //   invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-  //   const existingPayment = await Payment.findOne({ invoiceNumber });
-  //   exists = !!existingPayment;
-  // }
-  // return invoiceNumber;
 }
 
 // Ensure demo users for all roles exist
@@ -100,7 +96,6 @@ async function ensureUsers() {
   if (!roles.includes('admin2')) {
       roles.splice(1, 0, 'admin2'); // Insert 'admin2' after 'admin'
   }
-
 
   for (const role of roles) {
     // Handle the case where role might be 'admin2' but data is keyed differently
@@ -265,7 +260,6 @@ async function ensureSubscriptions(customers, plans, startDate, endDate) {
              isActive = true;
         }
 
-
         const subscription = new UserSubscription({
             user: customer._id,
             subscriptionPlan: selectedPlan._id,
@@ -357,7 +351,6 @@ async function ensurePayments(users, plans, startDate, endDate) {
                      status = 'pending'; // Default future to pending
                  }
 
-
                 payments.push({
                     user: sub.user,
                     userSubscription: sub._id,
@@ -448,7 +441,6 @@ async function ensurePayments(users, plans, startDate, endDate) {
      }
 }
 
-
 async function ensureExpenses(financialManager, startDate, endDate) {
     console.log(`Generating expenses from ${startDate.toDateString()} to ${endDate.toDateString()}...`);
     await Expense.deleteMany({});
@@ -501,7 +493,6 @@ async function ensureExpenses(financialManager, startDate, endDate) {
                  else if (randomStatus < 0.90) status = 'pending';  // 15% pending
                  else status = 'rejected'; // 10% rejected
              }
-
 
             expenses.push({
                 category: categoryInfo.category,
@@ -605,7 +596,6 @@ async function ensureBudgets(financialManager, startDate, endDate) {
               // Adjust start/end dates if they partially overlap the seed range
               if (periodStartDate < startDate) periodStartDate = startDate;
               if (periodEndDate > endDate) periodEndDate = endDate;
-
 
               for (const category of categories) {
                   // Base allocation slightly higher than average random expense for that category
@@ -772,7 +762,6 @@ function addHours(date, hours) {
     return result;
 }
 
-
 async function ensurePerformance(staffUsers, adminUser, startDate, endDate) {
   console.log(`Generating performance reviews from ${startDate.toDateString()} to ${endDate.toDateString()}...`);
   await Performance.deleteMany({});
@@ -872,7 +861,6 @@ async function ensureComplaints(customers, staffUsers, adminUser, startDate, end
           subject = randomElement(['Billing Issue', 'Payment Problem', 'Subscription Query']);
       }
 
-
       complaints.push({
           user: customer._id,
           subject: subject,
@@ -940,6 +928,162 @@ async function ensureDocuments(users, startDate, endDate) {
   console.log(`Generated ${await Document.countDocuments()} documents.`);
 }
 
+// --- Resource Seeder Functions ---
+async function ensureEquipment() {
+  console.log('Seeding equipment...');
+  
+  // Use mongoose direct collection access instead of model imports
+  const Equipment = mongoose.connection.collection('equipment');
+  
+  // Clear existing data
+  await Equipment.deleteMany({});
+  
+  const equipmentList = [
+    {
+      equipmentId: 'EQP001',
+      type: 'Gloves',
+      description: 'Heavy-duty protective gloves',
+      location: { lat: 6.9271, lng: 79.8612 }
+    },
+    {
+      equipmentId: 'EQP002',
+      type: 'Boots',
+      description: 'Waterproof safety boots',
+      location: { lat: 6.9275, lng: 79.8620 }
+    },
+    {
+      equipmentId: 'EQP003',
+      type: 'Safety Dress',
+      description: 'Reflective safety dress for night work',
+      location: { lat: 6.9280, lng: 79.8600 }
+    }
+  ];
+  
+  // Insert directly to collection
+  await Equipment.insertMany(equipmentList);
+  console.log(`Seeded ${await Equipment.countDocuments()} equipment items.`);
+}
+
+async function ensureTrucks() {
+  console.log('Seeding trucks...');
+  
+  // Use mongoose direct collection access
+  const Truck = mongoose.connection.collection('trucks');
+  
+  // Clear existing data
+  await Truck.deleteMany({});
+  
+  const truckList = [
+    {
+      truckId: 'TRK001',
+      status: 'Active',
+      tankCapacity: 5000,
+      availability: 'Available',
+      fuel: 80,
+      condition: 'Good',
+      description: 'Main waste collection truck',
+      location: { lat: 6.9271, lng: 79.8612 }
+    },
+    {
+      truckId: 'TRK002',
+      status: 'Active',
+      tankCapacity: 4000,
+      availability: 'Available',
+      fuel: 60,
+      condition: 'Good',
+      description: 'Backup truck for city routes',
+      location: { lat: 6.9275, lng: 79.8620 }
+    },
+    {
+      truckId: 'TRK003',
+      status: 'Active',
+      tankCapacity: 3500,
+      availability: 'Available',
+      fuel: 90,
+      condition: 'Repair',
+      description: 'Truck under maintenance',
+      location: { lat: 6.9280, lng: 79.8600 }
+    }
+  ];
+  
+  await Truck.insertMany(truckList);
+  console.log(`Seeded ${await Truck.countDocuments()} trucks.`);
+}
+
+async function ensureTools() {
+  console.log('Seeding tools...');
+  
+  // Use mongoose direct collection access
+  const Tool = mongoose.connection.collection('tools');
+  
+  // Clear existing data
+  await Tool.deleteMany({});
+  
+  const toolList = [
+    {
+      toolId: 'T001',
+      type: 'Shovel',
+      status: 'Available',
+      description: 'Standard metal shovel for waste handling'
+    },
+    {
+      toolId: 'T002',
+      type: 'Broom',
+      status: 'Available',
+      description: 'Heavy-duty broom for street cleaning'
+    },
+    {
+      toolId: 'T003',
+      type: 'Rake',
+      status: 'Available',
+      description: 'Rake for collecting leaves and debris'
+    }
+  ];
+  
+  await Tool.insertMany(toolList);
+  console.log(`Seeded ${await Tool.countDocuments()} tools.`);
+}
+
+async function ensureSchedules() {
+  console.log('Seeding schedules...');
+  
+  // Use mongoose direct collection access
+  const Schedule = mongoose.connection.collection('schedules');
+  
+  // Clear existing data
+  await Schedule.deleteMany({});
+  
+  const scheduleList = [
+    {
+      scheduleNo: 'SCH001',
+      route: ['Colombo 01', 'Colombo 02', 'Colombo 03'],
+      truckNo: 'TRK001',
+      date: '2025-05-01',
+      time: '08:00',
+      status: 'Waiting'
+    },
+    {
+      scheduleNo: 'SCH002',
+      route: ['Colombo 04', 'Colombo 05'],
+      truckNo: 'TRK002',
+      date: '2025-05-02',
+      time: '09:00',
+      status: 'Pending'
+    },
+    {
+      scheduleNo: 'SCH003',
+      route: ['Colombo 06', 'Colombo 07'],
+      truckNo: 'TRK003',
+      date: '2025-05-03',
+      time: '10:00',
+      status: 'Completed'
+    }
+  ];
+  
+  await Schedule.insertMany(scheduleList);
+  console.log(`Seeded ${await Schedule.countDocuments()} schedules.`);
+}
+
 // Main Seeding Function
 async function seedDatabase(startDate, endDate) {
   try {
@@ -982,7 +1126,6 @@ async function seedDatabase(startDate, endDate) {
         console.warn("Warning: No staff users found or created. Some features might lack data (Payroll, Attendance, Performance).");
     }
 
-
     // 3. Seed transactional data using the date range
     await ensureSubscriptions(customers, allPlans, startDate, endDate);
     await ensurePayments(customers, allPlans, startDate, endDate); // Pass customers for standalone payments
@@ -996,6 +1139,12 @@ async function seedDatabase(startDate, endDate) {
 
     await ensureComplaints(customers, staffUsers, adminUser, startDate, endDate);
     await ensureDocuments([...customers, ...staffUsers, adminUser, financialManager], startDate, endDate); // Seed docs for all user types
+
+    // --- Resource seeding ---
+    await ensureEquipment();
+    await ensureTrucks();
+    await ensureTools();
+    await ensureSchedules();
 
     console.log('\n--- Database Seeding Completed Successfully ---');
 
