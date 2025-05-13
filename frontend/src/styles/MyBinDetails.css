@@ -1,0 +1,133 @@
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    display: flex;
+    flex: 1;
+}
+
+.my-bin-details-section {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.my-bin-details-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    padding: 10px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    font-size: 16px;
+}
+
+.search-bar button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.search-bar button:hover {
+    background-color: #45a049;
+}
+
+.create-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.create-btn:hover {
+    background-color: #1e88e5;
+}
+
+.my-bin-details-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.my-bin-details-table th,
+.my-bin-details-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.my-bin-details-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+.my-bin-details-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.view-more-btn {
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.view-more-btn:hover {
+    background-color: #1e88e5;
+}
+
+.delete-btn {
+    padding: 8px 16px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+.error-message {
+    color: #f44336;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.btn-btn {
+    
+    background-color: #36f488;
+   
+}
