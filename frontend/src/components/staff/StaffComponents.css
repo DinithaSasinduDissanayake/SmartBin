@@ -1,0 +1,598 @@
+/* Common styles for staff components */
+.attendance-tracker,
+.performance-metrics {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.attendance-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.check-in-btn,
+.check-out-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.check-in-btn {
+  background-color: #4ea14a;
+  color: white;
+}
+
+.check-out-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.check-in-btn:hover {
+  background-color: #3c8a38;
+}
+
+.check-out-btn:hover {
+  background-color: #c0392b;
+}
+
+.attendance-stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  flex: 1;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.date-filter {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-item label {
+  font-weight: 500;
+  color: #555;
+}
+
+.filter-item input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.attendance-table,
+.reviews-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.attendance-table th,
+.attendance-table td,
+.reviews-table th,
+.reviews-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.attendance-table th,
+.reviews-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #333;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-badge.present {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.absent {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.late {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.half-day {
+  background-color: #e2f0fb;
+  color: #0c5460;
+}
+
+/* Performance Metrics Styles */
+.performance-summary {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.rating-overview {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.average-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rating-label, .count-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.rating-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.rating-stars {
+  display: flex;
+}
+
+.star {
+  font-size: 20px;
+  color: #ddd;
+  margin: 0 1px;
+}
+
+.star.filled {
+  color: #f39c12;
+}
+
+.review-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.count-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+}
+
+.rating-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.rating-badge.rating-10, .rating-badge.rating-9 {
+  background-color: #28a745;
+  color: white;
+}
+
+.rating-badge.rating-8, .rating-badge.rating-7 {
+  background-color: #4ea14a;
+  color: white;
+}
+
+.rating-badge.rating-6, .rating-badge.rating-5 {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.rating-badge.rating-4, .rating-badge.rating-3 {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.rating-badge.rating-2, .rating-badge.rating-1 {
+  background-color: #dc3545;
+  color: white;
+}
+
+.view-details-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.view-details-btn:hover {
+  background-color: #0069d9;
+}
+
+/* Modal styles */
+.review-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 30px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.review-period {
+  margin-bottom: 20px;
+}
+
+.metrics-section, .feedback-section, .goals-section {
+  margin-bottom: 25px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.metric-item {
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-name {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.overall-rating {
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.close-details-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.close-details-btn:hover {
+  background-color: #5a6268;
+}
+
+.loading, .no-reviews, .no-records, .error-message {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+}
+
+/* New styles */
+.staff-component {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.staff-component-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.staff-component-header h2 {
+  font-size: 1.4rem;
+  color: #333;
+  margin: 0;
+}
+
+/* Attendance Tracker specific styles */
+.attendance-card {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.attendance-card:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-details {
+  flex-grow: 1;
+}
+
+.attendance-date {
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+.attendance-time {
+  display: flex;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.attendance-time span {
+  margin-right: 15px;
+}
+
+.attendance-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-indicator.checked-in {
+  background-color: #28a745;
+}
+
+.status-indicator.checked-out {
+  background-color: #6c757d;
+}
+
+.attendance-actions {
+  display: flex;
+  align-items: center;
+}
+
+.attendance-action-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.check-in-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.check-in-btn:hover {
+  background-color: #218838;
+}
+
+.check-out-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.check-out-btn:hover {
+  background-color: #5a6268;
+}
+
+/* Performance metrics styles */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4ea14a;
+  margin: 10px 0;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.performance-chart {
+  width: 100%;
+  height: 300px;
+  margin-top: 20px;
+}
+
+.rating-stars {
+  font-size: 1.5rem;
+  color: #ffc107;
+  margin: 10px 0;
+}
+
+.rating-label {
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Admin management styles */
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.staff-table th, 
+.staff-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.staff-table thead th {
+  background-color: #f5f5f5;
+  color: #333;
+  font-weight: 500;
+}
+
+.staff-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.staff-action-btn {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.staff-action-btn.view {
+  background-color: #e3f2fd;
+  color: #0d6efd;
+}
+
+.staff-action-btn.edit {
+  background-color: #e8f5e9;
+  color: #28a745;
+}
+
+.staff-action-btn.delete {
+  background-color: #fbeae9;
+  color: #dc3545;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  
+  .staff-table {
+    font-size: 0.9rem;
+  }
+  
+  .staff-table th, 
+  .staff-table td {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .staff-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
