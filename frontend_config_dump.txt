@@ -18,69 +18,42 @@
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@hookform/resolvers": "^5.0.1",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "@mui/x-date-pickers": "^8.1.0",
-    "@radix-ui/react-accordion": "^1.2.8",
-    "@radix-ui/react-alert-dialog": "^1.1.11",
-    "@radix-ui/react-avatar": "^1.1.7",
-    "@radix-ui/react-checkbox": "^1.2.3",
-    "@radix-ui/react-dialog": "^1.1.11",
-    "@radix-ui/react-dropdown-menu": "^2.1.12",
-    "@radix-ui/react-hover-card": "^1.1.11",
-    "@radix-ui/react-label": "^2.1.4",
-    "@radix-ui/react-popover": "^1.1.11",
-    "@radix-ui/react-progress": "^1.1.4",
-    "@radix-ui/react-select": "^2.2.2",
-    "@radix-ui/react-separator": "^1.1.4",
-    "@radix-ui/react-slider": "^1.3.2",
-    "@radix-ui/react-slot": "^1.2.0",
-    "@radix-ui/react-switch": "^1.2.2",
-    "@radix-ui/react-tabs": "^1.1.9",
-    "@radix-ui/react-tooltip": "^1.2.4",
-    "@stripe/react-stripe-js": "^3.6.0",
+    "@sendgrid/mail": "^8.1.5",
+    "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^2.4.0",
     "axios": "^1.8.4",
     "chart.js": "^4.4.9",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "docx": "^9.4.1",
+    "file-saver": "^2.0.5",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
-    "next-themes": "^0.4.6",
+    "leaflet": "^1.9.4",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
-    "react-day-picker": "^8.10.1",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.56.1",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.4.0",
     "react-transition-group": "^4.4.5",
-    "recharts": "^2.15.3",
-    "sonner": "^2.0.3",
-    "tailwind-merge": "^3.2.0",
-    "zod": "^3.24.3"
+    "recharts": "^2.15.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@shadcn/ui": "^0.0.4",
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/postcss": "^4.1.5",
-    "@tailwindcss/vite": "^4.1.5",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.21",
-    "date-fns": "^3.6.0",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
-    "lucide-react": "^0.503.0",
     "postcss": "^8.5.3",
-    "shadcn-ui": "^0.9.5",
     "tailwindcss": "^4.1.5",
-    "tailwindcss-animate": "^1.0.7",
-    "tw-animate-css": "^1.2.8",
     "vite": "^6.2.0"
   }
 }
@@ -89,111 +62,28 @@
 --- End File: .\frontend\package.json ---
 
 
---- File: .\frontend\tailwind.config.js ---
-
-/** @type {import('tailwindcss').Config} */
-export default {
-  darkMode: ["class"],
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  prefix: "",
-  theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
-    extend: {
-      colors: {
-        border: "var(--border)",
-        input: "var(--input)",
-        ring: "var(--ring)",
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        primary: {
-          DEFAULT: "var(--primary)",
-          foreground: "var(--primary-foreground)",
-        },
-        secondary: {
-          DEFAULT: "var(--secondary)",
-          foreground: "var(--secondary-foreground)",
-        },
-        destructive: {
-          DEFAULT: "var(--destructive)",
-          foreground: "var(--destructive-foreground)",
-        },
-        muted: {
-          DEFAULT: "var(--muted)",
-          foreground: "var(--muted-foreground)",
-        },
-        accent: {
-          DEFAULT: "var(--accent)",
-          foreground: "var(--accent-foreground)",
-        },
-        popover: {
-          DEFAULT: "var(--popover)",
-          foreground: "var(--popover-foreground)",
-        },
-        card: {
-          DEFAULT: "var(--card)",
-          foreground: "var(--card-foreground)",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: 0 },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
-    },
-  },
-  plugins: [require("tailwindcss-animate")],
-}
-
---- End File: .\frontend\tailwind.config.js ---
+--- File Not Found: .\frontend\tailwind.config.js ---
 
 
---- File: .\frontend\postcss.config.cjs ---
-
-module.exports = {
-  plugins: {
-    '@tailwindcss/postcss': {}, // Use the correct Tailwind CSS PostCSS plugin
-    autoprefixer: {},
-  },
-}
-
---- End File: .\frontend\postcss.config.cjs ---
+--- File Not Found: .\frontend\postcss.config.cjs ---
 
 
 --- File: .\frontend\vite.config.js ---
 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+  server: { // Add this server configuration
+    proxy: {
+      // Proxy /api requests to your backend server
+      '/api': {
+        target: 'http://localhost:5000', // Your backend server address
+        changeOrigin: true, // Recommended for virtual hosted sites
+        secure: false,      // Optional: Set to false if backend uses http
+      },
     },
   },
 })
@@ -204,19 +94,13 @@ export default defineConfig({
 
 --- File: .\frontend\src\index.css ---
 
-/* Import global CSS variables and theme styles */
+/* Import our global CSS variables */
 @import url('./variables.css');
-@import url('../styles/themeStyles.css');
-@import "tw-animate-css";
 
-/* Import Tailwind directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import our theme styles */
+@import url('./styles/themeStyles.css');
 
 /* Base styles and resets */
-@custom-variant dark (&:is(.dark *));
-
 * {
   margin: 0;
   padding: 0;
@@ -236,7 +120,7 @@ body {
   background-color: var(--bg-default);
   min-height: 100vh;
   min-width: 320px;
-
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -420,161 +304,11 @@ input:focus, select:focus, textarea:focus {
 .align-items-center { align-items: center; }
 .flex-wrap { flex-wrap: wrap; }
 
-/* Dark mode - to be implemented fully later if needed */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-  }
-
-  body {
-    color: var(--text-white);
-    background-color: var(--bg-dark);
-  }
-
-  button {
-    background-color: #2c2c2c;
-    color: var(--text-white);
-  }
-}
-
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
-
-:root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
-}
-
-.dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
 
 --- End File: .\frontend\src\index.css ---
 
 
---- File: .\frontend\src\main.jsx ---
-
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { AuthProvider } from './contexts/AuthContext'
-import './index.css'
-import App from './App.jsx'
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </StrictMode>,
-)
-
-
---- End File: .\frontend\src\main.jsx ---
+--- File Not Found: .\frontend\src\main.jsx ---
 
 
 --- File: .\frontend\src\App.jsx ---
@@ -595,6 +329,22 @@ import SubscriptionPlansPage from './pages/subscription/SubscriptionPlansPage';
 import PaymentDemonstrationPage from './components/financial/PaymentDemonstrationPage';
 import ShadcnExperimentPage from './pages/experimental/ShadcnExperimentPage';
 import AceternityExperimentPage from './pages/experimental/AceternityExperimentPage';
+import CustomerScheduleDisplay from './components/CustomerScheduleDisplay';
+import EquipmentManagement from './components/EquipmentManagement';
+import ResourceManagement from './components/ResourceManagement';
+import ResourcesDisplay from './components/ResourcesDisplay';
+import ScheduleDisplay from './components/ScheduleDisplay';
+import ScheduleManagement from './components/ScheduleManagement';
+import ToolManagement from './components/ToolManagement';
+// Import new pickup components
+import PickupForm from './components/PickupForm';
+import MyBinDetails from './components/MyBinDetails';
+import PickupDetails from './components/PickupDetails';
+import PickupRequests from './components/PickupRequests';
+import PickupRequestDetails from './components/PickupRequestDetails';
+// Import recycling components
+import RecycleForm from './components/recycling/RecycleForm';
+import RequestList from './components/recycling/RequestList';
 import './App.css';
 
 // Loading Indicator component
@@ -669,6 +419,45 @@ function AppContent() {
         {/* Payment demonstration - made public for easy testing */}
         <Route path="/payment-demo" element={<PaymentDemonstrationPage />} />
         
+        {/* --- PICKUP RELATED ROUTES --- */}
+        <Route path="/request-pickup" element={
+          <ProtectedRoute>
+            <PickupForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/my-bin-details" element={
+          <ProtectedRoute>
+            <MyBinDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/pickup/:id" element={
+          <ProtectedRoute>
+            <PickupDetails />
+          </ProtectedRoute>
+        } />
+        {/* Admin routes for pickup request management */}
+        <Route path="/pickup-requests" element={
+          <ProtectedRoute>
+            <PickupRequests />
+          </ProtectedRoute>
+        } />
+        <Route path="/pickup-request/:id" element={
+          <ProtectedRoute>
+            <PickupRequestDetails />
+          </ProtectedRoute>
+        } />
+        {/* --- END PICKUP RELATED ROUTES --- */}
+        
+        {/* --- TEMPORARY PREVIEW ROUTES --- */}
+        <Route path="/preview/customer-schedule-display" element={<CustomerScheduleDisplay />} />
+        <Route path="/preview/equipment-management" element={<EquipmentManagement />} />
+        <Route path="/preview/resource-management" element={<ResourceManagement />} />
+        <Route path="/preview/resources-display" element={<ResourcesDisplay />} />
+        <Route path="/preview/schedule-display" element={<ScheduleDisplay />} />
+        <Route path="/preview/schedule-management" element={<ScheduleManagement />} />
+        <Route path="/preview/tool-management" element={<ToolManagement />} />
+        {/* --- END TEMPORARY PREVIEW ROUTES --- */}
+        
         {/* Subscription route */}
         <Route path="/subscription-plans" element={
           <ProtectedRoute>
@@ -682,6 +471,17 @@ function AppContent() {
             <DashboardLayout />
           </ProtectedRoute>
         } />
+        {/* Recycling feature routes inside dashboard */}
+        <Route path="/dashboard/recycle-request" element={
+          <ProtectedRoute>
+            <RecycleForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/my-requests" element={
+          <ProtectedRoute>
+            <RequestList />
+          </ProtectedRoute>
+        } />
       </Routes>
     </div>
   );
@@ -692,9 +492,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider theme={muiTheme}>
         <CssBaseline />
-        <Router>
-          <AppContent />
-        </Router>
+        <AppContent />
       </ThemeProvider>
     </AuthProvider>
   );
@@ -714,35 +512,17 @@ import {
   Box, 
   Button as MuiButton, 
   TextField, 
-  Card as MuiCard, 
+  Card, 
   CardContent, 
   Typography, 
-  Switch as MuiSwitch,
+  Switch,
   Snackbar,
   Alert,
-  Paper,
-  Dialog as MuiDialog,
-  DialogTitle as MuiDialogTitle,
-  DialogContent as MuiDialogContent,
-  DialogActions as MuiDialogActions,
-  Tab,
-  Tabs
+  Paper
 } from '@mui/material';
 
-// Import shadcn/ui components
-import { Button } from "@/components/ui/button";
-import { Card, CardContent as ShadcnCardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
-import ReusableDialog from "@/components/ui/ReusableDialog";
-import FormExample from "@/components/ui/FormExample";
-import showToast from "@/components/ui/ToastNotification";
-import { Toaster } from "@/components/ui/sonner";
-import UserDataDisplay from "@/components/ui/UserDataDisplay";
-
 // CSS for shadcn-like styling
-import './ShadcnExperimentPage.css';  // Re-enable the CSS import
+import './ShadcnExperimentPage.css';
 
 /**
  * This is an experimental page for testing shadcn/ui components
@@ -753,326 +533,151 @@ const ShadcnExperimentPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [switchValue, setSwitchValue] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [progressValue, setProgressValue] = useState(33);
-  const [muiDialogOpen, setMuiDialogOpen] = useState(false);
-  const [shadcnDialogOpen, setShadcnDialogOpen] = useState(false);
-  const [currentTab, setCurrentTab] = useState(0);
 
   const handleIncrement = () => {
     setCount(count + 1);
-    // Increment progress as well to demonstrate dynamic updates
-    setProgressValue((prev) => Math.min(prev + 10, 100));
   };
 
   const handleShowSnackbar = () => {
     setSnackbarOpen(true);
   };
 
-  const handleShowShadcnToast = (type) => {
-    switch (type) {
-      case 'success':
-        showToast.success('Operation completed successfully!');
-        break;
-      case 'error':
-        showToast.error('An error occurred while processing your request.');
-        break;
-      case 'info':
-        showToast.info('Here is some information you might find useful.');
-        break;
-      case 'warning':
-        showToast.warning('Be careful with this action.');
-        break;
-      case 'promise':
-        showToast.promise(
-          new Promise((resolve, reject) => {
-            setTimeout(() => {
-              // 80% chance of success
-              if (Math.random() > 0.2) {
-                resolve({ data: 'Success data' });
-              } else {
-                reject(new Error('Sample error'));
-              }
-            }, 2000);
-          }),
-          {
-            loading: 'Loading data...',
-            success: 'Data loaded successfully!',
-            error: 'Failed to load data'
-          }
-        );
-        break;
-      default:
-        showToast.success('Notification from shadcn/ui!');
-    }
-  };
-
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
 
-  const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
-  };
-
-  const handleFormSubmit = (data) => {
-    console.log('Form submitted:', data);
-    showToast.success('Form submitted successfully!');
-  };
-
   return (
     <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
-      {/* Sonner Toaster Component - Should be included once per application */}
-      <Toaster position="bottom-right" />
-      
       <Paper sx={{ p: 3, mb: 4 }}>
         <Typography variant="h4" gutterBottom>
           Shadcn/UI Experiment Page
         </Typography>
         <Typography variant="body1" paragraph>
-          This page demonstrates real shadcn/ui components alongside our existing Material UI components.
-          You can see the differences in design language and functionality between the two libraries.
+          This page demonstrates how shadcn/ui components would look alongside our existing Material UI components.
+          You can use this page to experiment with the shadcn/ui design system and decide if it's right for your project.
         </Typography>
-
-        <Tabs value={currentTab} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-          <Tab label="Basic Components" />
-          <Tab label="Form Example" />
-          <Tab label="Toast Notifications" />
-          <Tab label="User Data Display" />
-        </Tabs>
       </Paper>
 
-      {currentTab === 0 && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
-          {/* Material UI Components */}
-          <MuiCard variant="outlined" sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant="h5" color="primary" gutterBottom>
-                Material UI Components (Current)
-              </Typography>
-              
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>Buttons</Typography>
-                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                  <MuiButton variant="contained" color="primary">Primary</MuiButton>
-                  <MuiButton variant="outlined" color="primary">Secondary</MuiButton>
-                  <MuiButton variant="text">Text</MuiButton>
-                </Box>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4 }}>
+        {/* Material UI Components */}
+        <Card variant="outlined" sx={{ height: '100%' }}>
+          <CardContent>
+            <Typography variant="h5" color="primary" gutterBottom>
+              Material UI Components (Current)
+            </Typography>
+            
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" gutterBottom>Buttons</Typography>
+              <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                <MuiButton variant="contained" color="primary">Primary</MuiButton>
+                <MuiButton variant="outlined" color="primary">Secondary</MuiButton>
+                <MuiButton variant="text">Text</MuiButton>
               </Box>
-              
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>Input</Typography>
-                <TextField 
-                  label="Material UI Input" 
-                  variant="outlined" 
-                  fullWidth 
+            </Box>
+            
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" gutterBottom>Input</Typography>
+              <TextField 
+                label="Material UI Input" 
+                variant="outlined" 
+                fullWidth 
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+            </Box>
+            
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" gutterBottom>Counter</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <MuiButton variant="contained" onClick={handleIncrement}>
+                  Count: {count}
+                </MuiButton>
+              </Box>
+            </Box>
+            
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" gutterBottom>Switch</Typography>
+              <Switch 
+                checked={switchValue} 
+                onChange={() => setSwitchValue(!switchValue)} 
+              />
+              <Typography variant="body2" component="span" sx={{ ml: 1 }}>
+                {switchValue ? 'On' : 'Off'}
+              </Typography>
+            </Box>
+            
+            <Box>
+              <Typography variant="subtitle1" gutterBottom>Notification</Typography>
+              <MuiButton variant="contained" color="secondary" onClick={handleShowSnackbar}>
+                Show Notification
+              </MuiButton>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Shadcn UI Styled Components */}
+        <div className="shadcn-card">
+          <div className="shadcn-card-content">
+            <h2 className="shadcn-heading">Shadcn UI Styled Components</h2>
+            
+            <div className="shadcn-section">
+              <h3 className="shadcn-subtitle">Buttons</h3>
+              <div className="shadcn-button-group">
+                <button className="shadcn-button shadcn-button-primary">Primary</button>
+                <button className="shadcn-button shadcn-button-outline">Secondary</button>
+                <button className="shadcn-button shadcn-button-ghost">Text</button>
+              </div>
+            </div>
+            
+            <div className="shadcn-section">
+              <h3 className="shadcn-subtitle">Input</h3>
+              <div className="shadcn-form-item">
+                <label className="shadcn-label">Shadcn UI Input</label>
+                <input 
+                  type="text" 
+                  className="shadcn-input" 
+                  placeholder="Type here..." 
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  sx={{ mb: 2 }}
                 />
-              </Box>
-              
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>Counter</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <MuiButton variant="contained" onClick={handleIncrement}>
-                    Count: {count}
-                  </MuiButton>
-                </Box>
-              </Box>
-              
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>Switch</Typography>
-                <MuiSwitch 
-                  checked={switchValue} 
-                  onChange={() => setSwitchValue(!switchValue)} 
-                />
-                <Typography variant="body2" component="span" sx={{ ml: 1 }}>
-                  {switchValue ? 'On' : 'Off'}
-                </Typography>
-              </Box>
-              
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>Dialog</Typography>
-                <MuiButton variant="contained" color="primary" onClick={() => setMuiDialogOpen(true)}>
-                  Open Dialog
-                </MuiButton>
-                <MuiDialog open={muiDialogOpen} onClose={() => setMuiDialogOpen(false)}>
-                  <MuiDialogTitle>Material UI Dialog</MuiDialogTitle>
-                  <MuiDialogContent>
-                    <Typography>This is a standard Material UI dialog component.</Typography>
-                  </MuiDialogContent>
-                  <MuiDialogActions>
-                    <MuiButton onClick={() => setMuiDialogOpen(false)}>Close</MuiButton>
-                  </MuiDialogActions>
-                </MuiDialog>
-              </Box>
-              
-              <Box>
-                <Typography variant="subtitle1" gutterBottom>Notification</Typography>
-                <MuiButton variant="contained" color="secondary" onClick={handleShowSnackbar}>
-                  Show Notification
-                </MuiButton>
-              </Box>
-            </CardContent>
-          </MuiCard>
-
-          {/* Real Shadcn UI Components */}
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle>Shadcn UI Components (Real)</CardTitle>
-            </CardHeader>
-            <ShadcnCardContent>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Buttons</h3>
-                  <div className="flex gap-2 flex-wrap">
-                    <Button>Primary</Button>
-                    <Button variant="outline">Secondary</Button>
-                    <Button variant="ghost">Text</Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Counter</h3>
-                  <Button onClick={handleIncrement}>
-                    Count: {count}
-                  </Button>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Switch</h3>
-                  <div className="flex items-center gap-2">
-                    <Switch 
-                      checked={switchValue}
-                      onCheckedChange={setSwitchValue}
-                    />
-                    <span className="text-sm">{switchValue ? 'On' : 'Off'}</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Progress</h3>
-                  <Progress value={progressValue} className="w-full" />
-                  <div className="text-xs text-right text-muted-foreground">
-                    {progressValue}%
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Dialog</h3>
-                  <Button onClick={() => setShadcnDialogOpen(true)}>
-                    Open Dialog
-                  </Button>
-                  <ReusableDialog
-                    open={shadcnDialogOpen}
-                    onOpenChange={setShadcnDialogOpen}
-                    title="Shadcn UI Dialog"
-                    description="This is our custom reusable dialog component built with shadcn/ui."
-                  >
-                    <p className="text-sm text-muted-foreground">
-                      The dialog component is fully accessible and customizable. It handles focus
-                      management, keyboard interactions, and proper ARIA attributes automatically.
-                    </p>
-                  </ReusableDialog>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Skeleton</h3>
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                    <Skeleton className="h-4 w-[150px]" />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Notification</h3>
-                  <Button variant="secondary" onClick={() => handleShowShadcnToast('success')}>
-                    Show Toast
-                  </Button>
-                </div>
               </div>
-            </ShadcnCardContent>
-          </Card>
-        </Box>
-      )}
-
-      {currentTab === 1 && (
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-            Shadcn/UI Form Example
-          </Typography>
-          <Typography variant="body1" paragraph>
-            This example demonstrates a complete form built with shadcn/ui components,
-            including React Hook Form integration and Zod validation.
-          </Typography>
-          
-          <FormExample onSubmit={handleFormSubmit} />
-        </Box>
-      )}
-
-      {currentTab === 2 && (
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-            Toast Notifications
-          </Typography>
-          <Typography variant="body1" paragraph>
-            These are shadcn/ui toast notifications using the Sonner library. They provide a modern, 
-            accessible way to show notifications to users.
-          </Typography>
-          
-          <Card className="w-full p-6">
-            <CardHeader>
-              <CardTitle>Toast Notification Examples</CardTitle>
-            </CardHeader>
-            <ShadcnCardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Basic Toasts</h3>
-                  <div className="flex flex-col gap-2">
-                    <Button variant="default" onClick={() => handleShowShadcnToast('success')}>
-                      Success Toast
-                    </Button>
-                    <Button variant="destructive" onClick={() => handleShowShadcnToast('error')}>
-                      Error Toast
-                    </Button>
-                    <Button variant="outline" onClick={() => handleShowShadcnToast('info')}>
-                      Info Toast
-                    </Button>
-                    <Button variant="secondary" onClick={() => handleShowShadcnToast('warning')}>
-                      Warning Toast
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Advanced Toasts</h3>
-                  <div className="flex flex-col gap-2">
-                    <Button onClick={() => handleShowShadcnToast('promise')}>
-                      Promise Toast
-                    </Button>
-                  </div>
-                </div>
+            </div>
+            
+            <div className="shadcn-section">
+              <h3 className="shadcn-subtitle">Counter</h3>
+              <button className="shadcn-button shadcn-button-primary" onClick={handleIncrement}>
+                Count: {count}
+              </button>
+            </div>
+            
+            <div className="shadcn-section">
+              <h3 className="shadcn-subtitle">Switch</h3>
+              <div className="shadcn-switch-container">
+                <label className="shadcn-switch">
+                  <input 
+                    type="checkbox" 
+                    checked={switchValue} 
+                    onChange={() => setSwitchValue(!switchValue)} 
+                  />
+                  <span className="shadcn-switch-slider"></span>
+                </label>
+                <span className="shadcn-switch-label">{switchValue ? 'On' : 'Off'}</span>
               </div>
-            </ShadcnCardContent>
-          </Card>
-        </Box>
-      )}
-
-      {currentTab === 3 && (
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-            Advanced Component Example: User Data Display
-          </Typography>
-          <Typography variant="body1" paragraph>
-            This example demonstrates multiple shadcn/ui components working together to create a 
-            comprehensive user management interface. It combines Tabs, Table, Card, Accordion, 
-            HoverCard, and Avatar components.
-          </Typography>
-          
-          <UserDataDisplay />
-        </Box>
-      )}
+            </div>
+            
+            <div className="shadcn-section">
+              <h3 className="shadcn-subtitle">Notification</h3>
+              <button 
+                className="shadcn-button shadcn-button-secondary"
+                onClick={handleShowSnackbar}
+              >
+                Show Notification
+              </button>
+            </div>
+          </div>
+        </div>
+      </Box>
 
       {/* MUI Snackbar for notifications */}
       <Snackbar 
@@ -1082,7 +687,7 @@ const ShadcnExperimentPage = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={handleCloseSnackbar} severity="success">
-          This is a Material UI notification message!
+          This is a notification message!
         </Alert>
       </Snackbar>
     </Box>

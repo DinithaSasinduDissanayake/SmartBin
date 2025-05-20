@@ -66,6 +66,14 @@ const userSchema = new mongoose.Schema({
   mfaEnabled: { type: Boolean, default: false },
   mfaSecret: { type: String, select: false }, // Don't return secret by default
   mfaRecoveryCodes: { type: [String], select: false }, // Store hashed recovery codes
+  resetPasswordToken: {
+    type: String,
+    select: false // Don't return token by default
+  },
+  resetPasswordExpire: {
+    type: Date,
+    select: false // Don't return expiry by default
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -76,6 +84,7 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ role: 1 }); // Add index for role if queried often
 userSchema.index({ 'address.city': 1 }); // Index for city searches
 userSchema.index({ skills: 1 }); // Index for staff skills searches
+userSchema.index({ resetPasswordToken: 1 }); // Add index for password reset token
 
 //Encrypting Password Before Saving
 userSchema.pre('save', async function(next){

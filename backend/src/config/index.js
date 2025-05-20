@@ -10,6 +10,9 @@ const config = {
   // Server configuration
   port: parseInt(process.env.PORT, 10) || 5000,
   
+  // Frontend URL (for password reset links, etc.)
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  
   // Database configuration
   mongodbUri: process.env.MONGODB_URI,
   
