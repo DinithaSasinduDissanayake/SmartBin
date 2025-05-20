@@ -1,15 +1,13 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import muiTheme from './muiTheme';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword';
 import DashboardLayout from './components/layouts/DashboardLayout';
 import ProfilePage from './pages/profile/ProfilePage';
 import SubscriptionPlansPage from './pages/subscription/SubscriptionPlansPage';
@@ -33,9 +31,6 @@ import MyBinDetails from './components/MyBinDetails';
 import PickupDetails from './components/PickupDetails';
 import PickupRequests from './components/PickupRequests';
 import PickupRequestDetails from './components/PickupRequestDetails';
-// Import recycling components
-import RecycleForm from './components/recycling/RecycleForm';
-import RequestList from './components/recycling/RequestList';
 import './App.css';
 
 // Loading Indicator component
@@ -97,8 +92,6 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
         
         {/* New landing pages */}
         <Route path="/pricing" element={<Pricing />} />
@@ -140,17 +133,6 @@ function AppContent() {
         <Route path="/dashboard/*" element={
           <ProtectedRoute>
             <DashboardLayout />
-          </ProtectedRoute>
-        } />
-        {/* Recycling feature routes inside dashboard */}
-        <Route path="/dashboard/recycle-request" element={
-          <ProtectedRoute>
-            <RecycleForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/dashboard/my-requests" element={
-          <ProtectedRoute>
-            <RequestList />
           </ProtectedRoute>
         } />
       </Routes>

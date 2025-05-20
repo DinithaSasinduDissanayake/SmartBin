@@ -1,6 +1,7 @@
 // backend/src/config/index.js
 const path = require('path'); // Add path module
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') }); // Specify .env path
+// Load .env file from the directory where the node process was started (backend/)
+require('dotenv').config({ path: path.resolve(process.cwd(), '.env') }); 
 
 // Define application configuration
 const config = {

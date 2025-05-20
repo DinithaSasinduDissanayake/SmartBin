@@ -1,0 +1,303 @@
+/* Team Page Styles */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  color: #333;
+  overflow-x: hidden;
+}
+
+.team-hero {
+  background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 8rem 2rem 5rem;
+  text-align: center;
+  color: white;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(30, 58, 41, 0.7);
+  z-index: 1;
+}
+
+.team-hero .hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.team-hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.team-hero p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Team section styling */
+.team-section {
+  padding: 5rem 2rem;
+}
+
+.team-section:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-header h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1e3a29;
+  margin-bottom: 1rem;
+}
+
+.section-header p {
+  font-size: 1.1rem;
+  color: #555;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Team members grid */
+.team-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.team-members.leadership {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  margin-bottom: 2rem;
+}
+
+.team-member {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-member:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.member-image {
+  height: 200px;
+  background-color: #e0e0e0;
+  background-position: center;
+  background-size: cover;
+}
+
+.team-member h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.5rem;
+  color: #1e3a29;
+  padding: 0 1rem;
+}
+
+.member-role {
+  font-size: 1rem;
+  color: #27ae60;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+.member-description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  padding: 0 1.5rem;
+  flex-grow: 1;
+}
+
+.member-social {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.member-social .social-icon {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.member-social .social-icon:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-3px);
+}
+
+/* Values section */
+.values-section {
+  padding: 5rem 2rem;
+  background-color: #f9f9f9;
+}
+
+.values-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.value-item {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.value-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+.value-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  background-color: rgba(39, 174, 96, 0.1);
+}
+
+.value-icon.sustainability {
+  background-color: rgba(39, 174, 96, 0.1);
+}
+
+.value-icon.innovation {
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.value-icon.collaboration {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.value-icon.integrity {
+  background-color: rgba(156, 39, 176, 0.1);
+}
+
+.value-item h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1e3a29;
+}
+
+.value-item p {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Join team section */
+.join-team-section {
+  padding: 5rem 2rem;
+  background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+  color: white;
+  text-align: center;
+}
+
+.join-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.join-content h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.join-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.9;
+}
+
+.join-button {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background-color: white;
+  color: #27ae60;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.join-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .team-members.leadership {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .team-hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .section-header h2 {
+    font-size: 2rem;
+  }
+  
+  .join-content h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .team-member {
+    max-width: 100%;
+  }
+}
