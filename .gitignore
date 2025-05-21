@@ -105,7 +105,7 @@ coverage/ # istanbul etc.
 .yarn-integrity # Yarn Integrity file
 
 # Project Specific / Custom Ignores
-Financial\ Backup/
+Financial Backup/
 LLMPrompts.md
 LLM_Prompts.md
 CollectAllCode.ps1
