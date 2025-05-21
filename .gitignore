@@ -116,6 +116,32 @@ dhanushka_integration_diff.txt
 frontend_config_dump.txt
 .github/copilot*
 !.github/copilot-instructions.md # Keep instructions if shared
+
+# Files and folders to remove for a cleaner repository
+temp_docx_contents/
+merged-app.jsx
+merged-main.tsx
+merged-package.json
+Diary by copilot.md
+prompts.md
+AggregateCode.ps1
+collect_frontend_config.ps1
+split_file.ps1
+git-commit-helper.js
+
+# Consider ignoring all .docx and .pdf files if they are generated from sources
+# Or, if you want to keep specific ones, list them with !pattern
+# e.g., !docs/Document/MyImportantReport.pdf
+*.docx
+*.pdf
+
+# If scripts are moved to a scripts/ folder, you might ignore them from root
+# /AggregateCode.ps1
+# /collect_frontend_config.ps1
+# /CollectAllCode.ps1
+# /split_file.ps1
+# /git-commit-helper.js
+
 # Documentation Output (Optional)
 # *.pdf
 # *.docx
@@ -126,3 +152,5 @@ frontend_config_dump.txt
 .qodo
 
 Document/
+docs/Document/Document 3/
+backend/uploads/documents/
