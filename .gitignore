@@ -124,8 +124,10 @@ merged-main.tsx
 merged-package.json
 Diary by copilot.md
 prompts.md
+# Root-level scripts to ignore
 AggregateCode.ps1
 collect_frontend_config.ps1
+CollectAllCode.ps1
 split_file.ps1
 git-commit-helper.js
 commit-summary.txt # Temporary file for commit messages
@@ -152,6 +154,10 @@ commit-summary.txt # Temporary file for commit messages
 # public
 .qodo
 
-Document/
-docs/Document/Document 3/
+# Ignore the entire docs folder
+docs/
+
+# Remove specific document entries if docs/ is ignored globally
+# Document/
+# docs/Document/Document 3/
 backend/uploads/documents/
