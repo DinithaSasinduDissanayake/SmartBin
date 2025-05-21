@@ -1,0 +1,3617 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\title{Progress\_ITP25\_B3\_W57.pdf}
+\author{Extracted from PDF}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Page 1}
+1 | P a g e 
+ 
+Sri Lanka Institute of Information Technology 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+SMARTBIN 
+Assignment 2 – 70\% Progress Report 
+Group ID :  ITP25\_B3\_WC57 
+IT Number  Student Name  Student e-mail Address  Student Contact 
+Number  
+IT23373952  
+  
+Dissanayake D.S.  it23373952@my.sliit.lk  0719296379  
+  
+IT23232990  
+  
+Thennakoon S.S.H.  
+  
+it23232990@my.sliit.lk  
+  
+0786421227  
+IT23380950  Perera M.K.P .T.S.  
+  
+it23380950@my.sliit.lk  0784536072  
+IT23325814   Weerathunga A.W.T.C  
+  
+it23325814@my.sliit.lk  
+  
+0755359114  
+  
+IT23367562  
+  
+Lakshitha W. G. D.  
+  
+it23367562@my.sliit.lk  0763804351  
+ 
+ 
+
+
+\section*{Page 2}
+2 | P a g e 
+ 
+Contents 
+1. Progress ................................ ................................ ................................ ............... 4 
+2. User Stories ................................ ................................ ................................ .......... 6 
+3. ER Diagram ................................ ................................ ................................ ......... 11 
+4. Normalized Schema ................................ ................................ ............................  11 
+5. System Architecture ................................ ................................ ............................  13 
+6. Innovation................................ ................................ ................................ ........... 13 
+7.Commercialization ................................ ................................ ................................ .. 14 
+8.Test Cases................................ ................................ ................................ ............... 15 
+Financial management  | Thennakoon S.S.H.| IT23232990 ................................ .......... 16 
+User , Staff  and Complaints management | Dissanayake D.S. IT23373952 ..................  17 
+Recycling Management |  Perera M K P T S ................................ ................................ . 20 
+IT23380950 ................................ ................................ ................................ ............ 20 
+Schedule/ Resources Management | Lakshitha W G D IT23367562 .............................  22 
+Pickup Request Management | ................................ ................................ ................. 25 
+9.Functions  1.User/Staff Management ................................ ................................ ........ 27 
+Database Schema ................................ ................................ ...............................  29 
+Database Operations ................................ ................................ ...........................  36 
+Algorithms ................................ ................................ ................................ .......... 39 
+Pseudocode ................................ ................................ ................................ ........ 39 
+Flow Chart (Activity Diagram) ................................ ................................ ............... 44 
+2. Financial Management ................................ ................................ ........................  46 
+Database Schema ................................ ................................ ...............................  47 
+Algorithms ................................ ................................ ................................ .......... 50 
+Pseudocode ................................ ................................ ................................ ........ 51 
+Flow chart(Activity Diagram) ................................ ................................ ................. 55 
+3. Recycling Management ................................ ................................ ........................  57 
+4.Schedule/ Resource Management ................................ ................................ ......... 70 
+Database Schema ................................ ................................ ...............................  72 
+
+\section*{Page 3}
+3 | P a g e 
+ 
+Algorithms ................................ ................................ ................................ .......... 76 
+Pseudocode ................................ ................................ ................................ ........ 79 
+7. Pickup Request Management ................................ ................................ ............ 83 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+\section*{Page 4}
+4 | P a g e 
+ 
+ 
+1. Progress 
+ 
+High level user story/ function Completed 
+(Y/N, 
+comment) 
+Responsible 
+member (Name) 
+User/ Staff Login Yes Dissanayake D.S. 
+   
+   
+Subscription Plan Management Yes Thennakoon 
+S.S.H. 
+Creating Salary Plans Yes Thennakoon 
+S.S.H. 
+Budget Allocation  No  Thennakoon 
+S.S.H. 
+Pricing Page No, Currently 
+working on it 
+Thennakoon S.S. 
+H. 
+Payment Notification System No Thennakoon 
+S.S.H. 
+Pickup Request Form with Validations (User Side) Yes Weerathunga 
+A.W.T.C 
+“My Bin Details” Page and “Pickup Request Details” 
+Page with CRUD Operations (User Side) 
+Yes Weerathunga 
+A.W.T.C 
+ 
+Advanced Search Functionality (Both User and 
+Admin Side) 
+Yes Weerathunga 
+A.W.T.C 
+ 
+Pickup Requests and Pickup Request Details Pages 
+with Read, Update and Delete (Admin Side) 
+Yes Weerathunga 
+A.W.T.C 
+ 
+Status Management for Pickup Request (Admin 
+Side) 
+Yes Weerathunga 
+A.W.T.C 
+ 
+Auto Generated Emails (Admin Side) No, currently 
+working on it 
+Weerathunga 
+A.W.T.C 
+ 
+Payment Portal No Weerathunga 
+A.W.T.C 
+ 
+
+\section*{Page 5}
+5 | P a g e 
+ 
+Report Generation and Download Report About 
+Completed Pickup Requests (Admin Side) 
+No Weerathunga 
+A.W.T.C 
+ 
+   
+Schedule Home page with navigation (Admin Side) Yes Lakshitha W G D 
+Schedule management page with form validation 
+and Displaying current adding schedules with CRUD 
+Yes Lakshitha W G D 
+ 
+Truck management page with form validation and 
+Displaying current adding Trucks  with CRUD  
+ 
+Yes Lakshitha W G D 
+ 
+Tool management page with form validation and 
+Displaying current adding Tools with CRUD 
+ 
+Yes Lakshitha W G D 
+ 
+Equipment management page with form validation 
+and Displaying current adding Equipment with 
+CRUD 
+ 
+Yes Lakshitha W G D 
+ 
+Schedule display page with Search Functionality Yes Lakshitha W G D 
+ 
+Resources display page with Search Functionality 
+ 
+Yes Lakshitha W G D 
+ 
+Tracking current truck  location function No, currently 
+working on it 
+ 
+Lakshitha W G D 
+ 
+Schedule email generate function No Lakshitha W G D 
+ 
+Recycle Request Form with Validations (User Side) 
+ 
+Yes Perera M K P T S 
+ 
+“My Orders” Page and “My Order Details” Page with 
+CRUD Operations (User Side) 
+ 
+Yes 
+ 
+Perera M K P T S 
+ 
+Recycling Requests and Recycling Order Details 
+Pages with Read, Update and Delete (Admin Side) 
+ 
+Yes Perera M K P T S 
+ 
+Status Management (Approved, Rejected) for 
+Recycling Request (Admin Side) 
+ 
+Yes Perera M K P T S 
+ 
+Advanced Search Functionality 
+ 
+Yes Perera M K P T S 
+ 
+Auto Generated Emails (Admin Side) 
+ 
+No, currently 
+working on it 
+ 
+Perera M K P T S 
+ 
+Payment Portal No Perera M K P T S 
+
+\section*{Page 6}
+6 | P a g e 
+ 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Repository 
+https://github.com/DinithaSasinduDissanayake/SmartBin 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2. User Stories 
+ 
+  Function  User Story  
+ 
+User/Staff 
+Management 
+As a customer, I want to register securely using my email and 
+password, so that I can access SmartBin services.  
+As a user (customer/staff/admin), I want to log in securely using 
+my credentials.  
+As a user (customer/staff/admin), I want the option to enable 
+Multi-Factor Authentication (MFA) for enhanced login security.  
+
+\section*{Page 7}
+7 | P a g e 
+ 
+As a customer, I want to manage my profile (name, contact, 
+primary service location).  
+As an administrator, I want basic role management (Admin, Staff, 
+Customer) to control access.  
+As a staff member, I want to view my assigned tasks/schedule for 
+the day.  
+As an administrator/manager, I want to manage detailed staff 
+profiles including skills, performance notes, and uploaded 
+verification documents.  
+As an administrator/manager, I want the system to track staff 
+attendance digitally (e.g., clock-in/out).  
+As an administrator/manager, I want to monitor staff performance 
+against defined Key Performance Indicators (KPIs).  
+As a user, I want a password recovery option via email, so that I can 
+regain access if I forget my password.  
+As an administrator, I want to view a list of all registered users and 
+staff.  
+As a customer, I want to add multiple service locations to my 
+profile.  
+As an administrator/manager, I want to view comprehensive staff 
+activity logs and performance summaries to monitor work.  
+As a user (customer/staff), I want to submit a complaint or provide 
+feedback through a dedicated form in the system.  
+As an administrator/manager, I want to view, track, assign, and 
+update the status of submitted complaints/feedback.  
+As an administrator/manager, I want the system to support 
+escalation rules/notifications for unresolved complaints based on 
+priority/time.  
+ 
+ 
+ 
+  Function  User Story  
+ 
+Financial 
+Management 
+As a customer, I want to view my current subscription plan and 
+basic billing details.  
+As a financial manager, I want to define and manage flexible 
+subscription plans (e.g., Residential, Commercial), including 
+handling upgrades/downgrades with prorated billing.  
+As a financial manager/admin, I want a real-time financial 
+dashboard displaying key KPIs (e.g., revenue, expenses, 
+subscriptions, payments).  
+
+\section*{Page 8}
+8 | P a g e 
+ 
+As a financial manager, I want the system to process payroll 
+accurately, calculating salaries, standard deductions, taxes, and 
+incorporating approved bonuses/incentives.  
+As a financial manager, I want the system to generate 
+downloadable payslips for staff based on processed payroll data.  
+As a customer, I want to receive simple notifications for 
+upcoming/due payments.  
+As a financial manager, I want to record payments made against 
+customer accounts.  
+As a customer, I want to view my payment history.  
+As a financial manager, I want basic integration with a payment 
+gateway for online payments.  
+As a financial manager, I want to generate comprehensive financial 
+reports (including income, expenses, segmented revenue, and 
+basic tax summaries).  
+As a staff member, I want to view my detailed pay slip generated by 
+the system.  
+ 
+  
+ 
+  Function  User Story  
+ 
+Recycling 
+Management 
+As a recycling partner, I want to register my company profile, so 
+that I can participate in purchasing garbage for recycling purposes.  
+As an admin, I want to list available garbage for sale so that users 
+can browse and purchase it for recycling.  
+As an admin, I want to approve or reject purchase requests for 
+garbage so that I can control the sales process.  
+As a recycling partner, I want to submit a purchase request for 
+garbage so that I can buy it for recycling purposes.  
+As an admin, I want to categorize garbage types (e.g., plastic, 
+paper) so that users can easily find what they need for recycling.  
+As a user, I want to receive confirmation of my purchase request so 
+that I know it’s being processed.  
+As an admin, I want to generate a report of garbage sold so that I 
+can analyze sales trends.  
+ 
+ 
+  Function  User Story  
+
+\section*{Page 9}
+9 | P a g e 
+ 
+ 
+Schedule / Resource 
+Management 
+ As an admin/scheduler, I want to create basic collection routes 
+manually assigning areas/customers, so that I can efficiently 
+organize garbage collection schedules.  
+  
+As a driver (staff), I want to view my assigned route and customer 
+list for the day, so that I can plan my garbage collection activities.  
+  
+As an admin, I want to register vehicles and assign basic status 
+(Active, Maintenance), so that I can effectively oversee the 
+garbage collection fleet.  
+  
+As a driver (staff), I want to mark pickups as completed on my 
+route list, so that I can keep track of my progress during garbage 
+collection.  
+  
+As an admin, I want a map view showing basic vehicle locations, so 
+that I can monitor the progress of garbage collection routes.  
+  
+As an admin, I want to add new equipment and tools then, so that 
+I can manage the availability of tools.  
+ 
+ 
+ 
+  Function  User Story  
+ 
+Pickup Request 
+Management 
+As a customer, I want to submit a garbage pickup request by 
+providing my name, contact, email, community, waste type, service 
+type, preferred date, address and location so that I can schedule 
+waste collection.  
+As a customer, I want to be notified when my pickup request is 
+approved, on progress or rejected so that I stay informed.  
+As an admin/scheduler, I want to view all pickup requests 
+submitted by customers so that I can review and approve or reject 
+them.  
+As an admin/scheduler, I want to update the status of pickup 
+requests (pending, approved, on progress, completed, rejected) so 
+that customers can track their requests.  
+As a customer, I want to receive a confirmation email when my 
+pickup is scheduled so that I can pay for the pickup.  
+As a customer, I want to delete my submitted pickup request 
+before approval so that I can cancel the request if needed.  
+
+\section*{Page 10}
+10 | P a g e 
+ 
+As a customer, I want to search my pickup requests, so that I can 
+find specific requests easily.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+\section*{Page 11}
+11 | P a g e 
+ 
+3. ER Diagram 
+ 
+  Figure 01: ER Diagram of the “SmartBin” Garbage Management System 
+ 
+ 
+ 
+Link to : 
+https://app.diagrams.net/\#G1L4Tjhdxgdzd8MA14IGwOoYATRYkJrpY3\#\%7B\%22pageId\%22
+\%3A\%22D7q4ME-1\_\_F6XudRjVuN\%22\%7D 
+ 
+ 
+ 
+ 
+4. Normalized Schema 
+ 
+ 
+
+
+\section*{Page 12}
+12 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  Figure 02: Relational Schema for “SmartBin” Garbage Management System 
+ 
+
+
+\section*{Page 13}
+13 | P a g e 
+ 
+ 
+5. System Architecture 
+ 
+Figure 03: “SmartBin” Management System Architecture 
+ 
+ 
+ 
+ 
+6. Innovation 
+ 
+1. Smart Waste Collection Optimization –  
+      Use GPS and AI to optimize the garbage collecting routes by reducing the time, 
+Energy and fuel. 
+2. Integrated Financial Management System –  
+
+
+\section*{Page 14}
+14 | P a g e 
+ 
+     Customers can subscribe to different subscription plans through pricing page as 
+their choice and receive their invoice to their dashboard.   The System tracks how the 
+funds are collected and allocated for expenses like salaries, fuels, and maintenance. 
+3. Advance User and Staff Management –  
+       Each Customer or Staff member have their own dashboard, which they can 
+access securely by using their own credentials.  The system uses digital attendants 
+tracking system to track the attendants of each staff member. Staff tasks are assigned 
+dynamically by considering the availability, workload and past performances. 
+  
+4. Waste Selling place for Recyclers 
+                     Recycles can place their orders for the waste can be done directly by the System.     
+Track the market pricing for each waste type and ensure fair pricing 
+ 
+5. Smart Complaint System – 
+         Customers and Staff Members can easily submit their Complaints through the 
+dedication form in their dashboard.  Administrator receives those submitting 
+complaints instancy and can give the reasonings or solutions directly through the 
+system. 
+ 
+ 
+ 
+ 
+ 7.Commercialization 
+  
+     The “SmartBin’ Garbage Management System have different commercialization 
+strategies that make the system is unique among the other systems. 
+ Our System has different Subscription plans for waste collection that make by considering 
+the customers’ needs with flexible pricing. Them gave Special plans for business and large-
+scale waste producers with custom pricing.  
+
+\section*{Page 15}
+15 | P a g e 
+ 
+We sell segregated recycling materials like plastics, paper, Matel for recyclers for additional 
+income.  After some period, we plan to allow the ecofriendly brands to advertising on the 
+“SmartBin” website. Also offer sponsorship opportunities on waste bins and waste 
+collection vehicles for sustainable brands. 
+ 
+The “SmartBin” seek grands and fundings from environmental agencies for sustainable 
+waste Management. Partner with local government to implement “SmartBin” in public 
+waste Management system 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+8.Test Cases 
+ 
+
+\section*{Page 16}
+16 | P a g e 
+ 
+Financial management  | Thennakoon S.S.H.| IT23232990 
+ 
+ 
+Test ID Test Case Preconditions Steps Expected Result 
+TC\_SUB\_01 Creation of a 
+new 
+subscription 
+plan 
+The Financial 
+Manager is 
+logged in 
+First, go to the Plans 
+section. Click the 
+"Add New" button. 
+Then complete the 
+form. Submit. 
+A success message 
+appears and the new 
+plan is visible. 
+TC\_SUB\_02 Stop a 
+duplicate plan 
+name 
+A plan named 
+"Basic" already 
+exists 
+First, go to Plans. 
+Click "Add New" . 
+Then set the Name 
+field to "Basic" . 
+Finally, submit. 
+An error message 
+appears and the new 
+plan is not created. 
+TC\_SUB\_03 Subscription 
+plan update 
+Plan "Basic" 
+exists 
+First, find "Basic" . 
+Next, click "Update" . 
+Then change the 
+price. Submit. 
+A success message 
+appears and the price 
+is updated. 
+TC\_SAL\_01 Salary package 
+creation 
+The Financial 
+Manager is 
+logged in 
+First, go to Salary 
+Plans. Click "Add 
+New" . Complete the 
+form, then submit. 
+A success message 
+appears and the new 
+plan is created. 
+TC\_BUD\_01 Budget 
+allocation 
+submission 
+The financial 
+manager is 
+logged in 
+First, go to Budget. 
+Enter the expense 
+details and submit. 
+An entry is recorded 
+without issues. 
+TC\_PAY\_01 Payroll process A payroll officer 
+is logged in 
+First, select 
+employees. Next, 
+run payroll. Finally, 
+confirm. 
+Payments are 
+processed and the 
+records are updated. 
+
+\section*{Page 17}
+17 | P a g e 
+ 
+ 
+ 
+User , Staff  and Complaints management | Dissanayake D.S. 
+IT23373952 
+ 
+Test ID Test Case 
+Description 
+Preconditio
+ns 
+Steps Expected 
+Result 
+TC\_REG
+\_01 
+Confirm 
+successful user 
+registration with 
+valid 
+information 
+None 1. Go to registration page. 2. Fill all required 
+fields with valid information. 3. Form 
+submission. 
+User account 
+created. 
+Redirect to 
+login or 
+success 
+message 
+shown. 
+TC\_REG
+\_02 
+Verify 
+registration 
+failure with 
+invalid email 
+None 1. Navigate to registration page. 2. Populate 
+fields with invalid email format. 3. Form 
+submission. 
+Invalid email 
+error message 
+appears. User 
+not registered. 
+
+\section*{Page 18}
+18 | P a g e 
+ 
+TC\_REG
+\_03 
+Existing email 
+check 
+registration 
+failure 
+User with 
+existing 
+email 
+"existing@t
+est.com" 
+already 
+exists 
+1. Go to registration page. 2. Fill in fields with 
+"existing@test.com" . 3. Submit form. 
+Error message 
+that the email 
+already exists. 
+User is not 
+registered. 
+TC\_LOG
+IN\_01 
+Verify 
+successful login 
+with valid 
+credentials 
+User 
+account 
+exists and 
+is active 
+1. Go to login page. 2. Fill in correct email 
+and password. 3. Click Login. 
+User logged in 
+successfully. 
+Redirected to 
+correct 
+dashboard. 
+TC\_LOG
+IN\_02 
+Confirm login 
+failure with 
+invalid 
+password 
+User 
+account 
+exists 
+1. Go to login page. 2. Enter correct email 
+and incorrect password. 3. Click Login. 
+Error message 
+"Invalid 
+credentials" is 
+shown. Login 
+fails. 
+TC\_PRO
+FILE\_01 
+Verify user is 
+able to view 
+profile details 
+User is 
+logged in 
+1. Go to Profile section. 2. Observe displayed 
+details. 
+User's name, 
+email, 
+contact info 
+displayed 
+correctly. 
+
+\section*{Page 19}
+19 | P a g e 
+ 
+TC\_PRO
+FILE\_02 
+Check if user 
+can edit profile 
+information 
+User is 
+signed in 
+1. Go to Profile section. 2. Click "Edit. " . 3. 
+Modify a field. 4. Save changes. 
+Success 
+message is 
+displayed. 
+Profile 
+displays 
+updated 
+information. 
+TC\_CO
+MP\_01 
+Verify that user 
+can submit a 
+complaint 
+User logged 
+in 
+1. Go to Complaint section. 2. Complete 
+complaint form. 3. Submit complaint. 
+Success 
+message is 
+displayed. 
+Complaint is 
+added to 
+user's history. 
+TC\_ATT\_
+01 
+Verify staff can 
+clock-in 
+Staff user 
+logged in 
+1. Navigate to Attendance section. 2. Click 
+"Clock In. " 
+Success 
+message. 
+Attendance 
+record 
+created with 
+status 
+'Present' . 
+TC\_ATT\_
+02 
+Verify 
+employees are 
+able to clock-
+out 
+Staff user is 
+clocked in 
+1. Navigate to Attendance section. 2. Click 
+"Clock Out. " 
+Success 
+message. 
+Attendance 
+record 
+updated with 
+clock-out 
+time. 
+
+\section*{Page 20}
+20 | P a g e 
+ 
+ 
+Recycling Management |  Perera M K P T S  
+IT23380950 
+Test 
+ID 
+Test Case 
+Description 
+ 
+Preconditions 
+ 
+Steps 
+ 
+Expected 
+Result 
+ 
+TC-
+01 
+ 
+Successful 
+Request 
+Submission 
+ 
+Recycler is logged 
+in, database is 
+accessible 
+ 
+1. Go to "Garbage Recycle" 
+option 2. Fill form (e.g., 
+Name: "John" , Email: 
+tharu123@gmail.com, 
+contact number: 
+0784525365, Waste: 
+"Plastic" , Qty: 10,  
+Community: Household, 
+Pickup Location: "25/A 
+Street Rd, Gampaha, 
+Preferred pickup date \& 
+time: 02/05/2025 
+02.50pm, Collection 
+preferences: "Delivery") 
+3. Click "Submit" . 
+ 
+Payment 
+amount 
+displayed (e.g., 
+500 if unit 
+amount is 
+50/kg), "Request 
+submitted 
+successfully" 
+shown, 
+redirected to My 
+Order page with 
+request (Status: 
+"Pending"). 
+ 
+TC-
+02 
+ 
+Incomplete 
+Form 
+Submission 
+ 
+Recycler is logged 
+in 
+ 
+1. Go to "Garbage Recycle" 
+option. 
+2. Leave "Contact 
+number" blank, fill others 
+(e.g., Name: "John" , Email: 
+tharu123@gmail.com,Was
+te: "Plastic" , Qty: 10,  
+Community: Household, 
+Pickup Location: "25/A 
+Street Rd, Gampaha, 
+Preferred pickup date \& 
+time: 02/05/2025 
+02.50pm, Collection 
+preferences: "Delivery") 
+"Please fill in this 
+field" message 
+appears, form 
+remains 
+editable, no 
+submission 
+occurs. 
+ 
+TC-
+03 
+ 
+Invalid 
+Quantity 
+Submission 
+ 
+Recycler is logged 
+in 
+ 
+1. Go to "Garbage Recycle" 
+option. 
+2. Try to  fill form with 
+invalid quantity (eg: -5) 
+ 
+"Quantity must 
+be a positive 
+number" 
+message 
+appears, form 
+
+\section*{Page 21}
+21 | P a g e 
+ 
+remains 
+editable, no 
+submission 
+occurs. 
+ 
+TC-
+04 
+ 
+View 
+Submitted 
+Requests 
+ 
+Recycler is logged 
+in, has a request 
+(e.g., Plastic, 
+10kg,  "Pending") 
+Unit price of 
+plastic = 50 
+ 
+1. Go to My Order page. 
+ 
+List shows 
+request details: 
+Waste Type: 
+"Plastic" , 
+Quntity: "10kg" , 
+Amount: "500" , 
+Status: 
+"Pending" , with 
+"Update" and 
+"Delete" buttons 
+visible. 
+ 
+TC-
+05 
+ 
+Update a 
+Request 
+ 
+Recycler is logged 
+in, has a request 
+(e.g., Plastic, 
+10kg, 500, 
+"Pending") 
+ 
+1. Go to My Order page 
+2. Click "Update" 
+3. Change Quantity to 
+15kg. 
+4. Save changes. 
+ 
+Payment 
+updates (e.g., 
+750 /=if rate is 
+50/kg), request 
+saved with 
+Status: 
+"Pending" , My 
+Order page 
+shows updated 
+details. 
+ 
+TC-
+06 
+ 
+Delete a 
+Request 
+ 
+Recycler is logged 
+in, has a request 
+(e.g., Glass, 
+5kg,500, 
+"Pending") 
+ 
+1. Go to My Order page. 
+2. Click "Delete" . 
+ 
+"Request 
+deleted" 
+message 
+appears, request 
+is removed from 
+My Order page. 
+ 
+TC-
+07 
+ 
+View All 
+Requests as 
+Admin 
+ 
+Admin is logged 
+in, two requests 
+exist (e.g., 
+Recycler1: 
+Plastic, 10kg; 
+Recycler2: Paper, 
+20kg) 
+ 
+1. Go to Recycling Request 
+page. 
+ 
+List shows all 
+requests (e.g., 
+Recycler1: 
+Plastic, 10kg, 
+500, "Pending"; 
+Recycler2: 
+Paper, 20kg, 
+600, "Pending") 
+with "Delete" 
+
+\section*{Page 22}
+22 | P a g e 
+ 
+and "Update 
+Status" buttons. 
+ 
+TC-
+08 
+ 
+Approve a 
+Request 
+ 
+Admin is logged 
+in, request exists 
+(e.g., Plastic, 
+10kg, 500, 
+"Pending") 
+ 
+1. Go to Recycling Request 
+page. 
+2. Click "Update Status" 
+3. Select "Approved" . 
+ 
+Status updates 
+to "Approved" in 
+database, 
+recycler sees 
+"Approved" on 
+My Order page. 
+ 
+TC-
+09 
+ 
+Reject a 
+Request 
+ 
+Admin is logged 
+in, request exists 
+(e.g., Glass, 5kg, 
+500, "Pending") 
+ 
+1. Go to Recycling Request 
+page. 
+2. Click "Update Status" 
+3. Select "Rejected" . 
+ 
+Status updates 
+to "Rejected" in 
+database, 
+recycler sees 
+"Rejected" on 
+My Order page. 
+ 
+TC-
+10 
+ 
+Delete a 
+Request as 
+Admin 
+ 
+Admin is logged 
+in, request exists 
+(e.g., Paper, 
+20kg,600, 
+"Pending") 
+ 
+1. Go to Recycling Request 
+page. 
+2. Click "Delete" . 
+ 
+"Request 
+deleted" 
+message 
+appears, request 
+is removed from 
+Recycling 
+Request page 
+and My Order 
+page. 
+ 
+Schedule/ Resources Management | Lakshitha W G D IT23367562 
+ 
+Test ID Test Case 
+Description 
+Preconditions Steps Expected Result 
+TC\_SCH\_01 
+ 
+Confirm 
+successful 
+route 
+creation by 
+admin 
+ 
+Admin is 
+logged in with 
+valid 
+credentials 
+ 
+1. Navigate to 
+"Schedule 
+Management" page. 
+2. Fill in route details 
+(areas, truck 
+number, date, time). 
+3. Submit form. 
+Route is created 
+successfully. New 
+schedule appears 
+in the system with 
+status "Waiting" . 
+ 
+TC\_SCH\_02 
+ 
+ 
+Verify route 
+creation 
+Admin is 
+logged in with 
+1. Navigate to 
+"Schedule 
+Management" page. 
+Error message 
+appears: "Invalid 
+truck number. Truck 
+
+\section*{Page 23}
+23 | P a g e 
+ 
+failure with 
+invalid truck 
+ 
+valid 
+credentials 
+2. Enter invalid truck 
+number (e.g., non-
+existent truck). 3. 
+Submit form 
+not found. " Route is 
+not created. 
+ 
+TC\_SCH\_03 
+ 
+Confirm 
+driver can 
+view 
+assigned 
+route 
+ 
+Driver is logged 
+in, route 
+assigned for 
+today 
+1. Navigate to "My 
+Routes" page. 2. 
+Select current date. 
+3. View route details. 
+Route details 
+(schedule number, 
+areas, truck 
+number, time, 
+status) are 
+displayed. 
+TC\_SCH\_04 
+ 
+Verify driver 
+cannot view 
+route if none 
+assigned 
+ 
+Driver is logged 
+in, no route 
+assigned for 
+today 
+ 
+1. Navigate to "My 
+Routes" page. 2. 
+Select current date. 
+3. View route details. 
+Message appears: 
+"No route assigned 
+for today. " 
+ 
+TC\_TRK\_01 
+ 
+Confirm 
+successful 
+truck 
+registration 
+by admin 
+ 
+Admin is 
+logged in with 
+valid 
+credentials 
+ 
+1. Navigate to 
+"Vehicle 
+Management" page. 
+2. Fill in truck details 
+(truck ID, tank 
+capacity, fuel). 3. 
+Submit form. 
+Truck is registered 
+successfully. New 
+truck appears with 
+status "Active" and 
+availability 
+"Available" . 
+TC\_TRK\_02 
+ 
+Verify truck 
+registration 
+failure with 
+duplicate ID 
+ 
+Admin is 
+logged in, truck 
+ID already 
+exists 
+ 
+1. Navigate to 
+"Vehicle 
+Management" page. 
+2. Enter existing 
+truck ID. 3. Submit 
+form. 
+Error message 
+appears: "Truck ID 
+already exists. " 
+Truck is not 
+registered 
+ 
+TC\_SCH\_05 
+ 
+Confirm 
+driver can 
+mark 
+pickups as 
+completed 
+ 
+Driver is logged 
+in, route 
+assigned with 
+status 
+"Waiting" 
+ 
+1. Navigate to "My 
+Routes" page. 2. 
+Select route. 3. Mark 
+specific areas as 
+completed. 4. 
+Submit updates. 
+ 
+Areas are removed 
+from route. If all 
+areas completed, 
+status updates to 
+"Completed" , and 
+truck availability 
+changes to 
+"Available" 
+TC\_SCH\_06 
+ 
+Verify 
+pickup 
+completion 
+failure with 
+invalid areas 
+ 
+Driver is logged 
+in, route 
+assigned 
+ 
+1. Navigate to "My 
+Routes" page. 2. 
+Select route. 3. Mark 
+non-existent areas 
+as completed. 4. 
+Submit updates. 
+Error message 
+appears: "Invalid 
+areas specified. " 
+Route is not 
+updated. 
+ 
+
+\section*{Page 24}
+24 | P a g e 
+ 
+TC\_TRK\_03 
+ 
+Confirm 
+admin can 
+view truck 
+locations on 
+map 
+ 
+Admin is 
+logged in, 
+active trucks 
+exist with 
+location data 
+ 
+1. Navigate to 
+"Vehicle 
+Management" page. 
+2. Select "View Map" . 
+3. View truck 
+locations. 
+ 
+Map displays all 
+active trucks with 
+their locations 
+(latitude, longitude) 
+and availability 
+status 
+TC\_TRK\_04 
+ 
+Verify map 
+view failure 
+when no 
+active 
+trucks 
+ 
+Admin is 
+logged in, no 
+active trucks 
+exist 
+ 
+1. Navigate to 
+"Vehicle 
+Management" page. 
+2. Select "View Map" . 
+3. View truck 
+locations 
+Message appears: 
+"No active trucks 
+available. " Map 
+remains empty. 
+ 
+TC\_EQP\_01 
+ 
+Confirm 
+successful 
+equipment 
+addition by 
+admin 
+ 
+Admin is 
+logged in with 
+valid 
+credentials 
+ 
+1. Navigate to 
+"Resource 
+Management" page. 
+2. Select "Add 
+Equipment" . 3. Fill in 
+details (equipment 
+ID, name). 4. Submit 
+form. 
+Equipment is 
+added successfully. 
+New equipment 
+appears with status 
+"Operational" 
+ 
+TC\_EQP\_02 
+ 
+Verify 
+equipment 
+addition 
+failure with 
+duplicate ID 
+ 
+Admin is 
+logged in, 
+equipment ID 
+already exists 
+ 
+1. Navigate to 
+"Resource 
+Management" page. 
+2. Select "Add 
+Equipment" . 3. Enter 
+existing equipment 
+ID. 4. Submit form. 
+Error message 
+appears: 
+"Equipment ID 
+already exists. " 
+Equipment is not 
+added. 
+ 
+TC\_TOOL\_0
+1 
+ 
+Confirm 
+successful 
+tool addition 
+by admin 
+ 
+Admin is 
+logged in with 
+valid 
+credentials 
+ 
+1. Navigate to 
+"Resource 
+Management" page. 
+2. Select "Add Tool" . 
+3. Fill in details (tool 
+ID, name). 4. Submit 
+form. 
+Tool is added 
+successfully. New 
+tool appears with 
+status "Available" . 
+ 
+TC\_TOOL\_0
+2 
+ 
+Verify tool 
+status 
+update by 
+admin 
+ 
+Admin is 
+logged in, tool 
+exists in 
+system 
+ 
+1. Navigate to 
+"Resource 
+Management" page. 
+2. Select tool by ID. 
+3. Update status to 
+"In Use" . 4. Submit 
+changes 
+Tool status updates 
+to "In Use" . 
+Changes are 
+reflected in the 
+system 
+ 
+ 
+
+\section*{Page 25}
+25 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+Pickup Request Management | Weerathunga A W T C 
+IT23325814 
+Test ID Test Case Preconditions Steps Expected 
+Result 
+     
+TC\_00 
+ 
+Successful 
+Request 
+Submission 
+User is logged 
+in, database is 
+accessible. 
+1.Go to the 
+"Create Bin" 
+page. 
+2.Fill in the 
+“Pickup 
+Request” form. 
+3.Click 
+"Submit". 
+ 
+Pickup fee 
+displayed. 
+"Request 
+submitted 
+successfully" 
+shown, 
+redirected to 
+“My Bin 
+Details” page 
+with request. 
+(Status: 
+"Pending") 
+TC\_01 
+ 
+Incomplete 
+Form 
+Submission 
+User is logged 
+in. 
+1.Go to the 
+"Create Bin" 
+page. 
+2.Leave 
+"Address" 
+blank, fill 
+others. 
+3.Click 
+"Submit". 
+"Please fill in 
+this field" 
+message 
+appears, form 
+remains, no 
+submission 
+occurs. 
+TC\_02 
+ 
+Update Pickup 
+Request 
+A pickup 
+request with 
+Bin ID "0001" 
+exists, user is 
+logged in. 
+1.Go to the "My 
+Bin Details" 
+page. 
+2.Find request 
+with Bin ID 
+"0001" . 
+3.Click "Edit" . 
+A "Pickup 
+request 
+updated 
+successfully" 
+message 
+appears, 
+updated details 
+
+\section*{Page 26}
+26 | P a g e 
+ 
+4.Change waste 
+type to "Plastic, 
+Glass" and 
+preferred date 
+to 
+"03/05/2025" . 
+5.Click 
+"Submit" . 
+Pickup fee 
+updated. 
+ 
+visible on My 
+Bin Details 
+page. 
+ 
+TC\_03 Delete Pickup 
+Request 
+A pickup 
+request with 
+Bin ID "0001" 
+exists, user is 
+logged in. 
+1.Go to the "My 
+Bin Details" 
+page. 
+2.Find request 
+with Bin ID 
+"0001" . 
+3.Click 
+"Delete" . 
+4.Confirm 
+deletion. 
+"Pickup request 
+deleted 
+successfully" 
+message 
+appears, 
+request no 
+longer visible 
+on My Pickup 
+Requests page. 
+TC\_04 
+ 
+Admin Status 
+Update 
+Admin is logged 
+in, a pickup 
+request with 
+Bin ID "0001" 
+exists. 
+1.Go to the 
+"Pickup 
+Requests" 
+page. 
+2.Find request 
+with Bin ID 
+"0001" . 
+3.Click " Status" 
+dropdown list. 
+4.Set status to 
+"On Progress" . 
+ 
+"Status 
+updated 
+successfully" 
+message 
+appears, status 
+updated to "On 
+Progress" on 
+Pickup 
+Requests page, 
+user sees 
+updated status 
+on My Pickup 
+Requests page. 
+TC\_05 
+ 
+Admin Send 
+Confirmation 
+Email  
+Admin is logged 
+in, a pickup 
+request with 
+Bin ID "0001" 
+exists. 
+1.Go to the 
+"Pickup 
+Requests" 
+page. 
+2.Find request 
+with Bin ID 
+"0001" . 
+3.Click "Send 
+Mail" . 
+"Email sent 
+successfully" 
+message 
+appears, user 
+receives a 
+confirmation 
+email with 
+request details. 
+
+\section*{Page 27}
+27 | P a g e 
+ 
+TC\_06 Payment 
+Process 
+A pickup 
+request with 
+Bin ID "0001" 
+exists with 
+status 
+"Pending" , user 
+is logged in. 
+Go to the "My 
+Bin Details" 
+page. 
+Find request 
+with Bin ID 
+"0001" . 
+Click "Pay 
+Now" . 
+Enter payment 
+details. 
+Submit 
+payment. 
+A "Payment 
+successful" 
+message 
+appears, 
+request status 
+updated to "On 
+Progress" , user 
+receives a 
+payment 
+confirmation 
+email. 
+ 
+9.Functions 
+ 
+1.User/Staff Management 
+The User/Staff Management in the "SmartBin" Waste Management System plays a pivotal 
+role in providing secure access, role-based operations and efficient manpower 
+management. The feature is developed with the aim of providing a central point for users or 
+staff registration, performance monitoring and customer interaction to enable easy 
+operation of the systems and service delivery. 
+ 
+The system ensures safe registration of users via the ability of customers to register via 
+name ,email ,password. Customers, employees and administrators can all perform safe 
+login using credentials. The system also offers Multi-Factor Authentication (MFA) feature as 
+optional, in which the users have an option to add an extra layer of security to their 
+account. Under the Forgotten Password scenario, the users can utilize password recovery 
+facility via email to access again. 
+ 
+ 
+
+\section*{Page 28}
+28 | P a g e 
+ 
+All the users are allowed to control their profiles, modifying or removing the existing data 
+such as name, contact details. The administrator also has the authority of controlling the 
+role from where he/she can provide suitable access levels to various users. 
+ 
+For the workers, the system includes a task and schedule preview to which they have been 
+assigned in which they get to view their daily tasks. Administrators can handle detailed 
+worker profiles, performances, and abilities. The system also includes an advance 
+electronic recording of attendance whereby workers can clock in and out, thereby 
+recording working hours accordingly. 
+ 
+Also, there is a User/Staff Management module with a complaint and feedback facility for 
+quality-of-service improvement. Customer as well as Staff members can register 
+complaints or feedback through the system specified form, while the Administrator can 
+view, track, assign and update status of complaints or feedback. In "SmartBin" the Garbage 
+Management System Administrator has complete control of user data, with visibility of a 
+list of all registered users and staff for easy management. Administrators also can obtain 
+reports on topics like user activity, staff performance and complaints. 
+ 
+The User/Staff Management module is interfaced with all the other modules with each user 
+having individual login provided for them. This also interferes with the financial 
+Management to receive the salary plans drawn up by the Financial Manager. 
+ 
+Completed Work Work in Progress Work to be Completed 
+- Included backend User 
+and Staff Mongoose 
+Schemas (basic fields). 
+- Incorporate Multi-Factor 
+Authentication (MFA) logic 
+and UI flow. 
+- Add internal 
+communication/messaging 
+feature among 
+staff/admin/users if needed 
+by user stories. 
+- Developed frontend UI 
+components for Login, 
+Registration, and basic 
+Profile View. 
+- Refining role assignment 
+logic during 
+registration/admin update. 
+- Complete and refine UI for 
+all user/staff/admin 
+dashboards and 
+management pages. 
+- Created backend API 
+endpoints for user 
+registration (with hashing). 
+- Added Attendance 
+Mongoose Schema. 
+- Implement password 
+reset, MFA, file upload, and 
+performance calculation on 
+the frontend. 
+
+\section*{Page 29}
+29 | P a g e 
+ 
+- Backend implementation 
+of update user profile data 
+(contact, basic details). 
+- Developing frontend UI for 
+staff Clock-in/Clock-out 
+functionality. 
+ 
+- Password Recovery 
+feature implemented (token 
+generation, email sending, 
+password reset form). 
+- Develop backend logic 
+and UI for staff document 
+upload, storage, and 
+verification (e.g., 
+certifications). 
+ 
+- Developed backend API 
+endpoints for staff Clock-in 
+and Clock-out. 
+- Develop calculation logic 
+for displaying total worked 
+hours from attendance 
+records. 
+ 
+- Added Complaint 
+Mongoose Schema 
+(submitter, description, 
+initial status). 
+- Develop backend logic for 
+automatic 
+calculation/aggregation of 
+Staff Performance KPIs 
+ 
+ 
+ 
+ 
+Database Schema 
+ 
+
+\section*{Page 30}
+30 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\section*{Page 31}
+31 | P a g e 
+ 
+ 
+
+
+\section*{Page 32}
+32 | P a g e 
+ 
+ 
+
+
+\section*{Page 33}
+33 | P a g e 
+ 
+ 
+
+
+\section*{Page 34}
+34 | P a g e 
+ 
+ 
+const performanceSchema = new mongoose.Schema(\{ 
+  staff: \{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  \}, 
+  reviewPeriod: \{ 
+    startDate: \{ 
+      type: Date, 
+      required: true 
+    \}, 
+    endDate: \{ 
+      type: Date, 
+      required: true 
+    \} 
+  \}, 
+  metrics: \{ 
+    productivity: \{ 
+      type: Number, 
+      min: 0, 
+      max: 10, 
+      default: 0 
+    \}, 
+    quality: \{ 
+      type: Number, 
+      min: 0, 
+      max: 10, 
+      default: 0 
+    \}, 
+    reliability: \{ 
+      type: Number, 
+      min: 0, 
+      max: 10, 
+      default: 0 
+    \}, 
+    communication: \{ 
+      type: Number, 
+      min: 0, 
+      max: 10, 
+      default: 0 
+    \}, 
+    initiative: \{ 
+      type: Number, 
+      min: 0, 
+
+\section*{Page 35}
+35 | P a g e 
+ 
+      max: 10, 
+      default: 0 
+    \} 
+  \}, 
+  overallRating: \{ 
+    type: Number, 
+    min: 0, 
+    max: 10, 
+    default: 0 
+  \}, 
+  feedback: \{ 
+    type: String 
+  \}, 
+  goals: [String], 
+  reviewer: \{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  \}, 
+  createdAt: \{ 
+    type: Date, 
+    default: Date.now 
+  \}, 
+  updatedAt: \{ 
+    type: Date, 
+    default: Date.now 
+  \} 
+\}); 
+ 
+ 
+
+\section*{Page 36}
+36 | P a g e 
+ 
+Database Operations 
+ 
+
+
+\section*{Page 37}
+37 | P a g e 
+ 
+ 
+
+
+\section*{Page 38}
+38 | P a g e 
+ 
+ 
+
+
+\section*{Page 39}
+39 | P a g e 
+ 
+Algorithms 
+ 
+Step 1.Start 
+Step 2. Access to the “SmartBin” web application 
+Step 3. Login to the system 
+  If credentials are incorrect: Display the error message  
+ If correct credentials: 
+  If Administrator: Proceed to step 4 
+  If Customer or Recycler: Proceed to step 5 
+  If Staff :Proceed to Step 6 
+ 
+Step 4: Administrator Dashboard 
+1.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Pseudocode 
+FUNCTION LoginUser(email, password) 
+    // Attempt to find the user by email in the database 
+    user = Database.FindUserByEmail(email) 
+ 
+    // Check if user exists 
+
+\section*{Page 40}
+40 | P a g e 
+ 
+    IF user IS NULL THEN 
+        RETURN "Error: Invalid Credentials" 
+    END IF 
+ 
+    // Compare the provided password with the stored hash 
+    isPasswordCorrect = Security.ComparePasswordHash(password, 
+user.storedPasswordHash) 
+ 
+    IF isPasswordCorrect IS FALSE THEN 
+        RETURN "Error: Invalid Credentials" 
+    END IF 
+ 
+    // Generate an authentication token (e.g., JWT) 
+    authToken = Authentication.GenerateToken(user.id, user.role) 
+ 
+    // Return success status, token, and user role 
+    RETURN \{ status: "Success" , token: authToken, role: user.role \} 
+ 
+END FUNCTION 
+ 
+FUNCTION RegisterUser(name, email, password, role) 
+    // Validate input data (e.g., email format, password strength) 
+    IF IsValid(name, email, password) IS FALSE THEN 
+        RETURN "Error: Invalid input data" 
+    END IF 
+ 
+
+\section*{Page 41}
+41 | P a g e 
+ 
+    // Check if a user with the given email already exists 
+    existingUser = Database.FindUserByEmail(email) 
+    IF existingUser IS NOT NULL THEN 
+        RETURN "Error: Email already registered" 
+    END IF 
+ 
+    // Hash the password securely 
+    hashedPassword = Security.HashPassword(password) 
+ 
+    // Create new user data object 
+    newUser = \{ 
+        name: name, 
+        email: email, 
+        password: hashedPassword, 
+        role: role, // Assign role (e.g., 'Customer' , 'Staff') 
+        createdAt: CurrentDateTime() 
+    \} 
+ 
+    // Save the new user to the database 
+    result = Database.SaveUser(newUser) 
+ 
+    IF result IS "Success" THEN 
+        RETURN "Success: User registered successfully" 
+    ELSE 
+        RETURN "Error: Could not register user" 
+    END IF 
+
+\section*{Page 42}
+42 | P a g e 
+ 
+ 
+END FUNCTION 
+ 
+FUNCTION StaffClockIn(staffId) 
+    // Check if staff is already clocked in today (optional, depends on rules) 
+    // existingRecord = Database.FindTodaysAttendance(staffId) 
+    // IF existingRecord IS NOT NULL AND existingRecord.clockOutTime IS NULL THEN 
+    //   RETURN "Error: Already clocked in" 
+    // END IF 
+ 
+    // Create attendance record 
+    newAttendance = \{ 
+        staff: staffId, 
+        checkInTime: CurrentDateTime(), 
+        status: "Present" // Or determine based on time 
+        // date: CurrentDate() // If date is stored separately 
+    \} 
+ 
+    // Save record to database 
+    result = Database.SaveAttendance(newAttendance) 
+ 
+    IF result IS "Success" THEN 
+        RETURN "Success: Clock-in recorded" 
+    ELSE 
+        RETURN "Error: Could not record clock-in" 
+    END IF 
+
+\section*{Page 43}
+43 | P a g e 
+ 
+ 
+END FUNCTION 
+ 
+ 
+FUNCTION StaffClockOut(staffId) 
+    // Find the latest open attendance record for the staff member today 
+    attendanceRecord = Database.FindOpenAttendanceRecord(staffId) // Find record with 
+no clockOutTime 
+ 
+    IF attendanceRecord IS NULL THEN 
+        RETURN "Error: No active clock-in record found to clock-out from" 
+    END IF 
+ 
+    // Update the record with clock-out time 
+    attendanceRecord.clockOutTime = CurrentDateTime() 
+    // Optional: Calculate total hours 
+    // attendanceRecord.totalHours = CalculateDuration(attendanceRecord.checkInTime, 
+attendanceRecord.clockOutTime) 
+    attendanceRecord.status = "Completed" // Or similar 
+ 
+    // Save the updated record 
+    result = Database.UpdateAttendance(attendanceRecord) 
+ 
+    IF result IS "Success" THEN 
+        RETURN "Success: Clock-out recorded" 
+    ELSE 
+        RETURN "Error: Could not record clock-out" 
+
+\section*{Page 44}
+44 | P a g e 
+ 
+    END IF 
+ 
+END FUNCTION 
+ 
+Flow Chart (Activity Diagram) 
+ 
+User Making a complaint 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+\section*{Page 45}
+45 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\section*{Page 46}
+46 | P a g e 
+ 
+ 
+ 
+2. Financial Management 
+ 
+Financial Management Module of “SmartBin” Garbage Management System plays a vital 
+part in ensuring proper financial resource utilization, tracking, and allocation. The module 
+has been particularly designed to provide a central platform for the management of 
+subscription plans, pay plans of employees, and financial transactions in the interest of 
+ensuring smooth financial operation within the system. 
+ 
+Subscription Plan Management is an important sub-feature of the Financial Management 
+System. It allows the Financial Manager to create, edit, and administer multiple 
+subscription plans for clients. The plans enable clients to subscribe to waste collection 
+services based on their requirements, generating a recurring revenue stream for the 
+company. The Financial Manager is also able to create reports for clients subscribed to 
+different plans on the pricing page. The reports can also be filtered based on a particular 
+subscription plan if needed. 
+ 
+While creating Salary Plans, the Financial Manager can specify different salary plans for 
+different job positions. The admin would then apply such pre-specified salary plans to 
+determine the monthly salary of employees. In addition, the Financial Manager would be 
+able to specify monthly budget plans for the trash system. 
+ 
+The Financial Management Module is integrated with the Staff Management System, and 
+through such integration, the Financial Manager can login and conduct financial operations 
+effortlessly. It is integrated with the Recycling and Pickup Request Management System for 
+customer payment as well. Payment notice or bill notice is dispatched by the Financial 
+Manager to the customers. 
+ 
+Moreover, the Financial Manager can also budget and facilitate renewal funds, such as car 
+and tool upkeep, to help make the garbage collection system effective and sustainable.  
+ 
+
+\section*{Page 47}
+47 | P a g e 
+ 
+ 
+Completed Work Work in progress Work to be Completed 
+Successfully implement the 
+Subscription Plans 
+Management with 
+searching feature base on 
+the subscription plan name 
+Creating the Pricing Page 
+the customers can choose 
+the suitable subscription 
+plan for them 
+Implement the Budget 
+Allocation section that the 
+Financial Manager can 
+Make Monthly budget 
+efficiently. 
+Implement the Salary plan 
+creating form with read, 
+delete and updating 
+features 
+Create the dashboard for 
+the Financial Manager 
+Implement the Payment 
+section that the Financial 
+Manager can view the 
+customers payment status  
+Implement the Notification 
+system so that the 
+customers get their 
+payment status through 
+this. 
+ 
+ 
+ 
+Database Schema 
+ 
+Subscription Plan 
+
+\section*{Page 48}
+48 | P a g e 
+ 
+    
+ 
+ 
+ Salary Plan 
+ 
+
+
+\section*{Page 49}
+49 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\section*{Page 50}
+50 | P a g e 
+ 
+Algorithms 
+ 
+Step 1.Start 
+Step 2. Access to the “SmartBin” web application 
+Step 3. Login to the system 
+  If credentials are incorrect: Display the error message  
+ If correct credentials: 
+  If Financial Manager: Proceed to step 4 
+  If Customer or Recycler: Proceed to step 5 
+Step 4.Financial Manager’s Dashboard: 
+1. Select “Subscription Plans” 
+  If select “Add New Plan”: Complete and submit the form 
+   If there are errors, display message and retry 
+   If Successful, Add the plan to the view table 
+  If select “update”: Make the changers and submit  
+   If there are errors, display message and retry 
+   If Successful, make the Changers  
+2. Select “Salary Plan” 
+  If select “Add New Plan”: Complete and submit the form 
+   If there are errors, display message and retry 
+   If Successful, Add the plan to the view table 
+  If select “update”: Make the changers and submit  
+   If there are errors, display message and retry 
+   If Successful, make the Changers  
+3. Select “Budget Allocation” 
+  Make Budget Plan: Complete and get the document 
+
+\section*{Page 51}
+51 | P a g e 
+ 
+   If there are errors, display message and retry 
+   If Successful, display successful message 
+ Select “Payment” 
+  View the Customer payment detail 
+   If Payment is not done yet, generate notification to remind payment 
+  Generate Customer payment Document 
+Step 5.User’s Dashboard 
+1. Select “My Payment” 
+  If have payment to complete: Complete  
+   If there are errors, display message and retry 
+   If Successful, display “Payment successful” 
+Step 6 . Logout 
+Step 7. End 
+ 
+ 
+Pseudocode 
+ 
+BEGIN 
+ Step 1: Start the application 
+ Step 2: Access SmartBin web application 
+ Step 3: Authentication User 
+  AUTHENTICATE(Email, Password) 
+  IF credentials are incorrect THEN 
+   DISPLAY “Email and Password incorrect” 
+RETURN Step 3 
+  ELSE  
+
+\section*{Page 52}
+52 | P a g e 
+ 
+   IF user\_role =”Financial\_Manager” THEN 
+    DISPLAY “Access Granted” 
+    GO TO Step 4 
+   ELSE IF user-role = “Customer” OR “Recycler” 
+    DISPLAY “Access Granted” 
+    GO TO Step 5 
+   ELSE  
+    DISPLAY “Access Denied” 
+    EXIT 
+   END IF 
+ Step 4:DISPLAY “Welcome Financial Manager Dashboard” 
+  INPUT choice 
+  //Subscription Plan Management 
+  IF choice = “Subscription Plan” THEN 
+   DISPLAY “1.Add New   2. View   3.Update   4.Delete” 
+   INPUT sub\_choice 
+   IF sub\_choice = 1 THEN 
+INPUT name, price, monthlyLimit, wastetypes, 
+CustomTruckformonth, Otherfeatures 
+ADD new\_plan() 
+   ELSE IF sub\_choice = 2 THEN 
+    GENERATE subscription\_report() 
+   ELSE IF sub\_choice = 3 THEN 
+    INPUT updated\_details 
+    UPDATE subscription\_plan(name,updated\_details) 
+   ELSE IF sub\_choice = 4 THEN 
+
+\section*{Page 53}
+53 | P a g e 
+ 
+    DELETE subscription\_plan() 
+   END IF 
+  END IF 
+   
+  //Salary Plan  
+  IF choice = “Salary Plan” THEN 
+   DISPLAY “1.Add New   2. View   3.Update   4.Delete” 
+   INPUT sub\_choice 
+   IF sub\_choice = 1 THEN 
+INPUT name, basicSalary, bonusPerHour, 
+DeductionPercentage 
+ADD new\_plan() 
+   ELSE IF sub\_choice = 2 THEN 
+    GENERATE salary\_report() 
+   ELSE IF sub\_choice = 3 THEN 
+    INPUT updated\_details 
+    UPDATE salary\_plan(name,updated\_details) 
+   ELSE IF sub\_choice = 4 THEN 
+    DELETE salary\_plan() 
+   END IF 
+  END IF 
+ 
+  //Budget Allocation 
+  IF choice = “Budget Allocation” THEN 
+   DISPLAY “Enter Expense Details” 
+   INPUT expense\_type, amount, category 
+
+\section*{Page 54}
+54 | P a g e 
+ 
+   RECORD expense() 
+   GENERATE expense\_report() 
+  END IF 
+ 
+  //Payment 
+  IF choice = “Payment” THEN 
+   GET customer\_payments 
+   FOR EACH payment IN cuatomer\_payment DO 
+    DISPLAY customer\_id, amount\_due, payment\_status 
+    IF payment\_status = “Pending” THEN 
+     GENERATE payment\_notification  
+     DISPLAY “notification send to customer” 
+    END IF 
+   END FOR 
+   GENERATE payment\_report() 
+  END IF 
+ Step 5: DISPLAY “Welcome to Customer dashboard” 
+  INPUT choice 
+  IF choice = “My Payment” THEN 
+   GET pending\_payment 
+   IF pending\_payment EXISTS THEN 
+    DISPLAY pending\_payment, amount, due\_date 
+    WHILE payment\_status != “Successful” DO 
+     PROCESS payment  
+     IF payment\_status = “error” THEN 
+      DISPLAY “Error” 
+
+\section*{Page 55}
+55 | P a g e 
+ 
+     ELSE 
+      DISPLAY “Payment Successful” 
+      UPDATE payment\_status 
+      EXIT WHILE 
+     END IF 
+    END WHILE 
+   ELSE 
+    DISPLAY “No pending payment “ 
+   ENDIF 
+  ELSE 
+   DISPLAY “Invalid” 
+  END IF 
+ 
+ Step 6:DISPLAY “Logout Successful” 
+   END 
+    
+   
+ 
+Flow chart(Activity Diagram) 
+ 
+Budget Allocation  
+ 
+ 
+ 
+   
+ 
+
+\section*{Page 56}
+56 | P a g e 
+ 
+  
+     
+ 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\section*{Page 57}
+57 | P a g e 
+ 
+ 
+ 
+3. Recycling Management 
+The Recycling Management Module of the "SmartBin" Trash Management System is one of 
+the subsystems in the system that is designed to make the recycling of trash easier and 
+facilitate seamless interactions between recyclers and the system. The module is designed 
+for entities and organizations ready to buy trash for recycling and offers an effective portal 
+for submission of recycling requests, processing of recycling requests, and tracking of 
+recycling requests while offering seamless administrative control. 
+  
+One of the most important features of the Recycling Management Module is the Garbage 
+Recycle Request System. The recycler may log in to the system and choose the "Garbage 
+Recycle" option and view the request form. The form asks for mandatory personal details 
+and gives the option to choose the desired type of waste (paper, glass, plastic, organic) 
+Depending on the type and quantity of waste selected, the system calculates 
+automatically the payment to be made to the recycler. On submission, a form validation is 
+done; an empty or invalid field invokes an error message prompting the recycler to fill in the 
+corresponding field prior to resubmission. Upon successfully submitting, the requests are 
+stored and recoverable under the My Order page where the recyclers are able to view 
+extensive request information like the type of waste, quantity, and pay. 
+  
+The module provides request management functionality to recyclers as well. On the My 
+Order page, the recyclers can delete or update their requests with a simple "Update" and 
+"Delete" buttons. It is very easy for them to modify at any point prior to admin approval. All 
+requests are first "Pending, " so the recyclers know it's in progress until the admin comes 
+into the picture. 
+  
+Administratively, the Recycling Request Management function allows the admin to track all 
+incoming requests on the Recycling Request page. Admins can view request details, 
+cancel unwanted submissions, and change the status of all requests to "Approved" or 
+"Rejected. " After changing the status, the update is visible to recyclers on their My Order 
+page, with transparency and real-time communication between users and the system. 
+  
+
+\section*{Page 58}
+58 | P a g e 
+ 
+This module combines with other SmartBin functions, including login and tracking, to allow 
+buying trash for recycling easily and quickly. It saves time by automating cost calculations, 
+reduces errors by including error checks, and encourages recycling by making the process 
+simple and easy to navigate. 
+Completed Work Work in progress Work to be Completed 
+• Successfully 
+implemented the 
+Garbage Recycle 
+request form with 
+waste type selection 
+and automatic 
+payment 
+calculation. 
+Testing the request form to 
+ensure error messages are 
+clear and calculations are 
+accurate. 
+ 
+Implement the payment 
+section so recyclers can 
+pay after approval 
+ 
+• Created the My 
+Order page where 
+recyclers can view, 
+update, and delete 
+their requests with a 
+"Pending" status. 
+ 
+Creating the UI for view 
+payment details 
+Create the payment status 
+view for admins to check 
+recycler payments. 
+ 
+• Implemented the 
+Recycling Request 
+page for admins to 
+view, delete, and 
+update request 
+statuses to 
+"Approved" or 
+"Rejected. " 
+ 
+ Add a confirmation email 
+system for recyclers once 
+payments are completed. 
+ 
+ 
+• Innovative Enhancements of the Recycling Request Management function: 
+Once the request is submitted and payment is made successfully, the system will send an 
+email to the patient's email address confirming the payment and providing the 
+appointment details. This feature will be implemented using EmailJS, ensuring the 
+efficiency and transparency of the system. 
+• SQL Queries used : Not applicable since we have used the MERN stack for development.  
+(Screenshots of the mongoDB records for this component are attached below) 
+ 
+
+\section*{Page 59}
+59 | P a g e 
+ 
+ 
+ 
+ 
+
+\section*{Page 60}
+60 | P a g e 
+ 
+ 
+ 
+
+
+\section*{Page 61}
+61 | P a g e 
+ 
+• Flow Charts:    
+ 
+ 
+ 
+ 
+
+
+\section*{Page 62}
+62 | P a g e 
+ 
+                                 
+ 
+
+
+\section*{Page 63}
+63 | P a g e 
+ 
+• Database Schema 
+   
+     
+     
+ 
+ 
+ 
+ 
+ 
+ 
+• Recycling Management Module Pseudocode 
+ 
+
+
+\section*{Page 64}
+64 | P a g e 
+ 
+FUNCTION SubmitRecycleRequest 
+    DISPLAY form with fields 
+    INPUT user fills form 
+    CALCULATE paymentAmount = getUnitAmount(wasteCategory) * quantity 
+    DISPLAY paymentAmount on form 
+    IF all fields are filled AND valid THEN 
+        SUBMIT form to database 
+        SAVE request with status = "Pending" 
+        DISPLAY "Request submitted successfully" 
+    ELSE 
+        DISPLAY "Error: Please fill all fields correctly" 
+        ALLOW user to edit and resubmit 
+    END IF 
+END FUNCTION 
+------------------------------------------------------------------------ 
+ 
+FUNCTION MyOrderPage 
+    DISPLAY list of user’s submitted requests 
+    FOR each request DO 
+        SHOW details of fields 
+        PROVIDE buttons: "Update" , "Delete" 
+    END FOR 
+    IF user clicks "Update" THEN 
+        ALLOW editing of wasteCategory, quantity 
+        RECALCULATE paymentAmount 
+        SAVE updated request 
+
+\section*{Page 65}
+65 | P a g e 
+ 
+    END IF 
+    IF user clicks "Delete" THEN 
+        REMOVE request from database 
+        DISPLAY "Request deleted" 
+    END IF 
+END FUNCTION 
+------------------------------------------------------------------------ 
+FUNCTION RecyclingRequestPage 
+    DISPLAY list of all recycler requests 
+    FOR each request DO 
+        SHOW details of fields 
+        PROVIDE buttons: "Delete" , "Update Status" 
+    END FOR 
+    IF admin clicks "Delete" THEN 
+        REMOVE request from database 
+        DISPLAY "Request deleted" 
+    END IF 
+    IF admin clicks "Update Status" THEN 
+        SET status = "Approved" OR "Rejected" 
+        SAVE updated status 
+        NOTIFY recycler (update visible on MyOrderPage) 
+    END IF 
+END FUNCTION 
+------------------------------------------------------------------------ 
+// Payment Process (Not Yet Implemented) 
+FUNCTION MakePayment 
+
+\section*{Page 66}
+66 | P a g e 
+ 
+    IF request.status = "Approved" THEN 
+        DISPLAY payment form 
+        INPUT payment details 
+        SUBMIT payment to financial system 
+        SAVE payment status in database 
+        DISPLAY "Payment successful" 
+    ELSE 
+        DISPLAY "Request not approved yet" 
+    END IF 
+END FUNCTION 
+------------------------------------------------------------------------ 
+// Payment Process Admin SIde (Not Yet Implemented) 
+FUNCTION AdminViewPayment 
+    DISPLAY list of payments for approved requests 
+    SHOW payment details: recycler, amount, date 
+    SEND confirmation email to recycler 
+END FUNCTION 
+ 
+• Algorithm: SubmitRecycleRequest 
+ 
+ALGORITHM SubmitRecycleRequest 
+INPUT: personalInfo, wasteCategory (e.g., paper, glass, plastic, organic), quantity 
+OUTPUT: Submitted request or error message 
+  
+1. DISPLAY form with fields: personalInfo, wasteCategory, quantity 
+2. GET user input for all fields 
+
+\section*{Page 67}
+67 | P a g e 
+ 
+3. SET paymentAmount = getUnitAmount(wasteCategory) * quantity 
+4. DISPLAY paymentAmount on form 
+5. IF personalInfo is not empty AND wasteCategory is valid AND quantity > 0 THEN 
+    6. SUBMIT form data to database 
+    7. SAVE request with personalInfo, wasteCategory, quantity, paymentAmount, status = 
+"Pending" 
+    8. DISPLAY "Request submitted successfully" 
+9. ELSE 
+    10. DISPLAY "Error: Please fill all fields correctly" 
+    11. ALLOW user to edit fields 
+    12. RETURN to step 2 for resubmission 
+13. END IF 
+END ALGORITHM 
+ 
+• Algorithm: MyOrderPage 
+ 
+ALGORITHM MyOrderPage 
+INPUT: None (uses logged-in user’s data) 
+OUTPUT: Updated or deleted request list 
+  
+1. FETCH user’s submitted requests from database 
+2. DISPLAY list of requests 
+3. FOR each request DO 
+    4. SHOW details: wasteCategory, quantity, paymentAmount, status 
+    5. PROVIDE buttons: "Update" , "Delete" 
+6. END FOR 
+7. IF user clicks "Update" THEN 
+
+\section*{Page 68}
+68 | P a g e 
+ 
+    8. ALLOW editing of wasteCategory, quantity 
+    9. GET updated input from user 
+    10. SET paymentAmount = getUnitAmount(wasteCategory) * quantity 
+    11. SAVE updated request in database 
+    12. DISPLAY "Request updated" 
+13. END IF 
+14. IF user clicks "Delete" THEN 
+    15. REMOVE request from database 
+    16. DISPLAY "Request deleted" 
+17. END IF 
+18. REFRESH list of requests 
+END ALGORITHM 
+ 
+• Algorithm: RecyclingRequestPage 
+ 
+ALGORITHM RecyclingRequestPage 
+INPUT: None (uses admin access) 
+OUTPUT: Updated or deleted request list 
+  
+1. FETCH all recycler requests from database 
+2. DISPLAY list of requests 
+3. FOR each request DO 
+    4. SHOW details: personalInfo, wasteCategory, quantity, paymentAmount, status 
+    5. PROVIDE buttons: "Delete" , "Update Status" 
+6. END FOR 
+7. IF admin clicks "Delete" THEN 
+
+\section*{Page 69}
+69 | P a g e 
+ 
+    8. REMOVE request from database 
+    9. DISPLAY "Request deleted" 
+10. END IF 
+11. IF admin clicks "Update Status" THEN 
+    12. PROMPT admin to choose "Approved" or "Rejected" 
+    13. SET status = chosen value 
+    14. SAVE updated status in database 
+    15. NOTIFY recycler by updating MyOrderPage 
+    16. DISPLAY "Status updated" 
+17. END IF 
+18. REFRESH list of requests 
+END ALGORITHM 
+ 
+• Algorithm: MakePayment (Not Yet Implemented) 
+ 
+ALGORITHM MakePayment 
+INPUT: request (with status) 
+OUTPUT: Payment submission or error message 
+  
+1. IF request.status = "Approved" THEN 
+    2. DISPLAY payment form 
+    3. GET payment details from user 
+    4. SUBMIT payment details to financial system 
+    5. SAVE payment status in database 
+    6. DISPLAY "Payment successful" 
+7. ELSE 
+    8. DISPLAY "Request not approved yet" 
+
+\section*{Page 70}
+70 | P a g e 
+ 
+9. END IF 
+END ALGORITHM 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+4.Schedule/ Resource Management 
+ 
+The Schedule/Resource Management feature in the "SmartBin" Waste Management 
+System is a critical component designed to streamline the planning, execution, and 
+oversight of daily collection operations and resource allocation. This feature aims to 
+provide a centralized platform for scheduling routes, managing vehicles and equipment, 
+
+\section*{Page 71}
+71 | P a g e 
+ 
+and enabling efficient coordination between administrators and drivers to ensure seamless 
+service delivery. 
+  
+The system allows administrators and schedulers to manually create basic collection 
+routes by assigning specific areas and customers, ensuring operational flexibility and 
+precision in planning. Drivers (staff) can securely access their assigned routes and 
+customer lists for the day through a user-friendly interface, empowering them to carry out 
+their tasks effectively. This visibility into daily schedules enhances accountability and 
+productivity across the workforce. 
+  
+For resource oversight, the system enables administrators to register vehicles and assign 
+basic statuses such as "Active" or "Maintenance, " facilitating fleet management and 
+ensuring operational readiness. Additionally, administrators can add new equipment and 
+tools, managing their availability to support the workforce efficiently. A map view feature 
+provides administrators with basic vehicle location tracking, offering real-time insights into 
+fleet activity for improved decision-making. 
+  
+Drivers benefit from an interactive route management tool that allows them to mark 
+pickups as completed directly on their route list, keeping progress updated and providing 
+administrators with accurate records of completed tasks. This feature fosters a dynamic 
+feedback loop between field staff and management, ensuring transparency and 
+operational efficiency. 
+  
+The Schedule/Resource Management module also integrates advanced functionalities to 
+support long-term planning and resource optimization. Administrators have full control 
+over route assignments, vehicle statuses, and equipment inventories, with the ability to 
+monitor and adjust resources as needed. The system can generate reports on route 
+efficiency, vehicle utilization, and driver performance, providing actionable insights for 
+continuous improvement. 
+  
+Designed to interface seamlessly with other system modules, such as User/Staff 
+Management and Financial Management, the Schedule/Resource Management feature 
+ensures that scheduling data aligns with staff availability and budget considerations. Each 
+
+\section*{Page 72}
+72 | P a g e 
+ 
+user, whether an administrator or driver, accesses the system through individual login 
+credentials, maintaining security and role-based access. This interconnected design 
+supports a cohesive waste management ecosystem, where resource allocation and 
+scheduling contribute directly to operational success and customer satisfaction 
+ 
+ 
+Completed Work Work in progress Work to be Completed 
+Successfully implemented 
+the route creation 
+functionality for admins 
+with form validation 
+ 
+Creating the map view for 
+admins to track vehicle 
+locations 
+ 
+Enhance the scheduling 
+system with conflict 
+detection 
+ 
+Implemented the route 
+viewing feature for drivers 
+with search functionality 
+ 
+ Implement a notification 
+system for drivers to receive 
+real-time route updates 
+ 
+Successfully added the 
+truck management feature 
+with CRUD operations 
+ 
+  
+ 
+Database Schema 
+ 
+Equipments  
+
+\section*{Page 73}
+73 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tools 
+ 
+
+
+\section*{Page 74}
+74 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\section*{Page 75}
+75 | P a g e 
+ 
+Trucks 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\section*{Page 76}
+76 | P a g e 
+ 
+Schedule 
+ 
+ 
+Algorithms 
+ 
+For Scheduling 
+Step 1. Start 
+  
+Step 2. Access the “SmartBin” web application 
+  
+Step 3. Login to the system 
+    If credentials are incorrect: Display "Invalid credentials" message 
+    If correct credentials and user is Admin: Proceed to Step 4 
+  
+Step 4. Admin Dashboard 
+
+
+\section*{Page 77}
+77 | P a g e 
+ 
+    Select “Schedule Management” 
+    Choose “Create New Route” 
+    Enter route details (areas/customers, truck number, date, time) 
+    Submit the form 
+    If there are errors (e.g., invalid truck, past date): Display "Error in route creation" and retry 
+    If successful: 
+        Generate unique schedule number 
+        Save route to system 
+        Update truck availability to "In Use" 
+        Display "Route created successfully" 
+  
+Step 5. Logout 
+  
+Step 6. End 
+ 
+ 
+For equipment/tools 
+ 
+ 
+Step 1. Start 
+  
+Step 2. Access the “SmartBin” web application 
+  
+Step 3. Login to the system 
+    If credentials are incorrect: Display "Invalid credentials" message 
+    If correct credentials and user is Admin: Proceed to Step 4 
+  
+Step 4. Admin Dashboard 
+
+\section*{Page 78}
+78 | P a g e 
+ 
+    Select “Resource Management” 
+    Choose “Add New Equipment” or “Add New Tool” 
+    Enter resource details (ID, name, description) 
+    Submit the form 
+    If there are errors (e.g., duplicate ID): Display "Error adding resource" and retry 
+    If successful: 
+        For Equipment: Set status to "Operational" 
+        For Tool: Set status to "Available" 
+        Save resource to system 
+        Display "Resource added successfully" 
+  
+    Choose “Update Availability” 
+    Select resource by ID 
+    Update status (e.g., "Maintenance" for Equipment, "In Use" for Tool) 
+    Submit changes 
+    If there are errors: Display "Error updating status" and retry 
+    If successful: Display "Resource availability updated" 
+  
+Step 5. Logout 
+  
+Step 6. End 
+ 
+ 
+ 
+
+\section*{Page 79}
+79 | P a g e 
+ 
+Pseudocode 
+ 
+ 
+ 
+\\Schedule management 
+ 
+ 
+FUNCTION CreateCollectionRoute(adminId, areas, truckNo, date, time) IF NOT 
+isAdmin(adminId) THEN RETURN "Unauthorized access" END IF 
+SET scheduleNo = "SCH-" + CURRENT\_TIMESTAMP + RANDOM\_STRING(4) 
+ 
+IF areas IS EMPTY OR NOT isValidTruck(truckNo) OR NOT 
+isFutureDate(date, time) THEN 
+    RETURN "Invalid input data" 
+END IF 
+ 
+SET newSchedule = \{ 
+    scheduleNo: scheduleNo, 
+    route: areas, 
+    truckNo: truckNo, 
+    date: date, 
+    time: time, 
+    status: "Waiting" 
+\} 
+ 
+TRY 
+    SAVE newSchedule TO ScheduleCollection 
+    UPDATE TruckCollection WHERE truckNo = truckNo SET availability = 
+"In Use" 
+CATCH error 
+    RETURN "Failed to create route: " + error 
+END TRY 
+ 
+RETURN "Route created successfully" WITH newSchedule 
+  
+END FUNCTION 
+
+\section*{Page 80}
+80 | P a g e 
+ 
+ 
+ 
+\\Equipment  manage 
+ 
+ 
+FUNCTION AddEquipment(adminId, equipmentId, name, description) 
+    IF NOT isAdmin(adminId) THEN 
+        RETURN "Unauthorized access" 
+    END IF 
+  
+    IF equipmentId IS EMPTY OR name IS EMPTY OR EXISTS IN 
+EquipmentCollection(equipmentId) THEN 
+        RETURN "Invalid or duplicate equipment data" 
+    END IF 
+  
+    SET newEquipment = \{ 
+        equipmentId: equipmentId, 
+        name: name, 
+        status: "Operational" , 
+        description: description OR NULL 
+    \} 
+  
+    TRY 
+        SAVE newEquipment TO EquipmentCollection 
+    CATCH error 
+        RETURN "Failed to add equipment: " + error 
+    END TRY 
+
+\section*{Page 81}
+81 | P a g e 
+ 
+  
+    RETURN "Equipment added successfully" WITH newEquipment 
+END FUNCTION 
+ 
+ 
+\\Tool manage 
+ 
+ 
+FUNCTION AddTool(adminId, toolId, name, description) 
+    IF NOT isAdmin(adminId) THEN 
+        RETURN "Unauthorized access" 
+    END IF 
+  
+    IF toolId IS EMPTY OR name IS EMPTY OR EXISTS IN ToolCollection(toolId) THEN 
+        RETURN "Invalid or duplicate tool data" 
+    END IF 
+  
+    SET newTool = \{ 
+        toolId: toolId, 
+        name: name, 
+        status: "Available" , 
+        description: description OR NULL 
+    \} 
+  
+    TRY 
+        SAVE newTool TO ToolCollection 
+    CATCH error 
+        RETURN "Failed to add tool: " + error 
+
+\section*{Page 82}
+82 | P a g e 
+ 
+    END TRY 
+  
+    RETURN "Tool added successfully" WITH newTool 
+END FUNCTION 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+\section*{Page 83}
+83 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+7. Pickup Request Management 
+The “Pickup Request Management” module of the "SmartBin" Online Garbage 
+Management System is one of the most critical modules of the system which will facilitate 
+the request and management process of garbage pickup requests in a highly effective way, 
+thus offering a seamless interaction experience between users and the system. This 
+module is intended to meet those individuals, families, and companies who are interested 
+in sending their trash green and provides a clean entry for sending, monitoring, and 
+processing pickup requests and enabling firm administrative control. 
+The most outstanding feature of the Pickup Request Management Module is the “Garbage 
+Pickup Request System” . The user can log in to the SmartBin system, view the "Pickup 
+Request" page, and send the pickup request form. The form provides information such as 
+the user's name, phone number, email address, address, type of community (e.g.- 
+household or industry), date of preferred pickup and which type of waste to collect (e.g.- 
+organic, plastic, paper, or glass). The customers are also allowed to select their pickup 
+point on the interactive map that will automatically take the latitude and longitude for 
+precise pickup booking. Based on the selected types of waste and address the system will 
+auto-calculate the pickup charge, hence transparency of the charges. On submission, the 
+form is validated; in case any of the mandatory fields are empty or incorrect input-that is, 
+an incorrect format for the email-then the system will raise an error message to correct the 
+field and to resubmit. After successful submission, the pickup request is stored in the 
+system and is provided on the user's "My Pickup Requests" page where he can view full 
+details such as bin ID, waste type, pickup date, location, and calculated amount. 
+The module provides full request management to the users at the "My Pickup Requests" 
+page. The following are all the users' pickup requests, and they all default to "Pending" 
+status to indicate that the request is pending admin approval. Users can delete or update 
+their requests with easy "Update" and "Delete" buttons so that they can modify details 
+such as the pickup date or waste type before the request is handled by the admin. This 
+feature helps users monitor their requests with ease and update whenever needed until the 
+request is processed or approved by the admin. 
+
+\section*{Page 84}
+84 | P a g e 
+ 
+In the admin end, the “Pickup Request Management” feature enables admins to efficiently 
+manage all pickup requests placed via the "Pickup Requests" page. Admins are able to 
+view full details for each request, including user details, waste type, address, and preferred 
+pickup date. The page groups the requests into three categories for easy handling: “Works 
+to be Completed” (Pending requests), “Works in Progress” (On Progress requests) and 
+“Completed Works” (Completed requests). The admins can individually update all the 
+requests' status manually (e.g.- from "Pending" to "On Progress" or "Completed") using a 
+drop-down menu, mark unwanted as cancelled, or even delete them all as and when 
+needed. The users are then informed of the update on their "My Pickup Requests" page to 
+provide transparency and live connectivity between the user and the system. Besides, 
+admins can also automatically send an email to the users through a "Send Mail" button 
+sending an email of confirmation with the pickup request details, thank-you message, and 
+link to view the pickup schedule. 
+The Pickup Request Management Module is integrated into the other SmartBin 
+functionalities to create a more unified user experience. It, being a model, contains an 
+association with the login mechanism in a way that the admins and the users are given 
+secure access. It is also associated with the functionality of mapping (through Leaflet) 
+such that customers can input their pickup location in detail, and with the email 
+notification function such that auto-generated confirmation emails are sent. Also, the 
+system needs to be integrated with a payment gateway to be created in the future so that 
+customers can pay the estimated pickup fee online, and the request status will be updated 
+accordingly (e.g.- from "Pending" to "On Progress" on payment). 
+ 
+This module simplifies the garbage collection process by auto-processing some of the 
+most important steps such as computation of charges and identifying location and 
+reducing error through form validation and live status. 
+It is an admin and user saving time by single-point management of requests, clear with 
+easy-to-follow status and encourages responsible dumping by making the process clear 
+and all the people concerned more responsive. By its administrative role, the module 
+ensures effective scheduling and processing of pickup orders, thereby qualifying the 
+SmartBin system as a viable online waste management system. 
+ 
+ 
+ 
+ 
+
+\section*{Page 85}
+85 | P a g e 
+ 
+ 
+ 
+Completed Work Work in progress Work to be Completed 
+Successfully implemented 
+the Garbage Pickup 
+Request Form with 
+automatic payment amount 
+calculation and validations 
+to prevent incomplete or 
+invalid submissions. 
+Implementing an 
+Automated Email 
+Notification System to send 
+confirmation with waste 
+collecting details. 
+Plan to Implement a Secure 
+and User-Friendly Payment 
+Gateway to enable 
+transactions after pickup 
+request approved. 
+Designed user-friendly "My 
+Bin Details" and "Pickup 
+Request Details" pages 
+through which customers 
+can view and manage their 
+submitted pickup requests 
+with full CRUD 
+functionality. 
+ Plan to generate summary 
+reports of completed 
+Pickup Requests and admin 
+will have the ability to 
+download reports in 
+formats such as PDF. 
+Implemented a dynamic 
+Search Feature that allows 
+users and administrators to 
+search pickup requests 
+using various keywords 
+  
+Designed an admin 
+dashboard to display all 
+pickup requests submitted 
+by customers with data 
+retrieved dynamically from 
+the database 
+  
+Implemented a Status 
+Update System whereby the 
+admin will have the ability 
+to update the status of any 
+pickup request and admin 
+changes will update 
+automatically in the 
+respective User's "My Bin 
+Details" page, which will 
+give real-time updates 
+  
+ 
+ 
+
+\section*{Page 86}
+86 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+• Innovative Enhancements of the Recycling Request Management function: 
+Once the pickup request is approved, the system will send an email to the customer’s 
+email address confirming the payment and providing the pickup details. This feature will 
+be implemented using nodemailer, ensuring efficient communication and transparency in 
+the waste pickup process. 
+ 
+• SQL Queries used : Not applicable since we have used the MERN stack for development.  
+(Screenshots of the MongoDB records for this component are attached below) 
+ 
+ 
+
+\section*{Page 87}
+87 | P a g e 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+• Database Schema 
+
+
+\section*{Page 88}
+88 | P a g e 
+ 
+ 
+ 
+• Pickup Request Management Module Pseudocode 
+FUNCTION SubmitPickupRequest 
+    DISPLAY form with fields (name, contactNumber, email, community, wasteType, address, 
+preferredDate, serviceType, location, pickupFee, status) 
+ 
+    CALCULATE pickupFee = getBaseFee() + (wasteType.length * additionalFeePerType) 
+  
+    DISPLAY pickupFee on form 
+  
+    IF all fields are filled AND valid THEN 
+        SUBMIT form to database 
+
+
+\section*{Page 89}
+89 | P a g e 
+ 
+        SAVE request with status = "Pending" 
+        DISPLAY "Pickup request submitted successfully" 
+    ELSE 
+        DISPLAY "Error: Please fill all fields correctly" 
+        ALLOW user to edit and resubmit 
+    END IF 
+END FUNCTION 
+ 
+FUNCTION MyPickupRequestsPage 
+    DISPLAY list of user’s submitted pickup requests 
+  
+    FOR each request DO 
+        SHOW details of fields (name, contactNumber, email, community, wasteType, address, 
+preferredDate, serviceType, location, pickupFee, status) 
+        PROVIDE buttons: "Update" , "Delete" 
+    END FOR 
+  
+    IF user clicks "Update" THEN 
+        ALLOW editing of wasteType, address, preferredDate, serviceType, location 
+        RECALCULATE pickupFee = getBaseFee() + (wasteType.length * additionalFeePerType) 
+        SAVE updated request 
+        DISPLAY "Pickup request updated" 
+    END IF 
+  
+    IF user clicks "Delete" THEN 
+        REMOVE request from database 
+
+\section*{Page 90}
+90 | P a g e 
+ 
+        DISPLAY "Pickup request deleted" 
+    END IF 
+END FUNCTION 
+ 
+FUNCTION PickupRequestsPage 
+    DISPLAY list of all pickup requests 
+  
+    FOR each request DO 
+        SHOW details of fields (name, contactNumber, email, community, wasteType, address, 
+preferredDate, serviceType, location, pickupFee, status) 
+        PROVIDE buttons: "Delete" , "Update Status" 
+    END FOR 
+  
+    IF admin clicks "Delete" THEN 
+        REMOVE request from database 
+        DISPLAY "Pickup request deleted" 
+    END IF 
+  
+    IF admin clicks "Update Status" THEN 
+        SET status = "Pending" OR "On Progress" OR "Completed" OR "Cancelled" 
+        SAVE updated status 
+        NOTIFY user (update visible on MyPickupRequestsPage) 
+        DISPLAY "Status updated" 
+    END IF 
+END FUNCTION 
+ 
+
+\section*{Page 91}
+91 | P a g e 
+ 
+FUNCTION MakePayment 
+    IF request.status = "Pending" THEN 
+        DISPLAY payment form 
+        INPUT payment details 
+        SUBMIT payment to financial system 
+        SAVE payment status in database 
+        SET request.status = "On Progress" 
+        DISPLAY "Payment successful" 
+    ELSE 
+        DISPLAY "Payment can only be made for Pending requests" 
+    END IF 
+END FUNCTION 
+ 
+FUNCTION AdminViewPayment 
+    DISPLAY list of payments for processed pickup requests 
+    SHOW payment details: user, amount, date 
+    SEND confirmation email to user 
+END FUNCTION 
+ 
+• Algorithms 
+ 
+ALGORITHM SubmitPickupRequest 
+INPUT: name, contactNumber, email, community, wasteType, address, preferredDate, 
+serviceType, location (lat, lng) 
+OUTPUT: Submitted pickup request or error message 
+  
+
+\section*{Page 92}
+92 | P a g e 
+ 
+1. DISPLAY form with fields: name, contactNumber, email, community, wasteType, 
+address, preferredDate, serviceType, location (map) 
+2. GET user input for all fields 
+3. SET pickupFee = getBaseFee() + (wasteType.length * additionalFeePerType) 
+4. DISPLAY pickupFee on form 
+5. IF name IS NOT EMPTY AND contactNumber IS NOT EMPTY AND email IS NOT EMPTY 
+AND community IS NOT EMPTY AND wasteType IS NOT EMPTY AND address IS NOT EMPTY 
+AND preferredDate IS NOT EMPTY AND serviceType IS NOT EMPTY AND location IS VALID 
+THEN 
+    6. SUBMIT form data to database 
+    7. SAVE request with name, contactNumber, email, community, wasteType, address, 
+preferredDate, serviceType, location, pickupFee, status = "Pending" 
+    8. DISPLAY "Pickup request submitted successfully" 
+9. ELSE 
+    10. DISPLAY "Error: Please fill all fields correctly" 
+    11. ALLOW user to edit fields 
+    12. RETURN to step 2 for resubmission 
+13. END IF 
+END ALGORITHM 
+ 
+ALGORITHM MyPickupRequestsPage 
+INPUT: None (uses logged-in user’s data) 
+OUTPUT: Updated or deleted request list 
+  
+1. FETCH user’s submitted pickup requests from database 
+2. DISPLAY list of requests 
+3. FOR each request DO 
+
+\section*{Page 93}
+93 | P a g e 
+ 
+    4. SHOW details: name, contactNumber, email, community, wasteType, address, 
+preferredDate, serviceType, location, pickupFee, status 
+    5. PROVIDE buttons: "Update" , "Delete" 
+6. END FOR 
+7. IF user clicks "Update" THEN 
+    8. ALLOW editing of wasteType, address, preferredDate, serviceType, location 
+    9. GET updated input from user 
+    10. SET pickupFee = getBaseFee() + (wasteType.length * additionalFeePerType) 
+    11. SAVE updated request in database 
+    12. DISPLAY "Pickup request updated" 
+13. END IF 
+14. IF user clicks "Delete" THEN 
+    15. REMOVE request from database 
+    16. DISPLAY "Pickup request deleted" 
+17. END IF 
+18. REFRESH list of requests 
+END ALGORITHM 
+ 
+ALGORITHM PickupRequestsPage 
+INPUT: None (uses admin access) 
+OUTPUT: Updated or deleted request list 
+  
+1. FETCH all pickup requests from database 
+2. DISPLAY list of requests 
+3. FOR each request DO 
+    4. SHOW details: name, contactNumber, email, community, wasteType, address, 
+preferredDate, serviceType, location, pickupFee, status 
+
+\section*{Page 94}
+94 | P a g e 
+ 
+    5. PROVIDE buttons: "Delete" , "Update Status" 
+6. END FOR 
+7. IF admin clicks "Delete" THEN 
+    8. REMOVE request from database 
+    9. DISPLAY "Pickup request deleted" 
+10. END IF 
+11. IF admin clicks "Update Status" THEN 
+    12. PROMPT admin to choose "Pending" , "On Progress" , "Completed" , "Cancelled" 
+    13. SET status = chosen value 
+    14. SAVE updated status in database 
+    15. NOTIFY user by updating MyPickupRequestsPage 
+    16. DISPLAY "Status updated" 
+17. END IF 
+18. REFRESH list of requests 
+END ALGORITHM 
+ 
+ALGORITHM MakePayment 
+INPUT: request (with status) 
+OUTPUT: Payment submission or error message 
+  
+1. IF request.status = "Pending" THEN 
+    2. DISPLAY payment form 
+    3. GET payment details from user 
+    4. SUBMIT payment details to financial system 
+    5. SAVE payment status in database 
+    6. SET request.status = "On Progress" 
+
+\section*{Page 95}
+95 | P a g e 
+ 
+    7. DISPLAY "Payment successful" 
+8. ELSE 
+    9. DISPLAY "Payment can only be made for Pending requests" 
+10. END IF 
+END ALGORITHM 
+ 
+ALGORITHM AdminViewPayment 
+INPUT: None (uses admin access) 
+OUTPUT: List of payments 
+  
+1. FETCH all payments for processed pickup requests from database 
+2. DISPLAY list of payments 
+3. FOR each payment DO 
+    4. SHOW details: user, amount, date 
+    5. SEND confirmation email to user 
+6. END FOR 
+END ALGORITHM 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+\section*{Page 96}
+96 | P a g e 
+ 
+ 
+ 
+
+
+\end{document}
