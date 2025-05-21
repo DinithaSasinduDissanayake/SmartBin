@@ -128,6 +128,7 @@ AggregateCode.ps1
 collect_frontend_config.ps1
 split_file.ps1
 git-commit-helper.js
+commit-summary.txt # Temporary file for commit messages
 
 # Consider ignoring all .docx and .pdf files if they are generated from sources
 # Or, if you want to keep specific ones, list them with !pattern
