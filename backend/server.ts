@@ -160,8 +160,7 @@ app.all('*', (req: Request, res: Response, next: NextFunction) => { // Added typ
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// --- Global Error Handler (Must be last middleware) ---
-app.use(errorHandler);
+// --- Global Error Handler (Must be last middleware) ---// Using our TypeScript error handler instead of the JS version from src/controllers/errorController.jsapp.use(errorHandler);
 
 // --- Database Connection (Robust version from server.js) ---
 const connectDB = async () => {

@@ -18,8 +18,8 @@ const ScheduleSchema: Schema = new Schema({
   status: {
     type: String,
     required: true,
-    enum: ['Waiting', 'Completed', 'Pending', 'Cancelled'], // Add "Pending" and "Cancelled"
-    default: 'Waiting',
+    enum: ['Scheduled', 'In Progress', 'Completed', 'Cancelled'],
+    default: 'Scheduled',
   },
 });
 

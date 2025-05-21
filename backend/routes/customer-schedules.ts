@@ -4,6 +4,7 @@ import { sendEmail } from '../utils/email';
 
 const router = express.Router();
 
+// GET endpoint for fetching current schedules without modifying data
 router.get('/customer-schedules', async (req: Request, res: Response) => {
     try {
       const currentDate = new Date();
@@ -21,22 +22,59 @@ router.get('/customer-schedules', async (req: Request, res: Response) => {
         return res.json([]);
       }
   
-      const updatedSchedules = schedules.filter((schedule) => {
+      const filteredSchedules = schedules.filter((schedule) => {
         // Only exclude "Completed" schedules, don't modify status or delete
-        if (schedule.status === 'Completed') {
-          console.log(`Skipping completed schedule ${schedule.scheduleNo}`);
-          return false;
-        }
-        return true;
+        return schedule.status !== 'Completed';
       });
   
-      console.log('Filtered schedules:', updatedSchedules);
-      res.json(updatedSchedules);
+      console.log('Filtered schedules:', filteredSchedules);
+      res.json(filteredSchedules);
     } catch (error) {
       console.error('Error in /customer-schedules:', error);
       res.status(500).json({ error: (error as Error).message });
     }
-  });
+});
+
+// New POST endpoint for updating schedule statuses based on time
+router.post('/update-completed-schedules', async (req: Request, res: Response) => {
+  try {
+    const currentDate = new Date().toISOString().split('T')[0];
+    const currentTime = new Date();
+    
+    // Find schedules that need to be marked as completed
+    const schedules = await Schedule.find({
+      date: currentDate,
+      status: { $ne: 'Completed' }
+    });
+    
+    const updatedIds = [];
+    
+    for (const schedule of schedules) {
+      // Parse schedule time
+      const [hours, minutes] = schedule.time.split(':').map(Number);
+      const scheduleDateTime = new Date(schedule.date);
+      scheduleDateTime.setHours(hours, minutes);
+      
+      // If schedule time has passed, mark as completed
+      if (scheduleDateTime < currentTime) {
+        await Schedule.updateOne(
+          { _id: schedule._id },
+          { status: 'Completed' }
+        );
+        updatedIds.push(schedule._id);
+      }
+    }
+    
+    res.json({ 
+      message: 'Schedule statuses updated successfully',
+      updatedCount: updatedIds.length,
+      updatedIds
+    });
+  } catch (error) {
+    console.error('Error updating completed schedules:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
 
 // Existing endpoints (admin ලාට තියෙන ඒවා)
 router.post('/schedules', async (req: Request, res: Response) => {
@@ -94,46 +132,46 @@ router.delete('/schedules/:id', async (req: Request, res: Response) => {
 });
 
 // Customer ලාට අද දවසේ schedules ගන්න endpoint එක
-router.get('/customer-schedules', async (req: Request, res: Response) => {
-  try {
-    // අද දවස ගන්නවා (YYYY-MM-DD format එකට)
-    const currentDate = new Date().toISOString().split('T')[0];
-
-    // අද දවසේ schedules ටික ගන්නවා
-    let schedules = await Schedule.find({
-      date: currentDate,
-    });
-
-    // Time එක ඉවර උන schedules ටික Completed කරලා ඉවත් කරනවා
-    const currentTime = new Date();
-    const updatedSchedules = schedules.filter((schedule) => {
-      // Schedule එකක time එක parse කරනවා (e.g., "14:30")
-      const [hours, minutes] = schedule.time.split(':').map(Number);
-      const scheduleDateTime = new Date(schedule.date);
-      scheduleDateTime.setHours(hours, minutes);
-
-      // Time එක ඉවර උනා නම් status එක Completed කරනවා
-      if (scheduleDateTime < currentTime && schedule.status !== 'Completed') {
-        Schedule.updateOne(
-          { _id: schedule._id },
-          { status: 'Completed' }
-        ).exec();
-        return false; // Response එකෙන් ඉවත් කරනවා
-      }
-
-      // Completed schedules ඉවත් කරනවා
-      if (schedule.status === 'Completed') {
-        Schedule.deleteOne({ _id: schedule._id }).exec();
-        return false; // Response එකෙන් ඉවත් කරනවා
-      }
-
-      return true; // Completed නැති schedules ටික return කරනවා
-    });
-
-    res.json(updatedSchedules);
-  } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
-  }
-});
+// router.get('/customer-schedules', async (req: Request, res: Response) => { // Entire block commented out or removed
+//   try {
+//     // අද දවස ගන්නවා (YYYY-MM-DD format එකට)
+//     const currentDate = new Date().toISOString().split('T')[0];
+//
+//     // අද දවසේ schedules ටික ගන්නවා
+//     let schedules = await Schedule.find({
+//       date: currentDate,
+//     });
+//
+//     // Time එක ඉවර උන schedules ටික Completed කරලා ඉවත් කරනවා
+//     const currentTime = new Date();
+//     const updatedSchedules = schedules.filter((schedule) => {
+//       // Schedule එකක time එක parse කරනවා (e.g., "14:30")
+//       const [hours, minutes] = schedule.time.split(':').map(Number);
+//       const scheduleDateTime = new Date(schedule.date);
+//       scheduleDateTime.setHours(hours, minutes);
+//
+//       // Time එක ඉවර උනා නම් status එක Completed කරනවා
+//       if (scheduleDateTime < currentTime && schedule.status !== 'Completed') {
+//         Schedule.updateOne(
+//           { _id: schedule._id },
+//           { status: 'Completed' }
+//         ).exec();
+//         return false; // Response එකෙන් ඉවත් කරනවා
+//       }
+//
+//       // Completed schedules ඉවත් කරනවා
+//       if (schedule.status === 'Completed') {
+//         Schedule.deleteOne({ _id: schedule._id }).exec();
+//         return false; // Response එකෙන් ඉවත් කරනවා
+//       }
+//
+//       return true; // Completed නැති schedules ටික return කරනවා
+//     });
+//
+//     res.json(updatedSchedules);
+//   } catch (error) {
+//     res.status(500).json({ error: (error as Error).message });
+//   }
+// });
 
 export default router;

@@ -12,7 +12,11 @@ export interface ITool extends Document {
 const ToolSchema: Schema = new Schema({
   toolId: { type: String, required: true, unique: true },
   type: { type: String, required: true },
-  status: { type: String, default: 'Available' },
+  status: { 
+    type: String, 
+    enum: ['Available', 'In Use', 'Maintenance', 'Retired'],
+    default: 'Available' 
+  },
   description: { type: String, required: true },
 });
 

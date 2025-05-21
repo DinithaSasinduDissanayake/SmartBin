@@ -8,19 +8,18 @@ const salaryPackageSchema = new mongoose.Schema({
     unique: true
   },
   basicSalary: {
-    type: String,
+    type: Number,
     required: [true, 'Basic salary is required'],
-    trim: true
   },
   bonusPerHour: {
-    type: String,
-    required: [true, 'Bonus per hour is required'],
-    trim: true
+    type: Number,
+    default: 0,
   },
   deductionPercentage: {
-    type: String,
-    required: [true, 'Deduction percentage is required'],
-    trim: true
+    type: Number,
+    default: 0,
+    min: [0, 'Deduction percentage cannot be less than 0.'],
+    max: [100, 'Deduction percentage cannot be more than 100.'],
   },
   createdAt: {
     type: Date,
