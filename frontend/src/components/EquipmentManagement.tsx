@@ -63,7 +63,7 @@ const EquipmentManagement: React.FC = () => {
       setEquipment({ equipmentId: '', type: '', description: '', location: { lat: 6.9271, lng: 79.8612 } });
       setErrors({});
       fetchEquipments();
-    } catch (err) {
+    } catch (err: any) {
       alert('Error: ' + (err.response?.data?.error || 'Failed to add equipment'));
     }
   };
@@ -78,7 +78,7 @@ const EquipmentManagement: React.FC = () => {
       await axios.delete(`http://localhost:5000/api/equipment/${id}`);
       alert('Equipment deleted successfully!');
       fetchEquipments();
-    } catch (err) {
+    } catch (err: any) {
       alert('Error: ' + (err.response?.data?.error || 'Failed to delete equipment'));
     }
   };

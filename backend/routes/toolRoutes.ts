@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import { body, param } from 'express-validator';
-import Tool from '../models/tool';
-import { protect, authorize } from '../middleware/authMiddleware';
-import { handleValidationErrors } from '../middleware/validationErrorHandler';
+import Tool from '../src/models/tool';
+import { protect, authorize } from '../src/middleware/authMiddleware';
+import { handleValidationErrors } from '../src/middleware/validationErrorHandler';
 
 const router = express.Router();
 

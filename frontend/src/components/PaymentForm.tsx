@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
@@ -18,7 +18,6 @@ const CheckoutForm: React.FC<PaymentFormProps> = ({ pickupId, amount, onSuccess 
     const elements = useElements();
     const [error, setError] = useState<string | null>(null);
     const [processing, setProcessing] = useState(false);
-    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();

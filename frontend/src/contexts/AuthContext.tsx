@@ -1,17 +1,47 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import axios from 'axios';
 import { setAuthToken, getAuthToken } from '../services/authService';
 
-const AuthContext = createContext();
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
-export function AuthProvider({ children }) {
-  const [authState, setAuthState] = useState({
+interface AuthState {
+  isAuthenticated: boolean;
+  token: string | null;
+  user: User | null;
+}
+
+interface AuthContextType {
+  authState: AuthState;
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<any>;
+  logout: () => void;
+  register: (userData: any) => Promise<any>;
+  updateUser: (newUserData: Partial<User>) => void;
+  setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     token: null,
     user: null
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Set axios default authorization header when token changes
   useEffect(() => {
@@ -56,7 +86,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Register new user
-  const register = async (userData) => {
+  const register = async (userData: any) => {
     try {
       const response = await axios.post('http://localhost:5000/api/auth/register', userData);
       
@@ -66,22 +96,21 @@ export function AuthProvider({ children }) {
         isAuthenticated: true,
         token: response.data.token,
         user: {
-          id: response.data._id,
+          _id: response.data._id,
           name: response.data.name,
           email: response.data.email,
-          role: response.data.role,
-          mfaEnabled: response.data.mfaEnabled || false
+          role: response.data.role
         }
       });
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       setError(error.response?.data?.message || 'Registration failed');
       throw error;
     }
   };
 
   // Login user
-  const login = async (email, password) => {
+  const login = async (email: string, password: string) => {
     try {
       const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
       
@@ -100,15 +129,14 @@ export function AuthProvider({ children }) {
         isAuthenticated: true,
         token: response.data.token,
         user: {
-          id: response.data._id,
+          _id: response.data._id,
           name: response.data.name,
           email: response.data.email,
-          role: response.data.role,
-          mfaEnabled: response.data.mfaEnabled || false
+          role: response.data.role
         }
       });
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       setError(error.response?.data?.message || 'Login failed');
       throw error;
     }
@@ -127,16 +155,14 @@ export function AuthProvider({ children }) {
   };
 
   // Update user data in context
-  const updateUser = (newUserData) => {
+  const updateUser = (newUserData: Partial<User>) => {
     setAuthState(prevState => ({
       ...prevState,
-      user: {
+      user: prevState.user ? {
         ...prevState.user, // Keep existing user data
         ...newUserData     // Overwrite with new data
-      }
+      } : null
     }));
-    // Optionally, update localStorage user data if you store it there
-    // setUser(authState.user); // Assuming setUser exists in authService.js
   };
 
 
@@ -145,6 +171,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ 
+      authState,
       user, 
       loading, 
       error, 
@@ -162,7 +189,11 @@ export function AuthProvider({ children }) {
 
 // Custom hook to use auth context
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }
 
 export default AuthContext;

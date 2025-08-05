@@ -18,7 +18,7 @@ import net from 'net'; // Added from server.js
 import config from './src/config'; // Adjusted path
 
 // --- Import Error Handling (Using our new TypeScript middleware) ---
-import { errorHandler } from './middleware/errorMiddleware'; 
+import { errorHandler } from './src/middleware/errorMiddleware'; 
 import AppError from './src/utils/appError'; // Adjusted path
 
 // --- Import Webhook Middleware (Adjust path if needed) ---

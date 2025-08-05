@@ -30,7 +30,6 @@ const PickupRequests: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const location = useLocation();
-    const isDashboard = location.pathname.includes('/dashboard');
 
     useEffect(() => {
         fetchPickups();

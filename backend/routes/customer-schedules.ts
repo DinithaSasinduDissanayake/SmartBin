@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import Schedule, { ISchedule } from '../models/schedule';
+import Schedule, { ISchedule } from '../src/models/schedule';
 import { sendEmail } from '../utils/email';
 
 const router = express.Router();

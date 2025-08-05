@@ -75,7 +75,7 @@ const ResourceManagement: React.FC = () => {
       setMapCenter({ lat: 6.9271, lng: 79.8612 });
       setErrors({});
       fetchTrucks();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error submitting truck:', err);
       console.error('Error response:', err.response);
       alert('Error: ' + (err.response?.data?.error || 'Failed to add truck'));

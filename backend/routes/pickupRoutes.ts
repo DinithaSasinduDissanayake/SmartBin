@@ -1,6 +1,6 @@
 import express, { Request, Response, RequestHandler } from 'express';
-import Pickup, { IPickup } from '../models/Pickup';
-import validatePickup from '../middleware/validate';
+import Pickup, { IPickup } from '../src/models/Pickup';
+import validatePickup from '../src/middleware/validate';
 import mongoose from 'mongoose';
 import sgMail from '@sendgrid/mail';
 import dotenv from 'dotenv';
