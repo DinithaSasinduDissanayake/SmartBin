@@ -173,7 +173,7 @@ const ResourceManagement: React.FC = () => {
         <button type="submit">{editingId ? 'Update Truck' : 'Add Truck'}</button>
       </form>
       <div className="map-container">
-        <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+        <LoadScript googleMapsApiKey={(import.meta as any).env.VITE_GOOGLE_MAPS_API_KEY}>
           <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={10}>
             <Marker position={mapCenter} />
           </GoogleMap>

@@ -50,13 +50,7 @@ const CheckoutForm: React.FC<PaymentFormProps> = ({ pickupId, amount, onSuccess 
             <p className="payment-amount">Amount: Rs. {amount.toFixed(2)}</p>
             
             {error && <div className="payment-error">{error}</div>}
-            {success ? (
-                <div className="payment-success">
-                    <p>Payment successful!</p>
-                    <button onClick={onSuccess} className="payment-return-btn">Return to Details</button>
-                </div>
-            ) : (
-                <form onSubmit={handleSubmit} className="payment-form">
+            <form onSubmit={handleSubmit} className="payment-form">
                     <div className="card-element-container">
                         <CardElement 
                             options={{
@@ -90,7 +84,6 @@ const CheckoutForm: React.FC<PaymentFormProps> = ({ pickupId, amount, onSuccess 
                         Cancel
                     </button>
                 </form>
-            )}
         </div>
     );
 };

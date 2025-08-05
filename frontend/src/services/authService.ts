@@ -1,15 +1,20 @@
-// frontend/src/services/authService.js
+// frontend/src/services/authService.ts
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 const TOKEN_KEY = 'authToken';
 const USER_KEY = 'user';
 
 /**
  * Store authentication token in localStorage
- * @param {string} token - JWT token
  */
-export const setAuthToken = (token) => {
+export const setAuthToken = (token: string | null) => {
   if (token) {
     localStorage.setItem(TOKEN_KEY, token);
     setAuthHeader(token);
@@ -21,9 +26,8 @@ export const setAuthToken = (token) => {
 
 /**
  * Set the Authorization header for all axios requests
- * @param {string} token - JWT token
  */
-export const setAuthHeader = (token) => {
+export const setAuthHeader = (token: string | null) => {
   if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
@@ -33,17 +37,15 @@ export const setAuthHeader = (token) => {
 
 /**
  * Get authentication token from localStorage
- * @returns {string|null} - JWT token or null if not found
  */
-export const getAuthToken = () => {
+export const getAuthToken = (): string | null => {
   return localStorage.getItem(TOKEN_KEY);
 };
 
 /**
  * Store user information in localStorage
- * @param {Object} user - User object
  */
-export const setUser = (user) => {
+export const setUser = (user: User | null) => {
   if (user) {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   } else {
@@ -53,18 +55,16 @@ export const setUser = (user) => {
 
 /**
  * Get user information from localStorage
- * @returns {Object|null} - User object or null if not found
  */
-export const getUser = () => {
+export const getUser = (): User | null => {
   const user = localStorage.getItem(USER_KEY);
   return user ? JSON.parse(user) : null;
 };
 
 /**
  * Check if user is authenticated
- * @returns {boolean} - True if user is authenticated
  */
-export const isAuthenticated = () => {
+export const isAuthenticated = (): boolean => {
   const token = getAuthToken();
   return !!token;
 };
@@ -72,7 +72,7 @@ export const isAuthenticated = () => {
 /**
  * Remove auth token and user data from localStorage
  */
-export const logout = () => {
+export const logout = (): void => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   delete axios.defaults.headers.common['Authorization'];

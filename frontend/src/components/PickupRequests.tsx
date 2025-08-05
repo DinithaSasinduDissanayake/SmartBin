@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import jsPDF from 'jspdf';
-import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType } from 'docx';
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import '../styles/PickupRequests.css';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,7 +29,6 @@ const PickupRequests: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
-    const location = useLocation();
 
     useEffect(() => {
         fetchPickups();
@@ -176,12 +175,12 @@ const PickupRequests: React.FC = () => {
         // Add header row
         const headerRow = new TableRow({
             children: [
-                new TableCell({ children: [new Paragraph({ text: 'Bin ID', bold: true })] }),
-                new TableCell({ children: [new Paragraph({ text: 'Name', bold: true })] }),
-                new TableCell({ children: [new Paragraph({ text: 'Community', bold: true })] }),
-                new TableCell({ children: [new Paragraph({ text: 'Service Type', bold: true })] }),
-                new TableCell({ children: [new Paragraph({ text: 'Status', bold: true })] }),
-                new TableCell({ children: [new Paragraph({ text: 'Amount', bold: true })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Bin ID', bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Name', bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Community', bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Service Type', bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Status', bold: true })] })] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Amount', bold: true })] })] }),
             ],
         });
         
