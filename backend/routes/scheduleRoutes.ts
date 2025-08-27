@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { Request, Response } from 'express';
 import { body, param, query } from 'express-validator';
-import { ISchedule, default as Schedule } from '../models/schedule';
+import { ISchedule, default as Schedule } from '../src/models/schedule';
 import { sendEmail } from '../utils/email';
-import { protect, authorize } from '../middleware/authMiddleware';
-import { handleValidationErrors } from '../middleware/validationErrorHandler';
+import { protect, authorize } from '../src/middleware/authMiddleware';
+import { handleValidationErrors } from '../src/middleware/validationErrorHandler';
 
 const router = Router();
 
